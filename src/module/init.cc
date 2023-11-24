@@ -20,6 +20,7 @@
  #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/module.h>
+ #include <udjat/worker.h>
  #include <stdexcept>
 
  using namespace Udjat;
@@ -28,14 +29,27 @@
  /// @brief Register udjat module.
  Udjat::Module * udjat_module_init() {
 
-	static const Udjat::ModuleInfo module_info{"CPPDB SQL Module"};
+	static const Udjat::ModuleInfo module_info{"cppdb", "CPPDB SQL Module"};
 
-	class Module : public Udjat::Module {
+	class Module : public Udjat::Module, private Udjat::Worker {
 	public:
-		Module() : Udjat::Module("cppdb",module_info) {
+		Module() : Udjat::Module("cppdb",module_info), Udjat::Worker("cppdb",module_info) {
 		};
 
 		virtual ~Module() {
+		}
+
+		bool probe(const char *path) const noexcept override {
+
+			debug("Probing '",path,"'");
+
+
+			return false;
+		}
+
+		bool work(Request &request, Response &response) const override {
+
+			return false;
 		}
 
 	};
