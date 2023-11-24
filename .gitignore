@@ -30,3 +30,30 @@
 *.exe
 *.out
 *.app
+
+# Edit
+*~
+
+# Codeblocks
+*.bak
+*.layout
+.bin
+*.depend
+
+# Autoconf
+Makefile
+aclocal.m4
+autom4te.cache
+stamp-h1
+config.h
+*.log
+*.status
+*.cache
+configure
+scripts
+ABOUT-NLS
+intl
+m4
+po
+vgcore.*
+
