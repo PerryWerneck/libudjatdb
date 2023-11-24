@@ -4,7 +4,8 @@
 PACKAGE_NAME=@PACKAGE_NAME@
 
 MAIN_SOURCES= \
-	$(wildcard src/*.cc) \
+	$(wildcard src/library/*.cc) \
+	$(wildcard src/module/*.cc) \
 	$(wildcard src/os/@OSNAME@/*.cc)
 
 TEST_SOURCES= \
