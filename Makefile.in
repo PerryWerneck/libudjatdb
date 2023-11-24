@@ -38,6 +38,7 @@ includedir=@includedir@
 datarootdir=@datarootdir@
 localedir=@localedir@
 docdir=@docdir@
+srcdir=@srcdir@
 sysconfdir=/etc
 
 OBJDIR=.obj
@@ -50,13 +51,10 @@ BINRLS=$(BINDIR)/Release
 
 #---[ Rules ]----------------------------------------------------------------------------
 
-DEPENDS= \
-	Makefile \
-	src/*.h
-
 CFLAGS= \
 	@CXXFLAGS@ \
 	-DBUILD_DATE=`date +%Y%m%d` \
+	-I$(srcdir)/src/include \
 	@UDJAT_CFLAGS@
 
 LDFLAGS=\
@@ -69,9 +67,8 @@ LIBS= \
 #---[ Debug Rules ]----------------------------------------------------------------------
 
 $(OBJDBG)/%.o: \
-	%.cc \
-	$(DEPENDS)
-
+	%.cc
+	
 	@echo $< ...
 	@$(MKDIR) $(@D)
 
@@ -97,9 +94,8 @@ $(OBJDBG)/%.o: \
 #---[ Release Rules ]--------------------------------------------------------------------
 
 $(OBJRLS)/%.o: \
-	%.cc \
-	$(DEPENDS)
-
+	%.cc
+	
 	@echo $< ...
 	@$(MKDIR) $(@D)
 
@@ -206,14 +202,14 @@ run: \
 ifeq ($(VALGRIND),no)
 
 	@LD_LIBRARY_PATH=$(BINDBG) \
-		$(BINDBG)/udjat@EXEEXT@
+		$(BINDBG)/udjat@EXEEXT@ -f
 
 else
 	@touch valgrind.suppression
 
 	@LD_LIBRARY_PATH=$(BINDBG) \
 		$(VALGRIND) --leak-check=full --track-origins=yes --gen-suppressions=all --suppressions=valgrind.suppression \
-		$(BINDBG)/udjat@EXEEXT@
+		$(BINDBG)/udjat@EXEEXT@ -f
 endif
 
 #---[ Clean Targets ]--------------------------------------------------------------------

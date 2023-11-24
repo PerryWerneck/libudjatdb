@@ -15,7 +15,7 @@ dnl Compute the canonical host-system type
 AC_CANONICAL_HOST
 
 dnl Put macro definitions here (though they aren't used).
-AC_CONFIG_HEADER([src/config.h])
+AC_CONFIG_HEADER([src/include/config.h])
 
 dnl Initialise automake stuff.
 AM_INIT_AUTOMAKE

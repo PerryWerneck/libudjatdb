@@ -18,50 +18,32 @@
  */
 
  /**
-  * @brief Declare abstract SQL Query.
+  * @brief Declares Session object.
   */
 
  #pragma once
-
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
- #include <udjat/tools/object.h>
  #include <cppdb/frontend.h>
- #include <vector.h>
+ #include <vector>
+ #include <memory>
+ #include <thread>
 
  namespace Udjat {
 
 	namespace SQL {
 
-		/// @brief A prepared SQL query.
-		class UDJAT_API Statement : public NamedObject, private cppdb::statement {
-		private:
-
-			/// @brief An SQL query parameter.
-			struct Parameter {
-				const char *name;
-				size_t index;
-				constexpr Parameter(const char *n, size_t i) : name{n}, index{i} {
-				}
-
-			};
-
-			std::vector<Parameter> parameters;
-
+		class UDJAT_PRIVATE Session : public cppdb::session {
 		public:
 
-			Query(const char *sql);
-			Query(const XML::Node &node);
+			/// @brief Get default session.
+			static std::shared_ptr<Session> getInstance();
 
-			virtual ~Query();
-
-			/// @brief Execute SQL query
-			/// @param request The object with the parameter values.
-			void exec(const Udjat::Object &request);
+			/// @brief Get session from XML node.
+			static std::shared_ptr<Session> getInstance(const XML::Node &node);
 
 		};
 
 	}
 
  }
-
