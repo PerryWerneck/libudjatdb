@@ -38,6 +38,7 @@
 		<Unit filename="src/include/udjat/sql/statement.h" />
 		<Unit filename="src/library/query.cc" />
 		<Unit filename="src/library/statement.cc" />
+		<Unit filename="src/module/init.cc" />
 		<Unit filename="src/testprogram/testprogram.cc" />
 		<Extensions />
 	</Project>

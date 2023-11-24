@@ -18,24 +18,28 @@
  */
 
  #include <config.h>
- #include <udjat/tools/application.h>
+ #include <udjat/defs.h>
  #include <udjat/module.h>
- #include <unistd.h>
- #include <udjat/tools/logger.h>
+ #include <stdexcept>
 
- using namespace std;
  using namespace Udjat;
+ using namespace std;
 
- int main(int argc, char **argv) {
+ /// @brief Register udjat module.
+ Udjat::Module * udjat_module_init() {
 
-	Logger::verbosity(9);
-	Logger::redirect();
+	static const Udjat::ModuleInfo module_info{"CPPDB SQL Module"};
 
-	udjat_module_init();
+	class Module : public Udjat::Module {
+	public:
+		Module() : Udjat::Module("cppdb",module_info) {
+		};
 
-	auto rc = Application{}.run(argc,argv,"./test.xml");
+		virtual ~Module() {
+		}
 
-	debug("Application exits with rc=",rc);
+	};
 
-	return rc;
-}
+	return new Module();
+
+ }
