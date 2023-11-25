@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<config>
+
+	<module name='civetweb' required='no' />
+	<module name='information' required='no' />
+
+	<!--
+	
+		Run SQL script on agent startup.
+	
+	-->
+	<sql action='initialize' database='sqlite3:db=/tmp/test.db;@pool_size=10' >
+	
+	
+	</sql>
+	
+	<!--
+	
+		Create URL Scheme sqlite:// 
+		
+		Example:
+		
+		<alert name='test' url='sql:///path?value=10' />
+	
+	-->
+	<sql name='sql' type='url-scheme' retry-interval='14400' update-timer='14400' database='sqlite3:db=/tmp/test.db;@pool_size=10'>
+
+	
+	</sql>
+
+</config>
+

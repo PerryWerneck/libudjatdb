@@ -17,54 +17,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
- #include <config.h>
- #include <udjat/defs.h>
- #include <udjat/module.h>
- #include <udjat/worker.h>
- #include <udjat/factory.h>
- #include <stdexcept>
+ /**
+  * @brief Implements SQL factory.
+  */
 
+ #include <config.h>
+ #include <config.h>
  #include <private/module.h>
 
- using namespace Udjat;
  using namespace std;
 
  namespace Udjat {
 
-	static const ModuleInfo module_info{"cppdb", "CPPDB SQL Module"};
+	std::shared_ptr<Activatable> SQL::Module::ActivatableFactory(const Abstract::Object &parent, const pugi::xml_node &node) const {
 
-	SQL::Module::Module() : Udjat::Module("cppdb",module_info), Udjat::Worker("cppdb",module_info), Udjat::Factory("sql",module_info) {
-	};
+	}
 
-	SQL::Module::~Module() {
+	bool SQL::Module::generic(const pugi::xml_node &node) {
+
+
+		return false;
 	}
 
  }
 
- /// @brief Register udjat module.
- Udjat::Module * udjat_module_init() {
 
-
-	/*
-	class Module : public Udjat::Module, private Udjat::Worker, private SQL::Controller, private Udjat::Factory {
-	public:
-
-		bool probe(const char *path) const noexcept override {
-
-			debug("Probing '",path,"'");
-
-
-			return false;
-		}
-
-		bool work(Request &request, Response &response) const override {
-
-			return false;
-		}
-
-	};
-	*/
-
-	return new SQL::Module();
-
- }

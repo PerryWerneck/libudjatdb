@@ -17,54 +17,37 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
- #include <config.h>
+ /**
+  * @brief Declare module clas.
+  */
+
+ #pragma once
+
  #include <udjat/defs.h>
  #include <udjat/module.h>
  #include <udjat/worker.h>
  #include <udjat/factory.h>
- #include <stdexcept>
-
- #include <private/module.h>
-
- using namespace Udjat;
- using namespace std;
+ #include <private/controller.h>
 
  namespace Udjat {
 
-	static const ModuleInfo module_info{"cppdb", "CPPDB SQL Module"};
+	namespace SQL {
 
-	SQL::Module::Module() : Udjat::Module("cppdb",module_info), Udjat::Worker("cppdb",module_info), Udjat::Factory("sql",module_info) {
-	};
+		class UDJAT_PRIVATE Module : public Udjat::Module, private Udjat::Worker, private SQL::Controller, private Udjat::Factory {
+		public:
+			Module();
+			virtual ~Module();
 
-	SQL::Module::~Module() {
+			// Udjat::Worker
+			bool probe(const char *path) const noexcept override;
+			bool work(Request &request, Response &response) const override;
+
+			// Udjat::Factory
+			std::shared_ptr<Activatable> ActivatableFactory(const Abstract::Object &parent, const pugi::xml_node &node) const override;
+			bool generic(const pugi::xml_node &node) override;
+
+		};
+
 	}
-
- }
-
- /// @brief Register udjat module.
- Udjat::Module * udjat_module_init() {
-
-
-	/*
-	class Module : public Udjat::Module, private Udjat::Worker, private SQL::Controller, private Udjat::Factory {
-	public:
-
-		bool probe(const char *path) const noexcept override {
-
-			debug("Probing '",path,"'");
-
-
-			return false;
-		}
-
-		bool work(Request &request, Response &response) const override {
-
-			return false;
-		}
-
-	};
-	*/
-
-	return new SQL::Module();
 
  }
