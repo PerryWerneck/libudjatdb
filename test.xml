@@ -6,27 +6,30 @@
 	<module name='information' required='no' />
 
 	<!--
+		Use attribute for database URL to avoid repetitions.
+	-->
+	<attribute name='database' value='sqlite3:db=/tmp/test.db;@pool_size=10' />
+
+	<!--
 	
-		Run SQL script on agent startup.
+		Run SQL script on service startup.
 	
 	-->
-	<sql action='initialize' database='sqlite3:db=/tmp/test.db;@pool_size=10' >
-	
-	
+	<sql type='initializer' database='${database}' >
+		create table if not exists urls (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text)
 	</sql>
 	
 	<!--
 	
-		Create URL Scheme sqlite:// 
+		Create URL Scheme sql:// 
 		
 		Example:
 		
-		<alert name='test' url='sql:///path?value=10' />
+		<alert name='test' url='sql+http:///path?value=10' />
 	
 	-->
-	<sql name='sql' type='url-scheme' retry-interval='14400' update-timer='14400' database='sqlite3:db=/tmp/test.db;@pool_size=10'>
-
-	
+	<sql name='sql' type='url-scheme' database='${database}'>
+		insert into urls (url,action,payload) values (${url},${action},${payload})
 	</sql>
 
 </config>

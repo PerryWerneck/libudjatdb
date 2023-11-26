@@ -18,35 +18,22 @@
  */
 
  /**
-  * @brief Declare module clas.
+  * @brief SQL Controller.
   */
 
- #pragma once
-
+ #include <config.h>
  #include <udjat/defs.h>
- #include <udjat/module.h>
- #include <udjat/worker.h>
- #include <udjat/factory.h>
+
  #include <private/controller.h>
+
+ using namespace std;
 
  namespace Udjat {
 
-	namespace SQL {
+	SQL::Controller::Controller() {
+	}
 
-		class UDJAT_PRIVATE Module : public Udjat::Module, private Udjat::Worker, private SQL::Controller, private Udjat::Factory {
-		public:
-			Module();
-			virtual ~Module();
-
-			// Udjat::Worker
-			bool probe(const char *path) const noexcept override;
-			bool work(Request &request, Response &response) const override;
-
-			// Udjat::Factory
-			bool generic(const pugi::xml_node &node) override;
-
-		};
-
+	SQL::Controller::~Controller() {
 	}
 
  }

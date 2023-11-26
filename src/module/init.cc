@@ -44,27 +44,6 @@
  /// @brief Register udjat module.
  Udjat::Module * udjat_module_init() {
 
-
-	/*
-	class Module : public Udjat::Module, private Udjat::Worker, private SQL::Controller, private Udjat::Factory {
-	public:
-
-		bool probe(const char *path) const noexcept override {
-
-			debug("Probing '",path,"'");
-
-
-			return false;
-		}
-
-		bool work(Request &request, Response &response) const override {
-
-			return false;
-		}
-
-	};
-	*/
-
 	return new SQL::Module();
 
  }

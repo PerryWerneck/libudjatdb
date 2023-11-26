@@ -34,8 +34,8 @@
 
 	namespace SQL {
 
-		/// @brief A prepared SQL query.
-		class UDJAT_API Statement : private cppdb::statement {
+		/// @brief An SQL statement.
+		class UDJAT_API Statement {
 		private:
 
 			/// @brief An SQL query parameter.
@@ -55,6 +55,9 @@
 			Statement(const XML::Node &node);
 
 			virtual ~Statement();
+
+			/// @brief Execute query without any parameters.
+			void exec();
 
 			/// @brief Execute SQL query
 			/// @param request The object with the parameter values.

@@ -24,19 +24,29 @@
  #include <config.h>
  #include <config.h>
  #include <private/module.h>
+ #include <udjat/tools/xml.h>
+ #include <udjat/sql/statement.h>
 
  using namespace std;
 
  namespace Udjat {
 
-	std::shared_ptr<Activatable> SQL::Module::ActivatableFactory(const Abstract::Object &parent, const pugi::xml_node &node) const {
-
-	}
-
 	bool SQL::Module::generic(const pugi::xml_node &node) {
 
+		switch(Udjat::XML::StringFactory(node,"type").select("initializer","url-scheme",nullptr)) {
+		case 0: // Initializer
+			SQL::Statement{node}.exec();
+			break;
 
-		return false;
+		case 1: // URL Scheme
+			break;
+
+		default:
+			return false;
+		}
+
+		return true;
+
 	}
 
  }
