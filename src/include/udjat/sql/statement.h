@@ -26,6 +26,7 @@
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
  #include <udjat/tools/object.h>
+ #include <udjat/tools/value.h>
  #include <cppdb/frontend.h>
  #include <vector>
  #include <memory>
@@ -49,6 +50,7 @@
 				std::vector<const char *> parameter_names;
 				Script(const char *script);
 				void exec(Session &session, const Udjat::Object &object);
+				void exec(Session &session, const Udjat::Object &request, Udjat::Value &response);
 			};
 
 			std::vector<Script> scripts;
@@ -66,8 +68,12 @@
 			/// @param request The object with the parameter values.
 			void exec(const Udjat::Object &request);
 
+			/// @brief Execute SQL query, get response.
+			void exec(const Udjat::Object &request, Udjat::Value &response);
+
 			/// @brief Execute SQL query.
 			static void exec(const XML::Node &node);
+
 
 		};
 

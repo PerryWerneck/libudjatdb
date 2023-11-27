@@ -33,6 +33,7 @@
  #include <udjat/tools/object.h>
  #include <udjat/tools/quark.h>
 
+
  #include <udjat/sql/statement.h>
 
  using namespace std;
@@ -76,6 +77,44 @@
 		}
 
 		stmt.exec();
+
+	}
+
+	void SQL::Statement::Script::exec(Session &session, const Udjat::Object &request, Udjat::Value &response) {
+
+		auto stmt = session.create_statement(this->text);
+
+		for(auto name : parameter_names) {
+			string value;
+			Udjat::Value &prop = response[name];
+
+			if(!prop.isNull()) {	// First check if the property is in the response.
+				value = prop.as_string();
+			} else if(!request.getProperty(name,value)) {	// Not in response, try source object.
+				throw runtime_error(Logger::Message{"Required property '",name,"' is missing"});
+			}
+
+			debug("value='",value,"'");
+			stmt.bind(value);
+
+		}
+
+		cppdb::result res = stmt.row();
+
+		if(!res.empty()) {
+
+			// Got result update response;
+			debug("Got response from SQL query");
+
+			for(int col = 0; col < res.cols();col++) {
+				string val;
+				res.fetch(col,val);
+				debug(res.name(col).c_str(),"='",val.c_str(),"'");
+				response[res.name(col).c_str()] = val.c_str();
+			}
+
+		}
+
 
 	}
 

@@ -139,4 +139,18 @@
 
 	}
 
+	void SQL::Statement::exec(const Udjat::Object &request, Udjat::Value &response) {
+
+		cppdb::session session{dburl};
+
+		cppdb::transaction guard(session);
+		for(auto &script : scripts) {
+			script.exec(session,request,response);
+		}
+		guard.commit();
+
+
+	}
+
+
  }
