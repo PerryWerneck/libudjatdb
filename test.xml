@@ -8,15 +8,16 @@
 	<!--
 		Use attribute for database URL to avoid repetitions.
 	-->
-	<attribute name='database' value='sqlite3:db=/tmp/test.db;@pool_size=10' />
+	<attribute name='dburl' value='sqlite3:db=/tmp/test.db;@pool_size=10' />
 
 	<!--
 	
 		Run SQL script on service startup.
 	
 	-->
-	<sql type='initializer' database='${database}' >
-		create table if not exists urls (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text)
+	<sql type='initializer' connection='${dburl}' >
+		create table if not exists urls 
+			(id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text)
 	</sql>
 	
 	<!--
@@ -28,7 +29,7 @@
 		<alert name='test' url='sql+http:///path?value=10' />
 	
 	-->
-	<sql name='sql' type='url-scheme' database='${database}'>
+	<sql name='sql' type='url-scheme' connection='${dburl}'>
 		insert into urls (url,action,payload) values (${url},${action},${payload})
 	</sql>
 

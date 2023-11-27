@@ -31,6 +31,8 @@
  #include <stdexcept>
  #include <udjat/tools/string.h>
  #include <udjat/tools/logger.h>
+ #include <udjat/tools/object.h>
+ #include <udjat/tools/configuration.h>
 
  #include <udjat/sql/statement.h>
  #include <private/session.h>
@@ -39,6 +41,7 @@
 
  namespace Udjat {
 
+ 	/*
  	static const char * find_next_ctrl_char(const char *ptr) {
 
 		while(*ptr && ((unsigned char) *ptr) >= ' ') {
@@ -76,15 +79,98 @@
 
 
 	}
+	*/
 
-	SQL::Statement::Statement(const XML::Node &node) : Statement{String{node.child_value()}.expand(node).strip().c_str(),node.attribute("sql-keep-prepared").as_bool(true)} {
+	SQL::Statement::Statement(const XML::Node &node) : dburl{Object::getAttribute(node,"database","connection","")} {
+
+		if(!(dburl && *dburl)) {
+			throw runtime_error("Required attribute 'connection' is missing or invalid");
+		}
+
+		String query{node.child_value()};
+		parse(query.expand(node));
+
 	}
 
 	SQL::Statement::~Statement() {
 	}
 
-	/// @brief Execute SQL query
-	/// @param request The object with the parameter values.
+	void SQL::Statement::parse(Udjat::String &query) {
+
+		query.strip();
+
+		// Parse parameters
+		size_t from = query.find("${");
+		while(from != string::npos) {
+
+			cout << from << endl;
+
+			from += 2;
+
+			size_t to = query.find("}",from);
+			if(to == string::npos) {
+				throw runtime_error("Invalid parameter formatting");
+			}
+
+			cout << "------------------- PARMNAME=" << string{query.c_str()+from,to-from} << endl;
+
+			from = query.find("${",from);
+
+		}
+
+		// Remove line breaks.
+		{
+			auto lines = query.split("\n");
+			query.clear();
+			for(auto &line : lines) {
+				line.strip();
+				if(!line.empty()) {
+					if(!query.empty()) {
+						query += " ";
+					}
+					query += line;
+				}
+			}
+
+		}
+
+
+
+		debug(query);
+
+	}
+
+	void SQL::Statement::exec() {
+	}
+
+	void SQL::Statement::exec(const XML::Node &node) {
+
+		String connection;
+
+		debug("------------------");
+
+		// Get connection string
+		{
+			auto attribute = Object::getAttribute(node,"connection");
+			if(attribute) {
+				connection = attribute.as_string();
+			} else {
+				connection = Config::Value<string>("database","connection","").c_str();
+			}
+		}
+
+		connection.expand(node).strip();
+
+		if(connection.empty()) {
+			throw runtime_error("Required attribute 'connection' is invalid or missing");
+		}
+
+		String query{node.child_value()};
+		parse(query.expand(node));
+
+
+	}
+
 	void SQL::Statement::exec(const Udjat::Object &request) {
 	}
 

@@ -38,6 +38,9 @@
 		class UDJAT_API Statement {
 		private:
 
+			/// @brief The database URL;
+			const char *dburl = nullptr;
+
 			/// @brief An SQL query parameter.
 			struct Parameter {
 				const char *name;
@@ -49,9 +52,11 @@
 
 			std::vector<Parameter> parameters;
 
+			/// @brief Extract parameters and query from string.
+			static void parse(Udjat::String &query);
+
 		public:
 
-			Statement(const char *sql, bool cached = true);
 			Statement(const XML::Node &node);
 
 			virtual ~Statement();
@@ -62,6 +67,9 @@
 			/// @brief Execute SQL query
 			/// @param request The object with the parameter values.
 			void exec(const Udjat::Object &request);
+
+			/// @brief Execute SQL query.
+			static void exec(const XML::Node &node);
 
 		};
 

@@ -35,13 +35,16 @@
 
 		switch(Udjat::XML::StringFactory(node,"type").select("initializer","url-scheme",nullptr)) {
 		case 0: // Initializer
-			SQL::Statement{node}.exec();
+			debug("Initializer");
+			SQL::Statement::exec(node);
 			break;
 
 		case 1: // URL Scheme
+			debug("URL-Scheme");
 			break;
 
 		default:
+			debug("Unknown");
 			return false;
 		}
 
