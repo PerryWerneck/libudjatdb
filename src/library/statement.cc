@@ -41,88 +41,19 @@
 
  namespace Udjat {
 
- 	/*
- 	static const char * find_next_ctrl_char(const char *ptr) {
-
-		while(*ptr && ((unsigned char) *ptr) >= ' ') {
-			ptr++;
-		}
-
-		return ptr;
-
- 	}
-
-	SQL::Statement::Statement(const char *sql, bool cached) {
-
-		String sqltext;
-
-		// Remove line breaks.
-		while(sql && *sql) {
-
-			sqltext += " ";
-
-			const char *next = find_next_ctrl_char(sql);
-			if(next && *next) {
-				sqltext += String{sql,(size_t) (next-sql)}.strip();
-				sql = next+1;
-			} else {
-				sqltext += String{sql}.strip();
-				sql = next;
-			}
-
-			sqltext.strip();
-
-		}
-
-		debug("Processing SQL '",sqltext.c_str(),"'");
-
-
-
-	}
-	*/
-
-	SQL::Statement::Statement(const XML::Node &node) : dburl{Object::getAttribute(node,"database","connection","")} {
-
-		if(!(dburl && *dburl)) {
-			throw runtime_error("Required attribute 'connection' is missing or invalid");
-		}
+	/// @brief Parse query string.
+	static String get_sql_script(const XML::Node &node) {
 
 		String query{node.child_value()};
-		parse(query.expand(node));
-
-	}
-
-	SQL::Statement::~Statement() {
-	}
-
-	void SQL::Statement::parse(Udjat::String &query) {
-
 		query.strip();
-
-		// Parse parameters
-		size_t from = query.find("${");
-		while(from != string::npos) {
-
-			cout << from << endl;
-
-			from += 2;
-
-			size_t to = query.find("}",from);
-			if(to == string::npos) {
-				throw runtime_error("Invalid parameter formatting");
-			}
-
-			cout << "------------------- PARMNAME=" << string{query.c_str()+from,to-from} << endl;
-
-			from = query.find("${",from);
-
-		}
 
 		// Remove line breaks.
 		{
+			debug("Query='",query.c_str(),"'");
 			auto lines = query.split("\n");
 			query.clear();
 			for(auto &line : lines) {
+				debug("line='",line.c_str(),"'");
 				line.strip();
 				if(!line.empty()) {
 					if(!query.empty()) {
@@ -134,10 +65,40 @@
 
 		}
 
-
-
 		debug(query);
 
+		return query;
+	}
+
+	SQL::Statement::Statement(const XML::Node &node) : dburl{Object::getAttribute(node,"database","connection","")} {
+
+		if(!(dburl && *dburl)) {
+			throw runtime_error("Required attribute 'connection' is missing or invalid");
+		}
+
+		// Parse query
+		XML::Node script = node.child("script");
+		if(script) {
+			//
+
+			// Scan for SQL properties.
+
+
+			// Scan for SQL scripts
+			while(script) {
+				scripts.emplace_back(get_sql_script(script).c_str());
+				script = script.next_sibling("script");
+			}
+
+		} else {
+
+			scripts.emplace_back(get_sql_script(node).c_str());
+
+		}
+
+	}
+
+	SQL::Statement::~Statement() {
 	}
 
 	void SQL::Statement::exec() {
@@ -146,8 +107,6 @@
 	void SQL::Statement::exec(const XML::Node &node) {
 
 		String connection;
-
-		debug("------------------");
 
 		// Get connection string
 		{
@@ -160,18 +119,24 @@
 		}
 
 		connection.expand(node).strip();
-
 		if(connection.empty()) {
 			throw runtime_error("Required attribute 'connection' is invalid or missing");
 		}
 
-		String query{node.child_value()};
-		parse(query.expand(node));
-
+		cppdb::session{connection.c_str()}.create_statement(get_sql_script(node)).exec();
 
 	}
 
 	void SQL::Statement::exec(const Udjat::Object &request) {
+
+		cppdb::session session{dburl};
+
+		cppdb::transaction guard(session);
+		for(auto &script : scripts) {
+			script.exec(session,request);
+		}
+		guard.commit();
+
 	}
 
  }

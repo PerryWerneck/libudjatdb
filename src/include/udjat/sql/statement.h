@@ -34,6 +34,8 @@
 
 	namespace SQL {
 
+		using Session = cppdb::session;
+
 		/// @brief An SQL statement.
 		class UDJAT_API Statement {
 		private:
@@ -41,19 +43,15 @@
 			/// @brief The database URL;
 			const char *dburl = nullptr;
 
-			/// @brief An SQL query parameter.
-			struct Parameter {
-				const char *name;
-				size_t index;
-				constexpr Parameter(const char *n, size_t i) : name{n}, index{i} {
-				}
-
+			/// @brief An SQL script.
+			struct Script {
+				const char *text;
+				std::vector<const char *> parameter_names;
+				Script(const char *script);
+				void exec(Session &session, const Udjat::Object &object);
 			};
 
-			std::vector<Parameter> parameters;
-
-			/// @brief Extract parameters and query from string.
-			static void parse(Udjat::String &query);
+			std::vector<Script> scripts;
 
 		public:
 

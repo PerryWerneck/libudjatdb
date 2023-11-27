@@ -16,8 +16,7 @@
 	
 	-->
 	<sql type='initializer' connection='${dburl}' >
-		create table if not exists urls 
-			(id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text)
+		create table if not exists urls (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text)
 	</sql>
 	
 	<!--

@@ -25,10 +25,12 @@
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
  #include <cppdb/frontend.h>
+
  #include <vector>
  #include <memory>
  #include <thread>
 
+ /*
  namespace Udjat {
 
 	namespace SQL {
@@ -47,3 +49,4 @@
 	}
 
  }
+ */

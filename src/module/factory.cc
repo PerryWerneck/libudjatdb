@@ -41,6 +41,7 @@
 
 		case 1: // URL Scheme
 			debug("URL-Scheme");
+			SQL::Statement{node};
 			break;
 
 		default:
