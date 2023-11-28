@@ -55,9 +55,17 @@
 
 			std::vector<Script> scripts;
 
+			static const char * parse(Udjat::String &query);
+			void push_back(const XML::Node &node, bool allow_empty = false);
+
 		public:
 
-			Statement(const XML::Node &node, const char *child_name = "script", bool child_required = false);
+			/// @brief Create SQL statement from XML definition.
+			/// @param node the parente node.
+			/// @param child_name The XML tagname for the script nodes.
+			/// @param allow_empty Allow empty scripts.
+			/// @param allo_text Allow using node 'cdata' for script text.
+			Statement(const XML::Node &node, const char *child_name = "script", bool allow_empty = false, bool allow_text = true);
 
 			virtual ~Statement();
 

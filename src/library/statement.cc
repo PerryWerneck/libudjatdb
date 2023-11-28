@@ -41,14 +41,78 @@
 
  namespace Udjat {
 
-	/// @brief Parse query string.
-	static String get_sql_script(const XML::Node &node) {
+ 	static String connection_from_xml(const XML::Node &node) {
 
-		String query{node.child_value()};
+		for(XML::Node parent = node; parent; parent = parent.parent())  {
+
+			XML::Attribute attr;
+
+			attr = parent.attribute("connection");
+			if(attr) {
+				return String{attr.as_string()}.expand(node).strip();
+			}
+
+			attr = parent.attribute("database-connection");
+			if(attr) {
+				return String{attr.as_string()}.expand().strip();
+			}
+
+			for(XML::Node child = parent.child("attribute");child;child = child.next_sibling("attribute")) {
+
+				if(!strcasecmp(child.attribute("name").as_string(),"database-connection")) {
+					return String{child.attribute("value").as_string()}.expand(node).strip();
+				}
+
+				if(!strcasecmp(child.attribute("name").as_string(),"database")) {
+					return String{child.attribute("value").as_string()}.expand(node).strip();
+				}
+
+			}
+
+ 		}
+
+ 		throw runtime_error("Required attribute 'database-connection' is missing");
+
+ 	}
+
+	SQL::Statement::Statement(const XML::Node &node, const char *child_name, bool allow_empty, bool allow_text)
+		: dburl{connection_from_xml(node).as_quark()} {
+
+		if(!(dburl && *dburl)) {
+			throw runtime_error("Invalida database connection string");
+		}
+
+		// Parse query
+		XML::Node script = node.child(child_name);
+
+		if(script) {
+
+			// Scan for SQL scripts
+			debug("Parsing node <",script.name(),">");
+
+			while(script) {
+				push_back(script,allow_empty);
+				script = script.next_sibling(child_name);
+			}
+
+		} else if(allow_text) {
+
+			debug("Using node '",node.name(),"' as script");
+			push_back(node,allow_empty);
+
+		} else if(!allow_empty) {
+
+			throw runtime_error(Logger::String{"Required child <",child_name,"> is missing or invalid"});
+
+		}
+
+	}
+
+	const char * SQL::Statement::parse(Udjat::String &query) {
+
 		query.strip();
-
 		if(query.empty()) {
-			throw runtime_error(Logger::String{"Missing required contents on <",node.name(),"> node"});
+			return "";
 		}
 
 		// Remove line breaks.
@@ -70,38 +134,22 @@
 		}
 
 		debug(query);
+		return query.c_str();
 
-		return query;
 	}
 
-	SQL::Statement::Statement(const XML::Node &node, const char *child_node, bool child_required) : dburl{Object::getAttribute(node,"database","connection","")} {
+	void SQL::Statement::push_back(const XML::Node &node, bool allow_empty) {
 
-		if(!(dburl && *dburl)) {
-			throw runtime_error("Required attribute 'connection' is missing or invalid");
-		}
+		Udjat::String query{node.child_value()};
+		parse(query);
 
-		// Parse query
-		XML::Node script = node.child(child_node);
-
-		if(script) {
-
-			// Scan for SQL scripts
-			debug("Parsing node <",script.name(),">");
-
-			while(script) {
-				scripts.emplace_back(get_sql_script(script).c_str());
-				script = script.next_sibling(child_node);
+		if(query.empty()) {
+			if(allow_empty) {
+				return;
 			}
-
-		} else if(child_required) {
-
-			throw runtime_error(Logger::Message{"Required child note '",child_node,"' is missing or invalid"});
-
+			throw runtime_error(Logger::String{"Missing required contents on <",node.name(),"> node"});
 		} else {
-
-			debug("Using node '",node.name(),"' as script");
-			scripts.emplace_back(get_sql_script(node).c_str());
-
+			scripts.push_back(query.c_str());
 		}
 
 	}
@@ -114,24 +162,13 @@
 
 	void SQL::Statement::exec(const XML::Node &node) {
 
-		String connection;
-
-		// Get connection string
-		{
-			auto attribute = Object::getAttribute(node,"connection");
-			if(attribute) {
-				connection = attribute.as_string();
-			} else {
-				connection = Config::Value<string>("database","connection","").c_str();
-			}
-		}
-
-		connection.expand(node).strip();
+		String connection{connection_from_xml(node)};
 		if(connection.empty()) {
-			throw runtime_error("Required attribute 'connection' is invalid or missing");
+			throw runtime_error("Required attribute 'database-connection' is invalid or missing");
 		}
 
-		cppdb::session{connection.c_str()}.create_statement(get_sql_script(node)).exec();
+		String script{node.child_value()};
+		cppdb::session{connection.c_str()}.create_statement(parse(script)).exec();
 
 	}
 

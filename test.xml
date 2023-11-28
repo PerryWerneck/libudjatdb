@@ -8,22 +8,22 @@
 	<!--
 		Use attribute for database URL to avoid repetitions.
 	-->
-	<attribute name='dburl' value='sqlite3:db=/tmp/test.db;@pool_size=10' />
+	<attribute name='database-connection' value='sqlite3:db=/tmp/test.db;@pool_size=10' />
 
 	<!--
 	
 		Run SQL script on service startup.
 	
 	-->
-	<sql type='initializer' connection='${dburl}' >
+	<sql type='initializer'>
 		create table if not exists urls (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text)
 	</sql>
 	
 	<!-- Create an SQL Based agent -->
-	<sql name='urlcount' type='agent' value-type='integer' connection='${dburl}' retry-interval='14400' update-timer='14400'>
+	<sql name='urlcount' type='agent' value-type='integer' retry-interval='14400' update-timer='14400'>
 	
 		<!-- Update agent value from SQL query -->
-		<refresh connection='${dburl}'>
+		<refresh>
 			select count (*) as value from urls;
 		</refresh>
 	
