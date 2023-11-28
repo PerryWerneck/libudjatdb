@@ -20,10 +20,10 @@
 	</sql>
 	
 	<!-- Create an SQL Based agent -->
-	<sql name='urlcount' type='agent' value-type='integer' connection='${dburl}'>
+	<sql name='urlcount' type='agent' value-type='integer' connection='${dburl}' retry-interval='14400' update-timer='14400'>
 	
 		<!-- Update agent value from SQL query -->
-		<refresh>
+		<refresh connection='${dburl}'>
 			select count (*) as value from urls;
 		</refresh>
 	

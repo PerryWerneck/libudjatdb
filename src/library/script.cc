@@ -42,6 +42,10 @@
 
 	SQL::Statement::Script::Script(const char *script) {
 
+		if(!(script && *script)) {
+			throw runtime_error("Rejecting build of an empty SQL script");
+		}
+
 		String text{script};
 		size_t from = text.find("${");
 		while(from != string::npos) {
@@ -81,6 +85,12 @@
 	}
 
 	void SQL::Statement::Script::exec(Session &session, const Udjat::Object &request, Udjat::Value &response) const {
+
+		if(!(this->text && *this->text)) {
+			throw runtime_error("Cant execute an empty SQL script");
+		}
+
+		debug("Running '",this->text,"'");
 
 		auto stmt = session.create_statement(this->text);
 

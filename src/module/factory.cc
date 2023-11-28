@@ -50,7 +50,7 @@
 		public:
 
 			Agent(const pugi::xml_node &node) :
-				Udjat::Agent<T>{node}, update{node,"update"}, value_name{Quark{node,"value-from","value"}.c_str()} {
+				Udjat::Agent<T>{node}, update{node,"refresh"}, value_name{Quark{node,"value-from","value"}.c_str()} {
 			}
 
 			bool refresh(bool) override {

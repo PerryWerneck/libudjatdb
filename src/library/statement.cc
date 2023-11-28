@@ -47,6 +47,10 @@
 		String query{node.child_value()};
 		query.strip();
 
+		if(query.empty()) {
+			throw runtime_error(Logger::String{"Missing required contents on <",node.name(),"> node"});
+		}
+
 		// Remove line breaks.
 		{
 			debug("Query='",query.c_str(),"'");
@@ -76,13 +80,18 @@
 			throw runtime_error("Required attribute 'connection' is missing or invalid");
 		}
 
+		debug("aaaaaaaaaaaaaaaaaaaaaa ",child_node);
+
 		// Parse query
 		XML::Node script = node.child(child_node);
+		debug("aaaa ",script.name());
 		if(script) {
 			// Scan for SQL scripts
+			debug("Parsing node <",script.name(),">");
+
 			while(script) {
 				scripts.emplace_back(get_sql_script(script).c_str());
-				script = script.next_sibling("child_node");
+				script = script.next_sibling(child_node);
 			}
 
 		} else if(child_required) {
@@ -91,6 +100,7 @@
 
 		} else {
 
+			debug("Using node '",node.name(),"' as script");
 			scripts.emplace_back(get_sql_script(node).c_str());
 
 		}
