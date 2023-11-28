@@ -24,12 +24,66 @@
  #include <config.h>
  #include <config.h>
  #include <private/module.h>
+ #include <udjat/factory.h>
  #include <udjat/tools/xml.h>
+ #include <udjat/tools/value.h>
  #include <udjat/sql/statement.h>
+ #include <udjat/agent.h>
+ #include <udjat/tools/quark.h>
 
  using namespace std;
 
  namespace Udjat {
+
+ 	namespace SQL {
+
+		template <typename T>
+		class UDJAT_PRIVATE Agent : public Udjat::Agent<T> {
+		private:
+
+			/// @brief Query to update agent value.
+			const SQL::Statement update;
+
+			/// @brief The name of agent value got by SQL query.
+			const char *value_name;
+
+		public:
+
+			Agent(const pugi::xml_node &node) :
+				Udjat::Agent<T>{node}, update{node,"update"}, value_name{Quark{node,"value-from","value"}.c_str()} {
+			}
+
+			bool refresh(bool) override {
+
+				if(!update.size()) {
+					return false;
+				}
+
+				std::shared_ptr<Udjat::Value> value = Udjat::Value::ObjectFactory();
+				update.exec(*this,*value);
+				return this->assign((*value)[value_name].as_string().c_str());
+
+			}
+
+		};
+
+ 	}
+
+	std::shared_ptr<Abstract::Agent> SQL::Module::AgentFactory(const Abstract::Object &parent, const pugi::xml_node &node) const {
+
+		debug("-------------------");
+
+		if( !strcasecmp(node.name(),"sql") && strcasecmp(node.attribute("type").as_string(),"agent")) {
+			return Udjat::Factory::AgentFactory(parent,node);
+		}
+
+		debug("--- Create an SQL agent ---");
+
+
+		// No type, create an string agent.
+		return make_shared<SQL::Agent<string>>(node);
+
+	}
 
 	bool SQL::Module::generic(const pugi::xml_node &node) {
 

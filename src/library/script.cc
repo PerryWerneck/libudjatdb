@@ -63,7 +63,7 @@
 
 	}
 
-	void SQL::Statement::Script::exec(Session &session, const Udjat::Object &object) {
+	void SQL::Statement::Script::exec(Session &session, const Udjat::Object &object) const {
 
 		auto stmt = session.create_statement(this->text);
 
@@ -80,7 +80,7 @@
 
 	}
 
-	void SQL::Statement::Script::exec(Session &session, const Udjat::Object &request, Udjat::Value &response) {
+	void SQL::Statement::Script::exec(Session &session, const Udjat::Object &request, Udjat::Value &response) const {
 
 		auto stmt = session.create_statement(this->text);
 
@@ -99,19 +99,27 @@
 
 		}
 
-		cppdb::result res = stmt.row();
+		if(strcasestr(this->text,"select")) {
 
-		if(!res.empty()) {
+			cppdb::result res = stmt.row();
 
-			// Got result update response;
-			debug("Got response from SQL query");
+			if(!res.empty()) {
 
-			for(int col = 0; col < res.cols();col++) {
-				string val;
-				res.fetch(col,val);
-				debug(res.name(col).c_str(),"='",val.c_str(),"'");
-				response[res.name(col).c_str()] = val.c_str();
+				// Got result update response;
+				debug("Got response from SQL query");
+
+				for(int col = 0; col < res.cols();col++) {
+					string val;
+					res.fetch(col,val);
+					debug(res.name(col).c_str(),"='",val.c_str(),"'");
+					response[res.name(col).c_str()] = val.c_str();
+				}
+
 			}
+
+		} else {
+
+			stmt.exec();
 
 		}
 

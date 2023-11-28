@@ -49,27 +49,32 @@
 				const char *text;
 				std::vector<const char *> parameter_names;
 				Script(const char *script);
-				void exec(Session &session, const Udjat::Object &object);
-				void exec(Session &session, const Udjat::Object &request, Udjat::Value &response);
+				void exec(Session &session, const Udjat::Object &object) const;
+				void exec(Session &session, const Udjat::Object &request, Udjat::Value &response) const;
 			};
 
 			std::vector<Script> scripts;
 
 		public:
 
-			Statement(const XML::Node &node);
+			Statement(const XML::Node &node, const char *child_name = "script", bool child_required = false);
 
 			virtual ~Statement();
 
+			/// @brief False if query is empty.
+			inline size_t size() const noexcept {
+				return scripts.size();
+			}
+
 			/// @brief Execute query without any parameters.
-			void exec();
+			void exec() const;
 
 			/// @brief Execute SQL query
 			/// @param request The object with the parameter values.
-			void exec(const Udjat::Object &request);
+			void exec(const Udjat::Object &request) const;
 
 			/// @brief Execute SQL query, get response.
-			void exec(const Udjat::Object &request, Udjat::Value &response);
+			void exec(const Udjat::Object &request, Udjat::Value &response) const;
 
 			/// @brief Execute SQL query.
 			static void exec(const XML::Node &node);

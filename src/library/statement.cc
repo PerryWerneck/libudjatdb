@@ -70,25 +70,24 @@
 		return query;
 	}
 
-	SQL::Statement::Statement(const XML::Node &node) : dburl{Object::getAttribute(node,"database","connection","")} {
+	SQL::Statement::Statement(const XML::Node &node, const char *child_node, bool child_required) : dburl{Object::getAttribute(node,"database","connection","")} {
 
 		if(!(dburl && *dburl)) {
 			throw runtime_error("Required attribute 'connection' is missing or invalid");
 		}
 
 		// Parse query
-		XML::Node script = node.child("script");
+		XML::Node script = node.child(child_node);
 		if(script) {
-			//
-
-			// Scan for SQL properties.
-
-
 			// Scan for SQL scripts
 			while(script) {
 				scripts.emplace_back(get_sql_script(script).c_str());
-				script = script.next_sibling("script");
+				script = script.next_sibling("child_node");
 			}
+
+		} else if(child_required) {
+
+			throw runtime_error(Logger::Message{"Required child note '",child_node,"' is missing or invalid"});
 
 		} else {
 
@@ -101,7 +100,7 @@
 	SQL::Statement::~Statement() {
 	}
 
-	void SQL::Statement::exec() {
+	void SQL::Statement::exec() const {
 	}
 
 	void SQL::Statement::exec(const XML::Node &node) {
@@ -127,7 +126,7 @@
 
 	}
 
-	void SQL::Statement::exec(const Udjat::Object &request) {
+	void SQL::Statement::exec(const Udjat::Object &request) const {
 
 		cppdb::session session{dburl};
 
@@ -139,7 +138,7 @@
 
 	}
 
-	void SQL::Statement::exec(const Udjat::Object &request, Udjat::Value &response) {
+	void SQL::Statement::exec(const Udjat::Object &request, Udjat::Value &response) const {
 
 		cppdb::session session{dburl};
 
