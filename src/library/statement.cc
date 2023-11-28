@@ -71,6 +71,12 @@
 
  		}
 
+ 		Config::Value<string> connection{"database","connection",""};
+
+ 		if(!connection.empty()) {
+			return connection.c_str();
+ 		}
+
  		throw runtime_error("Required attribute 'database-connection' is missing");
 
  	}
