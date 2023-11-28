@@ -29,6 +29,7 @@
  #include <udjat/tools/value.h>
  #include <udjat/sql/statement.h>
  #include <udjat/agent.h>
+ #include <udjat/alert.h>
  #include <udjat/tools/quark.h>
 
  using namespace std;
@@ -71,16 +72,30 @@
 
 	std::shared_ptr<Abstract::Agent> SQL::Module::AgentFactory(const Abstract::Object &parent, const pugi::xml_node &node) const {
 
-		debug("-------------------");
-
 		if( !strcasecmp(node.name(),"sql") && strcasecmp(node.attribute("type").as_string(),"agent")) {
 			return Udjat::Factory::AgentFactory(parent,node);
 		}
 
-		debug("--- Create an SQL agent ---");
+		debug("--- Creating an SQL agent ---");
 
+		switch(Udjat::XML::StringFactory(node,"value-type","string").select("integer","signed","unsigned","float","string",nullptr)) {
+		case 0: // Integer
+		case 1: // Signed
+			return make_shared<SQL::Agent<int>>(node);
+
+		case 2: // Unsigned
+			return make_shared<SQL::Agent<unsigned int>>(node);
+
+		case 3: // Float
+			return make_shared<SQL::Agent<float>>(node);
+
+		case 4: // String
+			return make_shared<SQL::Agent<string>>(node);
+
+		}
 
 		// No type, create an string agent.
+		Logger::String{"Unexpected value type, using 'string'"}.warning(Factory::name());
 		return make_shared<SQL::Agent<string>>(node);
 
 	}

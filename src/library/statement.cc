@@ -80,12 +80,11 @@
 			throw runtime_error("Required attribute 'connection' is missing or invalid");
 		}
 
-		debug("aaaaaaaaaaaaaaaaaaaaaa ",child_node);
-
 		// Parse query
 		XML::Node script = node.child(child_node);
-		debug("aaaa ",script.name());
+
 		if(script) {
+
 			// Scan for SQL scripts
 			debug("Parsing node <",script.name(),">");
 
