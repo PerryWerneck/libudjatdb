@@ -28,19 +28,48 @@
  #include <udjat/worker.h>
  #include <udjat/factory.h>
  #include <private/controller.h>
+ #include <vector>
 
  namespace Udjat {
 
 	namespace SQL {
 
 		class UDJAT_PRIVATE Module : public Udjat::Module, private Udjat::Worker, private SQL::Controller, private Udjat::Factory {
+		private:
+
+			/// @brief Map an Udjat::Worker path to SQL Query.
+			class UDJAT_PRIVATE Query {
+			private:
+				const char *path;						///< @brief Path for URL request.
+				ResponseType type = ResponseType::None;	///< @brief Response type for this query.
+
+			public:
+				Query(const XML::Node &node) : path{Quark{node,"path",""}.c_str()} {
+					if(!(path && *path != '/')) {
+						throw std::runtime_error("Required argument 'path' is missing on invalid");
+					}
+				}
+
+				inline operator ResponseType() const noexcept {
+					return type;
+				}
+
+				bool operator==(const char *p) const noexcept {
+					return strncasecmp(p,path,strlen(path)) == 0;
+				}
+
+			};
+
+			std::vector<Query> queries;
+
 		public:
 			Module();
 			virtual ~Module();
 
 			// Udjat::Worker
-			bool probe(const char *path) const noexcept override;
-			bool work(Request &request, Response &response) const override;
+			ResponseType probe(const Request &request) const noexcept override;
+			bool work(Request &request, Response::Table &response) const override;
+			bool work(Request &request, Response::Value &response) const override;
 
 			// Udjat::Factory
 			bool generic(const pugi::xml_node &node) override;

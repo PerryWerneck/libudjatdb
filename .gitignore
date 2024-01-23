@@ -52,6 +52,8 @@ config.h
 configure
 scripts
 ABOUT-NLS
+*.[0-9]
+
 intl
 m4
 po

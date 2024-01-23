@@ -38,6 +38,8 @@
 
 	bool SQL::Module::work(Request &request, Response &response) const {
 
+		debug("Running '",request.getPath(),"'");
+
 		return false;
 	}
 
