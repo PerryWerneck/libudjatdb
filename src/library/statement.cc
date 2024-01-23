@@ -34,7 +34,7 @@
  #include <udjat/tools/object.h>
  #include <udjat/tools/configuration.h>
 
- #include <udjat/sql/statement.h>
+ #include <udjat/tools/sql/statement.h>
  #include <private/session.h>
 
  using namespace std;

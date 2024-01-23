@@ -18,58 +18,39 @@
  */
 
  /**
-  * @brief Implements SQL Worker.
+  * @brief Brief description of this source.
   */
 
  #include <config.h>
  #include <udjat/defs.h>
  #include <private/module.h>
- #include <udjat/worker.h>
- #include <udjat/tools/logger.h>
-
- using namespace std;
+ #include <udjat/tools/xml.h>
+ #include <udjat/tools/sql/query.h>
 
  namespace Udjat {
 
-	Worker::ResponseType SQL::Module::probe(const Request &request) const noexcept  {
+	SQL::Query::Query(const XML::Node &node) : path{Quark{node,"path",nullptr}.c_str()} {
 
-		debug(__FUNCTION__,"('",request.path(),"')");
-
-		for(const auto &query : queries) {
-			if(query == request.path()) {
-				return (Worker::ResponseType) query;
-			}
-		}
-
-		return Worker::None;
 	}
 
-	bool SQL::Module::work(Request &request, Response::Value &response) const {
+	bool SQL::Query::operator==(const char *p) const noexcept {
+		size_t szpath = strlen(path);
+		return strncasecmp(p,path,szpath) == 0 && p[szpath] == '/';
+	}
+
+	bool SQL::Query::work(Request &request, Response::Value &response) const {
 
 		debug(__FUNCTION__,"('",request.path(),"')");
-
-		for(const auto &query : queries) {
-			if(query == request.path()) {
-				return query.work(request,response);
-			}
-		}
 
 		return false;
 	}
 
-	bool SQL::Module::work(Request &request, Response::Table &response) const {
+	bool SQL::Query::work(Request &request, Response::Table &response) const {
 
 		debug(__FUNCTION__,"('",request.path(),"')");
-
-		for(const auto &query : queries) {
-			if(query == request.path()) {
-				return query.work(request,response);
-			}
-		}
 
 		return false;
 	}
 
  }
-
 

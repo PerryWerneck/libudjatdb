@@ -18,42 +18,38 @@
  */
 
  /**
-  * @brief Declare module clas.
+  * @brief Brief description of this source.
   */
 
  #pragma once
-
  #include <udjat/defs.h>
- #include <udjat/module.h>
  #include <udjat/worker.h>
- #include <udjat/factory.h>
- #include <udjat/tools/sql/query.h>
- #include <private/controller.h>
- #include <vector>
 
  namespace Udjat {
 
 	namespace SQL {
 
-		class UDJAT_PRIVATE Module : public Udjat::Module, private Udjat::Worker, private SQL::Controller, private Udjat::Factory {
+		/// @brief Map an Udjat::Worker path to SQL Query.
+		class UDJAT_PRIVATE Query {
 		private:
-
-			std::vector<Query> queries;
+			const char *path;								///< @brief Path for URL request.
+			Worker::ResponseType type = Worker::None;	///< @brief Response type for this query.
 
 		public:
-			Module();
-			virtual ~Module();
+			Query(const XML::Node &node);
 
-			// Udjat::Worker
-			ResponseType probe(const Request &request) const noexcept override;
-			bool work(Request &request, Response::Table &response) const override;
-			bool work(Request &request, Response::Value &response) const override;
+			inline operator Worker::ResponseType() const noexcept {
+				return type;
+			}
 
-			// Udjat::Factory
-			bool generic(const pugi::xml_node &node) override;
-			std::shared_ptr<Abstract::Agent> AgentFactory(const Abstract::Object &parent, const pugi::xml_node &node) const;
+			bool operator==(const char *p) const noexcept;
+
+			bool work(Request &request, Response::Value &response) const;
+
+			bool work(Request &request, Response::Table &response) const;
 
 		};
+
 
 	}
 

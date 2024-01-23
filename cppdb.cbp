@@ -36,8 +36,12 @@
 		<Unit filename="src/include/private/controller.h" />
 		<Unit filename="src/include/private/module.h" />
 		<Unit filename="src/include/private/session.h" />
+		<Unit filename="src/include/udjat/agent/sql.h" />
 		<Unit filename="src/include/udjat/sql/statement.h" />
+		<Unit filename="src/include/udjat/tools/sql/query.h" />
+		<Unit filename="src/include/udjat/tools/sql/statement.h" />
 		<Unit filename="src/library/controller.cc" />
+		<Unit filename="src/library/query.cc" />
 		<Unit filename="src/library/script.cc" />
 		<Unit filename="src/library/statement.cc" />
 		<Unit filename="src/module/factory.cc" />

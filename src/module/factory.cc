@@ -27,64 +27,15 @@
  #include <udjat/factory.h>
  #include <udjat/tools/xml.h>
  #include <udjat/tools/value.h>
- #include <udjat/sql/statement.h>
+ #include <udjat/tools/sql/statement.h>
  #include <udjat/agent.h>
  #include <udjat/alert.h>
  #include <udjat/tools/quark.h>
+ #include <udjat/agent/sql.h>
 
  using namespace std;
 
  namespace Udjat {
-
- 	namespace SQL {
-
-		template <typename T>
-		class UDJAT_PRIVATE Agent : public Udjat::Agent<T> {
-		private:
-
-			/// @brief SQL Script to update agent value.
-			const SQL::Statement update;
-
-			/// @brief SQL Script to get properties
-			const SQL::Statement properties;
-
-			/// @brief The name of agent value got by SQL query.
-			const char *value_name;
-
-		public:
-
-			Agent(const pugi::xml_node &node) :
-				Udjat::Agent<T>{node},
-					update{node,"refresh",true,false},
-					properties{node,"properties",true,false},
-					value_name{Quark{node,"value-from","value"}.c_str()} {
-			}
-
-			bool refresh(bool) override {
-
-				if(!update.size()) {
-					return false;
-				}
-
-				std::shared_ptr<Udjat::Value> value = Udjat::Value::ObjectFactory();
-				update.exec(*this,*value);
-				return this->assign((*value)[value_name].as_string().c_str());
-
-			}
-
-			bool getProperties(const char *path, Value &value) const override {
-
-				if(properties.size()) {
-					properties.exec(*this,value);
-					return true;
-				}
-
-				return Udjat::Agent<T>::getProperties(path,value);
-			}
-
-		};
-
- 	}
 
 	std::shared_ptr<Abstract::Agent> SQL::Module::AgentFactory(const Abstract::Object &parent, const pugi::xml_node &node) const {
 
