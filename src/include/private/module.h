@@ -35,26 +35,6 @@
 
 	namespace SQL {
 
-		class UDJAT_PRIVATE Module : public Udjat::Module, private Udjat::Worker, private SQL::Controller, private Udjat::Factory {
-		private:
-
-			std::vector<Query> queries;
-
-		public:
-			Module();
-			virtual ~Module();
-
-			// Udjat::Worker
-			ResponseType probe(const Request &request) const noexcept override;
-			bool work(Request &request, Response::Table &response) const override;
-			bool work(Request &request, Response::Value &response) const override;
-
-			// Udjat::Factory
-			bool generic(const pugi::xml_node &node) override;
-			std::shared_ptr<Abstract::Agent> AgentFactory(const Abstract::Object &parent, const pugi::xml_node &node) const;
-
-		};
-
 	}
 
  }
