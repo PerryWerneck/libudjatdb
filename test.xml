@@ -19,7 +19,7 @@
 		create table if not exists urls (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text)
 	</sql>
 	
-	<!-- Create an SQL Based agent -->
+	<!-- Build an SQL Based agent -->
 	<sql name='urlcount' type='agent' value-type='integer' retry-interval='14400' update-timer='14400'>
 	
 		<!-- Update agent value from SQL query -->
@@ -27,6 +27,11 @@
 			select count (*) as value from urls;
 		</refresh>
 	
+	</sql>
+
+	<!-- Build an API call -->
+	<sql type='api-call' path='urls' action='get' response-type='table'>
+		select * from urls
 	</sql>
 	
 </config>

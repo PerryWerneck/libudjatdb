@@ -19,13 +19,14 @@
 
  #include <config.h>
  #include <udjat/defs.h>
- #include <udjat/module.h>
- #include <udjat/worker.h>
+ #include <udjat/module/abstract.h>
+ #include <udjat/tools/worker.h>
  #include <udjat/factory.h>
  #include <stdexcept>
  #include <udjat/tools/sql/statement.h>
  #include <udjat/tools/sql/query.h>
  #include <udjat/agent/sql.h>
+ #include <udjat/tools/method.h>
 
  using namespace Udjat;
  using namespace std;
@@ -45,6 +46,12 @@
 		};
 
 		~Module() {
+		}
+
+		void trace_paths(const char *url_prefix) const noexcept override {
+			for(const auto &query : queries) {
+				Logger::String{"SQL ",std::to_string((HTTP::Method) query)," available on ",url_prefix,query.c_str()}.trace("cppdb");
+			}
 		}
 
 		// Udjat::Worker
@@ -95,7 +102,7 @@
 		// Udjat::Factory
 		bool generic(const pugi::xml_node &node) override {
 
-			switch(String{node,"type"}.select("initializer","url-scheme",nullptr)) {
+			switch(String{node,"type"}.select("initializer","url-scheme","query","api-call",nullptr)) {
 			case 0: // Initializer
 				debug("Initializer");
 				SQL::Statement::exec(node);
@@ -103,7 +110,13 @@
 
 			case 1: // URL Scheme
 				debug("URL-Scheme");
-				SQL::Statement{node};
+				// SQL::Statement{node};
+				break;
+
+			case 2: // Query
+			case 3: // api-call
+				debug("API-Call/Query");
+				queries.emplace_back(node);
 				break;
 
 			default:
@@ -122,27 +135,34 @@
 			}
 
 			debug("--- Creating an SQL agent ---");
+			std::shared_ptr<Abstract::Agent> agent;
 
 			switch(String{node,"value-type","string"}.select("integer","signed","unsigned","float","string",nullptr)) {
 			case 0: // Integer
 			case 1: // Signed
-				return make_shared<SQL::Agent<int>>(node);
+				agent = make_shared<SQL::Agent<int>>(node);
+				break;
 
 			case 2: // Unsigned
-				return make_shared<SQL::Agent<unsigned int>>(node);
+				agent = make_shared<SQL::Agent<unsigned int>>(node);
+				break;
 
 			case 3: // Float
-				return make_shared<SQL::Agent<float>>(node);
+				agent = make_shared<SQL::Agent<float>>(node);
+				break;
 
 			case 4: // String
-				return make_shared<SQL::Agent<string>>(node);
+				agent = make_shared<SQL::Agent<string>>(node);
+				break;
 
+			default:
+				// No type, create an string agent.
+				Logger::String{"Unexpected value type, using 'string'"}.warning(Factory::name());
+				agent = make_shared<SQL::Agent<string>>(node);
 			}
 
-			// No type, create an string agent.
-			Logger::String{"Unexpected value type, using 'string'"}.warning(Factory::name());
-			return make_shared<SQL::Agent<string>>(node);
 
+			return agent;
 		}
 
 	};

@@ -24,6 +24,7 @@
  #pragma once
  #include <udjat/defs.h>
  #include <udjat/worker.h>
+ #include <udjat/tools/method.h>
 
  namespace Udjat {
 
@@ -34,12 +35,21 @@
 		private:
 			const char *path;								///< @brief Path for URL request.
 			Worker::ResponseType type = Worker::None;	///< @brief Response type for this query.
+			HTTP::Method method = HTTP::Get;
 
 		public:
 			Query(const XML::Node &node);
 
 			inline operator Worker::ResponseType() const noexcept {
 				return type;
+			}
+
+			inline operator HTTP::Method() const noexcept {
+				return method;
+			}
+
+			inline const char * c_str() const noexcept {
+				return path;
 			}
 
 			bool operator==(const char *p) const noexcept;
