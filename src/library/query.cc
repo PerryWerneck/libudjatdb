@@ -26,28 +26,39 @@
  #include <udjat/tools/xml.h>
  #include <udjat/tools/sql/query.h>
  #include <udjat/tools/logger.h>
+ #include <udjat/tools/timestamp.h>
 
  namespace Udjat {
 
-	SQL::Query::Query(const XML::Node &node) : path{Quark{node,"path",nullptr}.c_str()} {
-
+	SQL::Query::Query(const XML::Node &node)
+		:	SQL::Statement{node},
+			path{Quark{node,"path",nullptr}.c_str()},
+			method{HTTP::MethodFactory(node,"action","get")},
+			expires{(time_t) TimeStamp{node,"expires",(time_t) 300}} {
 	}
 
 	bool SQL::Query::operator==(const char *p) const noexcept {
 		size_t szpath = strlen(path);
-		return strncasecmp(p,path,szpath) == 0 && p[szpath] == '/';
+		return (strncasecmp(p,path,szpath) == 0) && (p[szpath] == '/' || p[szpath] == 0);
 	}
 
-	bool SQL::Query::work(Request &request, Response::Value &response) const {
-
+	void SQL::Query::head(const Request &request, Abstract::Response &response) const {
 		debug(__FUNCTION__,"('",request.path(),"')");
+		if(expires) {
+			response.expires(time(0)+expires);
+		}
+	}
+
+	bool SQL::Query::exec(Request &request, Response::Value &response) const {
+
+		head(request,response);
 
 		return false;
 	}
 
-	bool SQL::Query::work(Request &request, Response::Table &response) const {
+	bool SQL::Query::exec(Request &request, Response::Table &response) const {
 
-		debug(__FUNCTION__,"('",request.path(),"')");
+		head(request,response);
 
 		return false;
 	}

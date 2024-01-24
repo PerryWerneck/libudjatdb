@@ -27,6 +27,9 @@
  #include <udjat/tools/xml.h>
  #include <udjat/tools/object.h>
  #include <udjat/tools/value.h>
+ #include <udjat/tools/request.h>
+ #include <udjat/tools/response.h>
+ #include <udjat/tools/report.h>
  #include <cppdb/frontend.h>
  #include <vector>
  #include <memory>
@@ -61,7 +64,7 @@
 		public:
 
 			/// @brief Create SQL statement from XML definition.
-			/// @param node the parente node.
+			/// @param node the parent node.
 			/// @param child_name The XML tagname for the script nodes.
 			/// @param allow_empty Allow empty scripts.
 			/// @param allo_text Allow using node 'cdata' for script text.
@@ -83,6 +86,9 @@
 
 			/// @brief Execute SQL query, get response.
 			void exec(const Udjat::Object &request, Udjat::Value &response) const;
+
+			/// @brief Execute SQL query, get response.
+			void exec(const Udjat::Object &request, Udjat::Response::Table &response) const;
 
 			/// @brief Execute SQL query.
 			static void exec(const XML::Node &node);

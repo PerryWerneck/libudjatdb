@@ -57,14 +57,21 @@
 		// Udjat::Worker
 		ResponseType probe(const Request &request) const noexcept override {
 
-			debug(__FUNCTION__,"('",request.path(),"')");
+			const char *path = request.path();
+			while(*path == '/') {
+				path++;
+			}
+
+			debug(__FUNCTION__,"('",path,"')");
 
 			for(const auto &query : queries) {
-				if(query == request.path()) {
+				if(query == ((HTTP::Method) request) && query == path) {
+					debug("Accepting '",path,"'");
 					return (Worker::ResponseType) query;
 				}
 			}
 
+			debug("Rejecting '",path,"'");
 			return Worker::None;
 		}
 
@@ -73,9 +80,9 @@
 			debug(__FUNCTION__,"('",request.path(),"')");
 
 			for(const auto &query : queries) {
-				if(query == request.path()) {
+				if(query == ((HTTP::Method) request) && query == request.path()) {
 					request.pop();
-					return query.work(request,response);
+					return query.exec(request,response);
 				}
 
 			}
@@ -89,9 +96,9 @@
 			debug(__FUNCTION__,"('",request.path(),"')");
 
 			for(const auto &query : queries) {
-				if(query == request.path()) {
+				if(query == ((HTTP::Method) request) && query == request.path()) {
 					request.pop();
-					return query.work(request,response);
+					return query.exec(request,response);
 				}
 			}
 

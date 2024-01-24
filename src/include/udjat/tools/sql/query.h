@@ -25,17 +25,21 @@
  #include <udjat/defs.h>
  #include <udjat/worker.h>
  #include <udjat/tools/method.h>
+ #include <udjat/tools/sql/statement.h>
 
  namespace Udjat {
 
 	namespace SQL {
 
 		/// @brief Map an Udjat::Worker path to SQL Query.
-		class UDJAT_PRIVATE Query {
+		class UDJAT_PRIVATE Query : private SQL::Statement {
 		private:
 			const char *path;								///< @brief Path for URL request.
 			Worker::ResponseType type = Worker::None;	///< @brief Response type for this query.
 			HTTP::Method method = HTTP::Get;
+			time_t expires = 300;
+
+			void head(const Request &request, Abstract::Response &response) const;
 
 		public:
 			Query(const XML::Node &node);
@@ -54,9 +58,13 @@
 
 			bool operator==(const char *p) const noexcept;
 
-			bool work(Request &request, Response::Value &response) const;
+			inline bool operator==(HTTP::Method m) const noexcept {
+				return m == method;
+			}
 
-			bool work(Request &request, Response::Table &response) const;
+			bool exec(Request &request, Response::Value &response) const;
+
+			bool exec(Request &request, Response::Table &response) const;
 
 		};
 
