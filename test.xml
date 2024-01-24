@@ -16,22 +16,26 @@
 	
 	-->
 	<sql type='initializer'>
-		create table if not exists urls (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text)
+		create table if not exists sample (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, name text, value text);
 	</sql>
 	
 	<!-- Build an SQL Based agent -->
-	<sql name='urlcount' type='agent' value-type='integer' retry-interval='14400' update-timer='14400'>
+	<sql name='count' type='agent' value-type='integer' retry-interval='14400' update-timer='14400'>
 	
 		<!-- Update agent value from SQL query -->
 		<refresh>
-			select count (*) as value from urls;
+			select count (*) as value from sample
 		</refresh>
 	
 	</sql>
 
-	<!-- Build an API call -->
-	<sql type='api-call' path='urls' action='get' response-type='table'>
-		select * from urls
+	<sql type='api-call' path='insert' action='get' response-type='value'>
+		insert into sample (name,value) values (${1},${2});
+		select last_insert_rowid() as id;
+	</sql>
+
+	<sql type='api-call' path='list' action='get' response-type='table'>
+		select * from sample
 	</sql>
 	
 </config>

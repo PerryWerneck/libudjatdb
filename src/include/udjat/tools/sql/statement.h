@@ -54,6 +54,8 @@
 				Script(const char *script);
 				void exec(Session &session, const Udjat::Object &object) const;
 				void exec(Session &session, const Udjat::Object &request, Udjat::Value &response) const;
+				cppdb::statement create_statement(Session &session, const Udjat::Request &request, Udjat::Value &parameters) const;
+				cppdb::statement create_statement(Session &session, const Udjat::Request &request) const;
 			};
 
 			std::vector<Script> scripts;
@@ -89,6 +91,12 @@
 
 			/// @brief Execute SQL query, get response.
 			void exec(const Udjat::Object &request, Udjat::Response::Table &response) const;
+
+			/// @brief Execute SQL query, get response.
+			void exec(const Request &request, Udjat::Value &response) const;
+
+			/// @brief Execute SQL query, get response.
+			void exec(const Request &request, Udjat::Response::Table &response) const;
 
 			/// @brief Execute SQL query.
 			static void exec(const XML::Node &node);

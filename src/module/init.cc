@@ -66,7 +66,7 @@
 
 			for(const auto &query : queries) {
 				if(query == ((HTTP::Method) request) && query == path) {
-					debug("Accepting '",path,"'");
+					debug("Accepting '",path,"' as ",((Worker::ResponseType) query));
 					return (Worker::ResponseType) query;
 				}
 			}
@@ -77,10 +77,15 @@
 
 		bool work(Request &request, Response::Table &response) const override {
 
-			debug(__FUNCTION__,"('",request.path(),"')");
+			const char *path = request.path();
+			while(*path == '/') {
+				path++;
+			}
+
+			debug(__FUNCTION__,"('",path,"')");
 
 			for(const auto &query : queries) {
-				if(query == ((HTTP::Method) request) && query == request.path()) {
+				if(query == ((HTTP::Method) request) && query == path) {
 					request.pop();
 					return query.exec(request,response);
 				}
@@ -93,10 +98,15 @@
 
 		bool work(Request &request, Response::Value &response) const override {
 
-			debug(__FUNCTION__,"('",request.path(),"')");
+			const char *path = request.path();
+			while(*path == '/') {
+				path++;
+			}
+
+			debug(__FUNCTION__,"('",path,"')");
 
 			for(const auto &query : queries) {
-				if(query == ((HTTP::Method) request) && query == request.path()) {
+				if(query == ((HTTP::Method) request) && query == path) {
 					request.pop();
 					return query.exec(request,response);
 				}

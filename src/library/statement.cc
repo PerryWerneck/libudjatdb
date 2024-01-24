@@ -33,9 +33,9 @@
  #include <udjat/tools/logger.h>
  #include <udjat/tools/object.h>
  #include <udjat/tools/configuration.h>
-
  #include <udjat/tools/sql/statement.h>
  #include <private/session.h>
+ #include <udjat/tools/abstract/response.h>
 
  using namespace std;
 
@@ -181,11 +181,12 @@
 	void SQL::Statement::exec(const Udjat::Object &request) const {
 
 		cppdb::session session{dburl};
-
 		cppdb::transaction guard(session);
+
 		for(auto &script : scripts) {
 			script.exec(session,request);
 		}
+
 		guard.commit();
 
 	}
@@ -193,15 +194,87 @@
 	void SQL::Statement::exec(const Udjat::Object &request, Udjat::Value &response) const {
 
 		cppdb::session session{dburl};
-
 		cppdb::transaction guard(session);
+
 		for(auto &script : scripts) {
 			script.exec(session,request,response);
 		}
-		guard.commit();
 
+		guard.commit();
 
 	}
 
+	void SQL::Statement::exec(const Request &request, Udjat::Value &response) const {
+
+		debug(__FUNCTION__,"::Value start");
+
+		cppdb::session session{dburl};
+		cppdb::transaction guard(session);
+
+		for(auto &script : scripts) {
+			auto result = script.create_statement(session,request,response).row();
+			if(!result.empty()) {
+				// Transfer result to response.
+				for(int col = 0; col < result.cols();col++) {
+					string val;
+					result.fetch(col,val);
+					debug(result.name(col).c_str(),"='",val.c_str(),"'");
+					response[result.name(col).c_str()] = val.c_str();
+				}
+			}
+		}
+
+		debug(__FUNCTION__,"::Value end");
+		guard.commit();
+	}
+
+	void SQL::Statement::exec(const Request &request, Udjat::Response::Table &response) const {
+
+		debug(__FUNCTION__,"::Table start");
+
+		cppdb::session session{dburl};
+		cppdb::transaction guard(session);
+
+		auto result = scripts[0].create_statement(session, request).row();
+		if(!result.empty()) {
+
+			// Get column names.
+			std::vector<string> colnames;
+
+			{
+				// Get first line and column names.
+				std::vector<string> values;
+				for(int col = 0; col < result.cols();col++) {
+					string val;
+					result.fetch(col,val);
+					values.push_back(val);
+					colnames.push_back(result.name(col));
+				}
+
+				// Start report...
+				response.start(colnames);
+
+				// ...and store first line
+				for(auto &value : values) {
+					response << value;
+				}
+
+			}
+
+			size_t rows = 1;
+
+			// Get other lines.
+
+		} else {
+
+			debug("Empty response");
+			response.count(0);
+
+		}
+
+		guard.commit();
+
+		debug(__FUNCTION__,"::Table end");
+	}
 
  }

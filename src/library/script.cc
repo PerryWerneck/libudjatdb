@@ -84,6 +84,52 @@
 
 	}
 
+	cppdb::statement SQL::Statement::Script::create_statement(Session &session, const Udjat::Request &request, Udjat::Value &parameters) const {
+
+		if(!(this->text && *this->text)) {
+			throw runtime_error("Cant execute an empty SQL script");
+		}
+
+		debug("Running '",this->text,"'");
+		auto stmt = session.create_statement(this->text);
+
+		for(auto name : parameter_names) {
+			string value;
+			Udjat::Value &prop = parameters[name];
+
+			if(!prop.isNull()) {	// First check if the property is in the response.
+				value = prop.as_string();
+			} else {				// Not in response, try request.
+				value = request[name];
+			}
+
+			debug("value='",value,"'");
+			stmt.bind(value);
+
+		}
+
+		return stmt;
+
+	}
+
+	cppdb::statement SQL::Statement::Script::create_statement(Session &session, const Udjat::Request &request) const {
+
+		if(!(this->text && *this->text)) {
+			throw runtime_error("Cant execute an empty SQL script");
+		}
+
+		debug("Running '",this->text,"'");
+		auto stmt = session.create_statement(this->text);
+
+		for(auto name : parameter_names) {
+			debug("value='",request[name],"'");
+			stmt.bind(request[name]);
+		}
+
+		return stmt;
+
+	}
+
 	void SQL::Statement::Script::exec(Session &session, const Udjat::Object &request, Udjat::Value &response) const {
 
 		if(!(this->text && *this->text)) {
@@ -91,7 +137,6 @@
 		}
 
 		debug("Running '",this->text,"'");
-
 		auto stmt = session.create_statement(this->text);
 
 		for(auto name : parameter_names) {
@@ -117,7 +162,6 @@
 
 				// Got result update response;
 				debug("Got response from SQL query");
-
 				for(int col = 0; col < res.cols();col++) {
 					string val;
 					res.fetch(col,val);

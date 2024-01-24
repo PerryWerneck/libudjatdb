@@ -27,12 +27,16 @@
  #include <udjat/tools/sql/query.h>
  #include <udjat/tools/logger.h>
  #include <udjat/tools/timestamp.h>
+ #include <udjat/tools/abstract/response.h>
+ #include <udjat/tools/worker.h>
+ #include <cppdb/frontend.h>
 
  namespace Udjat {
 
 	SQL::Query::Query(const XML::Node &node)
 		:	SQL::Statement{node},
 			path{Quark{node,"path",nullptr}.c_str()},
+			type{Worker::ResponseTypeFactory(node,"response-type","table")},
 			method{HTTP::MethodFactory(node,"action","get")},
 			expires{(time_t) TimeStamp{node,"expires",(time_t) 300}} {
 	}
@@ -47,20 +51,6 @@
 		if(expires) {
 			response.expires(time(0)+expires);
 		}
-	}
-
-	bool SQL::Query::exec(Request &request, Response::Value &response) const {
-
-		head(request,response);
-
-		return false;
-	}
-
-	bool SQL::Query::exec(Request &request, Response::Table &response) const {
-
-		head(request,response);
-
-		return false;
 	}
 
  }

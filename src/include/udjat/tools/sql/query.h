@@ -62,9 +62,12 @@
 				return m == method;
 			}
 
-			bool exec(Request &request, Response::Value &response) const;
-
-			bool exec(Request &request, Response::Table &response) const;
+			template <typename T>
+			bool exec(Request &request, T &response) const {
+				head(request,response);
+				Statement::exec(request,response);
+				return true;
+			}
 
 		};
 
