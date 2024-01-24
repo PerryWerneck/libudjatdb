@@ -23,9 +23,9 @@
 
  #include <config.h>
  #include <udjat/defs.h>
- #include <private/module.h>
  #include <udjat/tools/xml.h>
  #include <udjat/tools/sql/query.h>
+ #include <udjat/tools/logger.h>
 
  namespace Udjat {
 

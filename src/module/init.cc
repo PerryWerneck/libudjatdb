@@ -24,9 +24,8 @@
  #include <udjat/factory.h>
  #include <stdexcept>
  #include <udjat/tools/sql/statement.h>
+ #include <udjat/tools/sql/query.h>
  #include <udjat/agent/sql.h>
-
- #include <private/module.h>
 
  using namespace Udjat;
  using namespace std;
@@ -36,7 +35,7 @@
 
 	static const ModuleInfo module_info{"cppdb", "CPPDB SQL Module"};
 
-	class UDJAT_PRIVATE Module : public Udjat::Module, private Udjat::Worker, private SQL::Controller, private Udjat::Factory {
+	class Module : public Udjat::Module, private Udjat::Worker, private Udjat::Factory {
 	private:
 
 		std::vector<SQL::Query> queries;
@@ -50,6 +49,7 @@
 
 		// Udjat::Worker
 		ResponseType probe(const Request &request) const noexcept override {
+
 			debug(__FUNCTION__,"('",request.path(),"')");
 
 			for(const auto &query : queries) {
@@ -67,6 +67,7 @@
 
 			for(const auto &query : queries) {
 				if(query == request.path()) {
+					request.pop();
 					return query.work(request,response);
 				}
 
@@ -82,6 +83,7 @@
 
 			for(const auto &query : queries) {
 				if(query == request.path()) {
+					request.pop();
 					return query.work(request,response);
 				}
 			}

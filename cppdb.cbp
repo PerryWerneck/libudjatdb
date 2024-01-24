@@ -44,9 +44,7 @@
 		<Unit filename="src/library/query.cc" />
 		<Unit filename="src/library/script.cc" />
 		<Unit filename="src/library/statement.cc" />
-		<Unit filename="src/module/factory.cc" />
 		<Unit filename="src/module/init.cc" />
-		<Unit filename="src/module/worker.cc" />
 		<Unit filename="src/testprogram/testprogram.cc" />
 		<Extensions />
 	</Project>

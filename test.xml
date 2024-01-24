@@ -8,7 +8,7 @@
 	<!--
 		Use attribute for database URL to avoid repetitions.
 	-->
-	<attribute name='database-connection' value='sqlite3:db=/tmp/test.db;@pool_size=10' />
+	<attribute name='database-connection' value='sqlite3:db=/tmp/test.sqlite;@pool_size=10' />
 
 	<!--
 	
