@@ -95,12 +95,20 @@
 
 		for(auto name : parameter_names) {
 			string value;
-			Udjat::Value &prop = parameters[name];
 
-			if(!prop.isNull()) {	// First check if the property is in the response.
-				value = prop.as_string();
-			} else {				// Not in response, try request.
+			if(!parameters.for_each([&value,&name](const char *n, const Value &v){
+
+				if(strcasecmp(name,n)) {
+					return false;
+				}
+				value = v.as_string();
+				return true;
+
+			})) {
+
+				// Not in response, try request.
 				value = request[name];
+
 			}
 
 			debug("value='",value,"'");

@@ -146,16 +146,22 @@
 
 	void SQL::Statement::push_back(const XML::Node &node, bool allow_empty) {
 
-		Udjat::String query{node.child_value()};
-		parse(query);
-
-		if(query.empty()) {
-			if(allow_empty) {
-				return;
+		size_t lines = 0;
+		for(auto &line : String{node.child_value()}.strip().split(";")) {
+			line.strip();
+			if(line.empty()) {
+				continue;
 			}
+
+			parse(line);
+			debug("Adding script '",line,"'");
+			scripts.push_back(line.c_str());
+			lines++;
+
+		}
+
+		if(lines == 0 && !allow_empty) {
 			throw runtime_error(Logger::String{"Missing required contents on <",node.name(),"> node"});
-		} else {
-			scripts.push_back(query.c_str());
 		}
 
 	}
@@ -212,13 +218,15 @@
 		cppdb::transaction guard(session);
 
 		for(auto &script : scripts) {
+
 			auto result = script.create_statement(session,request,response).row();
-			if(!result.empty()) {
+			debug("-----------------------> '",script.text,"'");
+			if(!result.empty() && strncasecmp(script.text,"select",6) == 0) {
 				// Transfer result to response.
 				for(int col = 0; col < result.cols();col++) {
 					string val;
 					result.fetch(col,val);
-					debug(result.name(col).c_str(),"='",val.c_str(),"'");
+					debug("----->",result.name(col).c_str(),"='",val.c_str(),"'");
 					response[result.name(col).c_str()] = val.c_str();
 				}
 			}
