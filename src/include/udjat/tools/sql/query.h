@@ -56,8 +56,6 @@
 				return path;
 			}
 
-			bool operator==(const char *p) const noexcept;
-
 			inline bool operator==(HTTP::Method m) const noexcept {
 				return m == method;
 			}

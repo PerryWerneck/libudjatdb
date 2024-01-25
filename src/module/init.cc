@@ -21,6 +21,7 @@
  #include <udjat/defs.h>
  #include <udjat/module/abstract.h>
  #include <udjat/tools/worker.h>
+ #include <udjat/module/abstract.h>
  #include <udjat/factory.h>
  #include <stdexcept>
  #include <udjat/tools/sql/statement.h>
@@ -57,39 +58,24 @@
 		// Udjat::Worker
 		ResponseType probe(const Request &request) const noexcept override {
 
-			const char *path = request.path();
-			while(*path == '/') {
-				path++;
-			}
-
-			debug(__FUNCTION__,"('",path,"')");
-
 			for(const auto &query : queries) {
-				if(query == ((HTTP::Method) request) && query == path) {
-					debug("Accepting '",path,"' as ",((Worker::ResponseType) query));
+				if( (query == ((HTTP::Method) request) && (request == query.c_str()))) {
+					debug("Accepting '",query.c_str(),"' as ",((Worker::ResponseType) query));
 					return (Worker::ResponseType) query;
 				}
 			}
 
-			debug("Rejecting '",path,"'");
+			debug("Rejecting '",request.path(),"'");
 			return Worker::None;
 		}
 
 		bool work(Request &request, Response::Table &response) const override {
 
-			const char *path = request.path();
-			while(*path == '/') {
-				path++;
-			}
-
-			debug(__FUNCTION__,"('",path,"')");
-
 			for(const auto &query : queries) {
-				if(query == ((HTTP::Method) request) && query == path) {
-					request.pop();
+				if(query == ((HTTP::Method) request) && request.pop(query.c_str())) {
+					debug(__FUNCTION__,"('",request.path(),"')");
 					return query.exec(request,response);
 				}
-
 			}
 
 			return false;
@@ -98,16 +84,9 @@
 
 		bool work(Request &request, Response::Value &response) const override {
 
-			const char *path = request.path();
-			while(*path == '/') {
-				path++;
-			}
-
-			debug(__FUNCTION__,"('",path,"')");
-
 			for(const auto &query : queries) {
-				if(query == ((HTTP::Method) request) && query == path) {
-					request.pop();
+				if(query == ((HTTP::Method) request) && request.pop(query.c_str())) {
+					debug(__FUNCTION__,"('",request.path(),"')");
 					return query.exec(request,response);
 				}
 			}

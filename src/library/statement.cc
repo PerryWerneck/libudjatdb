@@ -244,15 +244,18 @@
 		cppdb::transaction guard(session);
 
 		auto result = scripts[0].create_statement(session, request).row();
+
 		if(!result.empty()) {
 
 			// Get column names.
-			std::vector<string> colnames;
+			int numcols = result.cols();
 
 			{
 				// Get first line and column names.
 				std::vector<string> values;
-				for(int col = 0; col < result.cols();col++) {
+				std::vector<string> colnames;
+
+				for(int col = 0; col < numcols;col++) {
 					string val;
 					result.fetch(col,val);
 					values.push_back(val);
@@ -272,6 +275,17 @@
 			size_t rows = 1;
 
 			// Get other lines.
+			while(result.next()) {
+				rows++;
+				for(int col = 0; col < numcols;col++) {
+					string value;
+					result.fetch(col,value);
+					response << value;
+				}
+
+			}
+			response.count(rows);
+
 
 		} else {
 

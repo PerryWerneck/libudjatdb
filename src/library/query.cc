@@ -41,11 +41,6 @@
 			expires{(time_t) TimeStamp{node,"expires",(time_t) 300}} {
 	}
 
-	bool SQL::Query::operator==(const char *p) const noexcept {
-		size_t szpath = strlen(path);
-		return (strncasecmp(p,path,szpath) == 0) && (p[szpath] == '/' || p[szpath] == 0);
-	}
-
 	void SQL::Query::head(const Request &request, Abstract::Response &response) const {
 		debug(__FUNCTION__,"('",request.path(),"')");
 		if(expires) {
