@@ -84,6 +84,46 @@
 
 	}
 
+	cppdb::statement SQL::Statement::Script::create_statement(Session &session, const Udjat::Object &request, Udjat::Value &parameters) const {
+
+		if(!(this->text && *this->text)) {
+			throw runtime_error("Cant execute an empty SQL script");
+		}
+
+		debug("Running '",this->text,"'");
+		auto stmt = session.create_statement(this->text);
+
+		for(auto name : parameter_names) {
+
+			string value;
+
+			if(!parameters.for_each([&value,&name](const char *n, const Value &v){
+
+				if(strcasecmp(name,n)) {
+					return false;
+				}
+				value = v.as_string();
+				return true;
+
+			})) {
+
+				// Not in response, try request.
+				if(!request.getProperty(name,value)) {
+					throw runtime_error(Logger::Message{"Required property '",name,"' is missing"});
+				}
+
+			}
+
+			debug("value='",value,"'");
+			stmt.bind(value);
+
+		}
+
+		return stmt;
+
+
+	}
+
 	cppdb::statement SQL::Statement::Script::create_statement(Session &session, const Udjat::Request &request, Udjat::Value &parameters) const {
 
 		if(!(this->text && *this->text)) {
@@ -94,6 +134,7 @@
 		auto stmt = session.create_statement(this->text);
 
 		for(auto name : parameter_names) {
+
 			string value;
 
 			if(!parameters.for_each([&value,&name](const char *n, const Value &v){
@@ -145,22 +186,7 @@
 		}
 
 		debug("Running '",this->text,"'");
-		auto stmt = session.create_statement(this->text);
-
-		for(auto name : parameter_names) {
-			string value;
-			Udjat::Value &prop = response[name];
-
-			if(!prop.isNull()) {	// First check if the property is in the response.
-				value = prop.as_string();
-			} else if(!request.getProperty(name,value)) {	// Not in response, try source object.
-				throw runtime_error(Logger::Message{"Required property '",name,"' is missing"});
-			}
-
-			debug("value='",value,"'");
-			stmt.bind(value);
-
-		}
+		auto stmt = create_statement(session,request,response);
 
 		if(strcasestr(this->text,"select")) {
 

@@ -55,6 +55,7 @@
 				void exec(Session &session, const Udjat::Object &object) const;
 				void exec(Session &session, const Udjat::Object &request, Udjat::Value &response) const;
 				cppdb::statement create_statement(Session &session, const Udjat::Request &request, Udjat::Value &parameters) const;
+				cppdb::statement create_statement(Session &session, const Udjat::Object &request, Udjat::Value &parameters) const;
 				cppdb::statement create_statement(Session &session, const Udjat::Request &request) const;
 			};
 
