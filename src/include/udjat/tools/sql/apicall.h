@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-3.0-or-later */
 
 /*
- * Copyright (C) 2023 Perry Werneck <perry.werneck@gmail.com>
+ * Copyright (C) 2024 Perry Werneck <perry.werneck@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -26,38 +26,22 @@
  #include <udjat/worker.h>
  #include <udjat/tools/method.h>
  #include <udjat/tools/sql/statement.h>
+ #include <udjat/tools/abstract/request-path.h>
 
  namespace Udjat {
 
 	namespace SQL {
 
 		/// @brief Map an Udjat::Worker path to SQL Query.
-		class UDJAT_PRIVATE Query : private SQL::Statement {
+		class UDJAT_PRIVATE ApiCall : public RequestPath, private SQL::Statement {
 		private:
-			const char *path;								///< @brief Path for URL request.
 			Worker::ResponseType type = Worker::None;	///< @brief Response type for this query.
-			HTTP::Method method = HTTP::Get;
-			time_t expires = 300;
-
-			void head(const Request &request, Abstract::Response &response) const;
 
 		public:
-			Query(const XML::Node &node);
+			ApiCall(const XML::Node &node);
 
 			inline operator Worker::ResponseType() const noexcept {
 				return type;
-			}
-
-			inline operator HTTP::Method() const noexcept {
-				return method;
-			}
-
-			inline const char * c_str() const noexcept {
-				return path;
-			}
-
-			inline bool operator==(HTTP::Method m) const noexcept {
-				return m == method;
 			}
 
 			template <typename T>

@@ -25,7 +25,7 @@
  #include <udjat/tools/factory.h>
  #include <stdexcept>
  #include <udjat/tools/sql/statement.h>
- #include <udjat/tools/sql/query.h>
+ #include <udjat/tools/sql/apicall.h>
  #include <udjat/agent/sql.h>
  #include <udjat/tools/method.h>
  #include <udjat/alert/sql.h>
@@ -41,7 +41,7 @@
 	class Module : public Udjat::Module, private Udjat::Worker, private Udjat::Factory {
 	private:
 
-		std::vector<SQL::Query> queries;
+		std::vector<SQL::ApiCall> queries;
 
 	public:
 		Module() : Udjat::Module("cppdb",module_info), Udjat::Worker("sql",module_info), Udjat::Factory("sql",module_info) {
@@ -52,7 +52,7 @@
 
 		void trace_paths(const char *url_prefix) const noexcept override {
 			for(const auto &query : queries) {
-				Logger::String{"SQL ",std::to_string((HTTP::Method) query)," available on ",url_prefix,query.c_str()}.trace("cppdb");
+				Logger::String{"SQL ",std::to_string((HTTP::Method) query)," available on ",url_prefix,query.path()}.trace("cppdb");
 			}
 		}
 
@@ -60,8 +60,9 @@
 		ResponseType probe(const Request &request) const noexcept override {
 
 			for(const auto &query : queries) {
-				if( (query == ((HTTP::Method) request) && (request == query.c_str()))) {
-					debug("Accepting '",query.c_str(),"' as ",((Worker::ResponseType) query));
+				debug("query='",query.path(),"' request='",request.path(),"'");
+				if(query == request) {
+					debug("Accepting '",query.path(),"' as ",((Worker::ResponseType) query));
 					return (Worker::ResponseType) query;
 				}
 			}
@@ -73,7 +74,7 @@
 		bool work(Request &request, Response::Table &response) const override {
 
 			for(const auto &query : queries) {
-				if(query == ((HTTP::Method) request) && request.pop(query.c_str())) {
+				if(query == request && request.pop(query.path())) {
 					debug(__FUNCTION__,"('",request.path(),"')");
 					return query.exec(request,response);
 				}
@@ -86,7 +87,7 @@
 		bool work(Request &request, Response::Value &response) const override {
 
 			for(const auto &query : queries) {
-				if(query == ((HTTP::Method) request) && request.pop(query.c_str())) {
+				if(query == request && request.pop(query.path())) {
 					debug(__FUNCTION__,"('",request.path(),"')");
 					return query.exec(request,response);
 				}
@@ -97,6 +98,29 @@
 		}
 
 		// Udjat::Factory
+		bool CustomFactory(Abstract::Object &, const XML::Node &node) override {
+			switch(String{node.name()}.select("init","url-scheme","api-call",nullptr)) {
+			case 0: // Init
+				debug("Init script");
+				SQL::Statement::exec(node);
+				break;
+
+			case 1: // URL Scheme
+				debug("URL-Scheme");
+				break;
+
+			case 2: // api-call
+				debug("API-Call");
+				queries.emplace_back(node);
+				break;
+
+			default:
+				debug("Unknown6");
+				return false;
+			}
+			return true;
+		}
+
 		bool generic(const pugi::xml_node &node) override {
 
 			switch(String{node,"type"}.select("initializer","url-scheme","query","api-call",nullptr)) {
@@ -125,11 +149,7 @@
 
 		}
 
-		std::shared_ptr<Abstract::Agent> AgentFactory(const Abstract::Object &parent, const pugi::xml_node &node) const override {
-
-			if( !strcasecmp(node.name(),"sql") && strcasecmp(node.attribute("type").as_string(),"agent")) {
-				return Udjat::Factory::AgentFactory(parent,node);
-			}
+		std::shared_ptr<Abstract::Agent> AgentFactory(const Abstract::Object &, const XML::Node &node) const override {
 
 			debug("--- Creating an SQL agent ---");
 			std::shared_ptr<Abstract::Agent> agent;
@@ -162,7 +182,7 @@
 			return agent;
 		}
 
-		std::shared_ptr<Abstract::Alert> AlertFactory(const Abstract::Object &parent, const XML::Node &node) const override {
+		std::shared_ptr<Abstract::Alert> AlertFactory(const Abstract::Object &, const XML::Node &node) const override {
 			return make_shared<SQL::Alert>(node);
 		}
 

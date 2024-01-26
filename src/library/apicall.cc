@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-3.0-or-later */
 
 /*
- * Copyright (C) 2023 Perry Werneck <perry.werneck@gmail.com>
+ * Copyright (C) 2024 Perry Werneck <perry.werneck@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -24,7 +24,7 @@
  #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
- #include <udjat/tools/sql/query.h>
+ #include <udjat/tools/sql/apicall.h>
  #include <udjat/tools/logger.h>
  #include <udjat/tools/timestamp.h>
  #include <udjat/tools/abstract/response.h>
@@ -33,19 +33,8 @@
 
  namespace Udjat {
 
-	SQL::Query::Query(const XML::Node &node)
-		:	SQL::Statement{node},
-			path{Quark{node,"path",nullptr}.c_str()},
-			type{Worker::ResponseTypeFactory(node,"response-type","table")},
-			method{HTTP::MethodFactory(node,"action","get")},
-			expires{(time_t) TimeStamp{node,"expires",(time_t) 300}} {
-	}
-
-	void SQL::Query::head(const Request &request, Abstract::Response &response) const {
-		debug(__FUNCTION__,"('",request.path(),"')");
-		if(expires) {
-			response.expires(time(0)+expires);
-		}
+	SQL::ApiCall::ApiCall(const XML::Node &node)
+		: RequestPath{node}, SQL::Statement{node}, type{Worker::ResponseTypeFactory(node,"response-type","table")} {
 	}
 
  }
