@@ -22,12 +22,13 @@
  #include <udjat/module/abstract.h>
  #include <udjat/tools/worker.h>
  #include <udjat/module/abstract.h>
- #include <udjat/factory.h>
+ #include <udjat/tools/factory.h>
  #include <stdexcept>
  #include <udjat/tools/sql/statement.h>
  #include <udjat/tools/sql/query.h>
  #include <udjat/agent/sql.h>
  #include <udjat/tools/method.h>
+ #include <udjat/alert/sql.h>
 
  using namespace Udjat;
  using namespace std;
@@ -43,7 +44,7 @@
 		std::vector<SQL::Query> queries;
 
 	public:
-		Module() : Udjat::Module("cppdb",module_info), Udjat::Worker("cppdb",module_info), Udjat::Factory("sql",module_info) {
+		Module() : Udjat::Module("cppdb",module_info), Udjat::Worker("sql",module_info), Udjat::Factory("sql",module_info) {
 		};
 
 		~Module() {
@@ -124,7 +125,7 @@
 
 		}
 
-		std::shared_ptr<Abstract::Agent> AgentFactory(const Abstract::Object &parent, const pugi::xml_node &node) const {
+		std::shared_ptr<Abstract::Agent> AgentFactory(const Abstract::Object &parent, const pugi::xml_node &node) const override {
 
 			if( !strcasecmp(node.name(),"sql") && strcasecmp(node.attribute("type").as_string(),"agent")) {
 				return Udjat::Factory::AgentFactory(parent,node);
@@ -159,6 +160,10 @@
 
 
 			return agent;
+		}
+
+		std::shared_ptr<Abstract::Alert> AlertFactory(const Abstract::Object &parent, const XML::Node &node) const override {
+			return make_shared<SQL::Alert>(node);
 		}
 
 	};

@@ -42,13 +42,11 @@
 
 		/// @brief An SQL statement.
 		class UDJAT_API Statement {
-		private:
-
-			/// @brief The database URL;
-			const char *dburl = nullptr;
+		public:
 
 			/// @brief An SQL script.
 			struct Script {
+
 				const char *text;
 
 				std::vector<const char *> parameter_names;
@@ -61,13 +59,6 @@
 				cppdb::statement create_statement(Session &session, const Abstract::Object &request) const;
 
 			};
-
-			std::vector<Script> scripts;
-
-			static const char * parse(Udjat::String &query);
-			void push_back(const XML::Node &node, bool allow_empty = false);
-
-		public:
 
 			/// @brief Create SQL statement from XML definition.
 			/// @param node the parent node.
@@ -105,6 +96,29 @@
 			/// @brief Execute SQL query.
 			static void exec(const XML::Node &node);
 
+		private:
+
+			/// @brief The database URL;
+			const char *dburl = nullptr;
+
+			std::vector<Script> scripts;
+
+			static const char * parse(Udjat::String &query);
+			void push_back(const XML::Node &node, bool allow_empty = false);
+
+		public:
+
+			inline const char *dbconn() const noexcept {
+				return dburl;
+			}
+
+			inline const auto begin() const {
+				return scripts.begin();
+			}
+
+			inline const auto end() const {
+				return scripts.end();
+			}
 
 		};
 

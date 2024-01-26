@@ -38,5 +38,9 @@
 		select * from sample
 	</sql>
 	
+	<alert name='orphaned' type='sql'>
+		insert into sample (name,value) values ("alert","orphaned");
+	</alert>
+	
 </config>
 
