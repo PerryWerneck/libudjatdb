@@ -28,6 +28,7 @@
  #include <udjat/module/info.h>
  #include <udjat/tools/protocol.h>
  #include <udjat/tools/sql/statement.h>
+ #include <udjat/tools/http/client.h>
  #include <private/urlqueue.h>
  #include <udjat/tools/value.h>
  #include <memory>
@@ -56,8 +57,63 @@
 
 		// First refresh queue size.
 		bool rc = SQL::Agent<size_t>::refresh(b);
+		size_t qrecs = SQL::Agent<size_t>::get();
 
+		debug("--------------> ",qrecs);
 
+		{
+
+			string url;
+
+			try {
+
+				bool success = false;
+
+				auto response = Udjat::Value::ObjectFactory();
+				send.exec(*this,*response);
+				rc = true;
+
+				url = (*response)["url"].to_string();
+				HTTP::Client client(url.c_str());
+
+				switch(HTTP::MethodFactory((*response)["action"].to_string().c_str())) {
+				case HTTP::Get:
+					{
+						auto response = client.get();
+						SQL::Agent<size_t>::info() << url << endl;
+						Logger::write(Logger::Trace,response);
+						success = true;
+					}
+					break;
+
+				case HTTP::Post:
+					{
+						auto result = client.post((*response)["payload"].to_string().c_str());
+						Logger::write(Logger::Trace,result);
+						success = true;
+					}
+					break;
+
+				default:
+					SQL::Agent<size_t>::error() << "Unexpected verb '" << (*response)["action"].to_string() << "' sending queued request, ignoring" << endl;
+					success = false;
+				}
+
+				if(success) {
+					after_send.exec(*this,*response);
+					rc = SQL::Agent<size_t>::refresh(b);
+					if(send_delay) {
+						sched_update(send_delay);
+					}
+				}
+
+			} catch(const std::exception &e) {
+
+				SQL::Agent<size_t>::error() << url << ": " << e.what() << endl;
+
+			}
+
+		}
 
 		return rc;
 	}
