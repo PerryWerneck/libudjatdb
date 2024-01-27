@@ -19,7 +19,6 @@
 		create table if not exists sample (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, name text, value text);
 	</init>
 	
-	
 	<!-- Internal agent, just for testing factory conflicts -->
 	<agent name='intvalue' type='integer' value='0' />
 	
@@ -30,6 +29,39 @@
 		<refresh>
 			select count (*) as value from sample
 		</refresh>
+	
+	</agent>
+	
+	<!-- Special type of SQL Agent keeping a queue of URLs -->
+	<agent type='sql' name='alerts' url-queue-name='sql' update-timer='60'>
+	
+		<attribute name='summary' value='Alerts on queue' />
+		<attribute name='label' value='Alert queue' />
+	
+		<!-- Initialize an URL queue -->
+		<init>
+			create table if not exists alerts (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text)
+		</init>
+		
+		<!-- Update Queue size -->
+		<refresh>
+			select count (*) as value from alerts
+		</refresh>
+
+		<!-- Store URL on database -->
+		<insert>
+			insert into alerts (url,action,payload) values (${url},${action},${payload})
+		</insert>
+
+		<!-- Get data to send -->
+		<send>
+			select id,url,action,payload from alerts limit 1
+		</send>
+		
+		<!-- Delete ID after sending it -->
+		<after-send>
+			delete from alerts where id=${id}
+		</after-send>
 	
 	</agent>
 	
@@ -44,6 +76,11 @@
 	
 	<alert type='sql' name='orphaned'>
 		insert into sample (name,value) values ("alert","orphaned");
+	</alert>
+
+	<!-- queued alert -->	
+	<alert name='hello' url='sql+http://localhost' action='post'>
+		{"Message":"I'm Alive","timestamp":"${timestamp(%Y/%m/%d %H:%M:%S)}"}
 	</alert>
 	
 </config>

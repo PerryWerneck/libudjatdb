@@ -81,6 +81,12 @@
 
  	}
 
+ 	UDJAT_API void SQL::Statement::init(const XML::Node &node) {
+		for(auto child = node.child("init"); child; child = child.next_sibling("init")) {
+			SQL::Statement::exec(child);
+		}
+ 	}
+
 	SQL::Statement::Statement(const XML::Node &node, const char *child_name, bool allow_empty, bool allow_text)
 		: dburl{connection_from_xml(node).as_quark()} {
 
@@ -179,8 +185,7 @@
 			throw runtime_error("Required attribute 'database-connection' is invalid or missing");
 		}
 
-		String script{node.child_value()};
-		cppdb::session{connection.c_str()}.create_statement(parse(script)).exec();
+		SQL::Statement{node}.exec(Udjat::Value::ObjectFactory());
 
 	}
 
@@ -191,6 +196,19 @@
 
 		for(auto &script : scripts) {
 			script.exec(session,request);
+		}
+
+		guard.commit();
+
+	}
+
+	void SQL::Statement::exec(std::shared_ptr<Udjat::Value> response) const {
+
+		cppdb::session session{dburl};
+		cppdb::transaction guard(session);
+
+		for(auto &script : scripts) {
+			script.exec(session,response);
 		}
 
 		guard.commit();

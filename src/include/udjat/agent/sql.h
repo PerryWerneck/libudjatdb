@@ -52,6 +52,7 @@
 					update{node,"refresh",true,false},
 					properties{node,"properties",true,false},
 					value_name{Quark{node,"value-from","value"}.c_str()} {
+				SQL::Statement::init(node);
 			}
 
 			bool refresh(bool) override {

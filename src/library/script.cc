@@ -71,7 +71,40 @@
 
 		auto stmt = session.create_statement(this->text);
 		bind(stmt,object);
-		stmt.exec();
+
+	}
+
+	void SQL::Statement::Script::exec(cppdb::statement &stmt, Udjat::Value &response) const {
+
+		debug("Running '",this->text,"'");
+
+		if(strcasestr(this->text,"select")) {
+			auto res = stmt.row();
+			if(!res.empty()) {
+				// Got result update response;
+				debug("Got response from SQL query");
+				for(int col = 0; col < res.cols();col++) {
+					string val;
+					res.fetch(col,val);
+					debug(res.name(col).c_str(),"='",val.c_str(),"'");
+					response[res.name(col).c_str()] = val.c_str();
+				}
+			}
+		} else {
+			stmt.exec();
+		}
+
+	}
+
+	void SQL::Statement::Script::exec(Session &session, std::shared_ptr<Udjat::Value> response) const {
+
+		if(!(this->text && *this->text)) {
+			throw runtime_error("Cant execute an empty SQL script");
+		}
+
+		debug("Running '",this->text,"'");
+		auto stmt = create_statement(session, *response);
+		exec(stmt, *response);
 
 	}
 
@@ -107,7 +140,6 @@
 		}
 
 		return stmt;
-
 
 	}
 
@@ -147,32 +179,8 @@
 			throw runtime_error("Cant execute an empty SQL script");
 		}
 
-		debug("Running '",this->text,"'");
 		auto stmt = create_statement(session,request,response);
-
-		if(strcasestr(this->text,"select")) {
-
-			cppdb::result res = stmt.row();
-
-			if(!res.empty()) {
-
-				// Got result update response;
-				debug("Got response from SQL query");
-				for(int col = 0; col < res.cols();col++) {
-					string val;
-					res.fetch(col,val);
-					debug(res.name(col).c_str(),"='",val.c_str(),"'");
-					response[res.name(col).c_str()] = val.c_str();
-				}
-
-			}
-
-		} else {
-
-			stmt.exec();
-
-		}
-
+		exec(stmt,response);
 
 	}
 

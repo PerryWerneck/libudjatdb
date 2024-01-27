@@ -54,6 +54,9 @@
 
 				void exec(Session &session, const Abstract::Object &object) const;
 				void exec(Session &session, const Abstract::Object &request, Udjat::Value &response) const;
+				void exec(Session &session, std::shared_ptr<Udjat::Value> response) const;
+
+				void exec(cppdb::statement &stmt, Udjat::Value &response) const;
 
 				cppdb::statement create_statement(Session &session, const Abstract::Object &request, const Abstract::Object &response) const;
 				cppdb::statement create_statement(Session &session, const Abstract::Object &request) const;
@@ -78,7 +81,7 @@
 			void exec() const;
 
 			/// @brief Execute SQL query
-			/// @param request The object with the parameter values.
+			/// @param request The object with the values.
 			void exec(const Udjat::Object &request) const;
 
 			/// @brief Execute SQL query, get response.
@@ -93,8 +96,14 @@
 			/// @brief Execute SQL query, get response.
 			void exec(const Request &request, Udjat::Response::Table &response) const;
 
+			void exec(std::shared_ptr<Udjat::Value> response) const;
+
 			/// @brief Execute SQL query.
 			static void exec(const XML::Node &node);
+
+			/// @brief Execute <init> children.
+			static void init(const XML::Node &node);
+
 
 		private:
 
