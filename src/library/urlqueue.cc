@@ -40,7 +40,7 @@
 
 	SQL::URLQueue::URLQueue(const XML::Node &node)
 		:	SQL::Agent<size_t>(node),
-			Udjat::Protocol{Quark(node,"name","sql").c_str(),module_info},
+			Udjat::Protocol{Quark(node,"url-queue-name","sql").c_str(),module_info},
 			ins{node,"insert",true,false},
 			send{node,"send",true,false},
 			after_send{node,"after-send",true,false},
@@ -51,6 +51,8 @@
 	}
 
 	bool SQL::URLQueue::refresh(bool b) {
+
+		debug("----------------- Refreshing url queue");
 
 		// First refresh queue size.
 		bool rc = SQL::Agent<size_t>::refresh(b);
@@ -80,7 +82,7 @@
 				auto value = Udjat::Value::ObjectFactory();
 
 				(*value)["url"] = url().c_str(),
-				(*value)["method"] = std::to_string(method()),
+				(*value)["action"] = std::to_string(method()),
 				(*value)["payload"] = payload(),
 
 				agent->ins.exec(value);

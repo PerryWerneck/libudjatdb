@@ -29,6 +29,7 @@
  #include <udjat/agent/sql.h>
  #include <udjat/tools/method.h>
  #include <udjat/alert/sql.h>
+ #include <private/urlqueue.h>
 
  using namespace Udjat;
  using namespace std;
@@ -152,6 +153,14 @@
 		std::shared_ptr<Abstract::Agent> AgentFactory(const Abstract::Object &, const XML::Node &node) const override {
 
 			debug("--- Creating an SQL agent ---");
+
+			if(node.attribute("url-queue-name")) {
+				return make_shared<SQL::URLQueue>(node);
+			}
+
+			//
+			// Try standard agents.
+			//
 			std::shared_ptr<Abstract::Agent> agent;
 
 			switch(String{node,"value-type","string"}.select("integer","signed","unsigned","float","string",nullptr)) {

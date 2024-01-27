@@ -163,7 +163,7 @@
 
 			} else {
 
-				throw runtime_error(Logger::Message{"Required property '",name,"' is missing"});
+				throw runtime_error(Logger::String{"Required property '",name,"' is missing"});
 
 			}
 
