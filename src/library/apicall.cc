@@ -30,7 +30,6 @@
  #include <udjat/tools/abstract/response.h>
  #include <udjat/tools/worker.h>
  #include <cppdb/frontend.h>
-
  namespace Udjat {
 
 	SQL::ApiCall::ApiCall(const XML::Node &node)

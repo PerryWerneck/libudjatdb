@@ -30,15 +30,12 @@
  #include <udjat/tools/request.h>
  #include <udjat/tools/response.h>
  #include <udjat/tools/report.h>
- #include <cppdb/frontend.h>
  #include <vector>
  #include <memory>
 
  namespace Udjat {
 
 	namespace SQL {
-
-		using Session = cppdb::session;
 
 		/// @brief An SQL statement.
 		class UDJAT_API Statement {
@@ -52,14 +49,18 @@
 				std::vector<const char *> parameter_names;
 				Script(const char *script);
 
+				/*
 				void exec(Session &session, const Abstract::Object &object) const;
 				void exec(Session &session, const Abstract::Object &request, Udjat::Value &response) const;
 				void exec(Session &session, std::shared_ptr<Udjat::Value> response) const;
+				*/
 
+				/*
 				void exec(cppdb::statement &stmt, Udjat::Value &response) const;
 
 				cppdb::statement create_statement(Session &session, const Abstract::Object &request, const Abstract::Object &response) const;
 				cppdb::statement create_statement(Session &session, const Abstract::Object &request) const;
+				*/
 
 			};
 

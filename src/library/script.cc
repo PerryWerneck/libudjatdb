@@ -25,7 +25,6 @@
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
  #include <udjat/tools/object.h>
- #include <cppdb/frontend.h>
  #include <vector>
  #include <stdexcept>
  #include <udjat/tools/string.h>
@@ -64,123 +63,6 @@
 		}
 
 		this->text = text.strip().as_quark();
-
-	}
-
-	void SQL::Statement::Script::exec(Session &session, const Abstract::Object &object) const {
-
-		auto stmt = session.create_statement(this->text);
-		bind(stmt,object);
-
-	}
-
-	void SQL::Statement::Script::exec(cppdb::statement &stmt, Udjat::Value &response) const {
-
-		debug("Running '",this->text,"'");
-
-		if(strcasestr(this->text,"select")) {
-			auto res = stmt.row();
-			if(!res.empty()) {
-				// Got result update response;
-				debug("Got response from SQL query");
-				for(int col = 0; col < res.cols();col++) {
-					string val;
-					res.fetch(col,val);
-					debug(res.name(col).c_str(),"='",val.c_str(),"'");
-					response[res.name(col).c_str()] = val.c_str();
-				}
-			}
-		} else {
-			stmt.exec();
-		}
-
-	}
-
-	void SQL::Statement::Script::exec(Session &session, std::shared_ptr<Udjat::Value> response) const {
-
-		if(!(this->text && *this->text)) {
-			throw runtime_error("Cant execute an empty SQL script");
-		}
-
-		debug("Running '",this->text,"'");
-		auto stmt = create_statement(session, *response);
-		exec(stmt, *response);
-
-	}
-
-	cppdb::statement SQL::Statement::Script::create_statement(Session &session, const Abstract::Object &request, const Abstract::Object &response) const {
-
-		if(!(this->text && *this->text)) {
-			throw runtime_error("Cant execute an empty SQL script");
-		}
-
-		debug("Running '",this->text,"'");
-		auto stmt = session.create_statement(this->text);
-
-		for(const char *name : parameter_names) {
-
-			string value;
-
-			if(request.getProperty(name,value)) {
-
-				debug("value(",name,")='",value,"' (from request)");
-				stmt.bind(value);
-
-			} else if(response.getProperty(name,value)) {
-
-				debug("value(",name,")='",value,"' (from response)");
-				stmt.bind(value);
-
-			} else {
-
-				throw runtime_error(Logger::String{"Required property '",name,"' is missing"});
-
-			}
-
-		}
-
-		return stmt;
-
-	}
-
-	cppdb::statement SQL::Statement::Script::create_statement(Session &session, const Abstract::Object &object) const {
-
-		if(!(this->text && *this->text)) {
-			throw runtime_error("Cant execute an empty SQL script");
-		}
-
-		debug("Running '",this->text,"'");
-		auto stmt = session.create_statement(this->text);
-
-		for(auto name : parameter_names) {
-
-			string value;
-
-			if(object.getProperty(name,value)) {
-
-				debug("value(",name,")='",value,"' (from object)");
-				stmt.bind(value);
-
-			} else {
-
-				throw runtime_error(Logger::String{"Required property '",name,"' is missing"});
-
-			}
-
-		}
-
-		return stmt;
-
-	}
-
-	void SQL::Statement::Script::exec(Session &session, const Abstract::Object &request, Udjat::Value &response) const {
-
-		if(!(this->text && *this->text)) {
-			throw runtime_error("Cant execute an empty SQL script");
-		}
-
-		auto stmt = create_statement(session,request,response);
-		exec(stmt,response);
 
 	}
 

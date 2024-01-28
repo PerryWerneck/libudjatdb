@@ -5,6 +5,7 @@ PACKAGE_NAME=@PACKAGE_NAME@
 
 MAIN_SOURCES= \
 	$(wildcard src/library/*.cc) \
+	$(wildcard src/library/engines/cppdb/*.cc) \
 	$(wildcard src/module/*.cc) \
 	$(wildcard src/os/@OSNAME@/*.cc)
 
