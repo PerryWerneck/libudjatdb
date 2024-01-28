@@ -143,6 +143,9 @@
 		SQL::exec(session,scripts,request,response);
 
 		guard.commit();
+
+		debug(__FUNCTION__,"::Value ends");
+
 	}
 
 	void SQL::Statement::exec(const Request &request, Udjat::Response::Table &response) const {
@@ -154,10 +157,12 @@
 
 		for(const auto &script : scripts) {
 
-			if(!strcasestr(script.text,"select")) {
+			if(strcasestr(script.text,"select")) {
+
+				debug(__FUNCTION__,"('",script.text,"')");
 
 				// It's a select, get report
-				auto stmt = session.create_statement(scripts[0].text);
+				auto stmt = session.create_statement(script.text);
 				for(const char *name : scripts[0].parameter_names) {
 
 					string value;
@@ -212,14 +217,23 @@
 					}
 					response.count(rows);
 
+				} else {
+					debug("Empty response");
+					response.count(0);
 				}
 
 			}
+#ifdef DEBUG
+			else {
+				debug("Rejecting '",script.text,"'");
+			}
+#endif // DEBUG
 
 		}
 
 		guard.commit();
 
+		debug(__FUNCTION__,"::Value ends");
 	}
 
  }
