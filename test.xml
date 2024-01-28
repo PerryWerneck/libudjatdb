@@ -74,6 +74,10 @@
 		select * from sample
 	</api-call>
 	
+	<api-call type='sql' name='pending' action='get' response-type='table'>
+		select * from alerts
+	</api-call>
+
 	<alert type='sql' name='orphaned'>
 		insert into sample (name,value) values ("alert","orphaned");
 	</alert>
