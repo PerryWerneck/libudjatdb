@@ -29,6 +29,7 @@
  #include <udjat/tools/protocol.h>
  #include <udjat/tools/sql/script.h>
  #include <udjat/tools/http/client.h>
+ #include <udjat/agent/state.h>
  #include <private/urlqueue.h>
  #include <udjat/tools/value.h>
  #include <udjat/tools/intl.h>
@@ -179,15 +180,23 @@
 				return state;
 		}
 
-		// No, we dont! Using internal ones
+		// No, we dont! Is the current state valid?
+		{
+			Udjat::State<size_t> *selected = dynamic_cast<Udjat::State<size_t> *>(this->state().get());
+			if(selected && selected->compare(pending)) {
+				return this->state();
+			}
+		}
+
+		// We dont have a xml defined state and the current one is invalid, select an internal one.
 
 		/// @brief Message based state.
-		class StringState : public Abstract::State {
+		class StringState : public Udjat::State<size_t> {
 		private:
 			std::string message;
 
 		public:
-			StringState(const char *name, Level level, const std::string &msg) : Abstract::State(name,level), message{msg} {
+			StringState(const char *name, Level level, size_t value, const std::string &msg) : Udjat::State<size_t>(name,value,level), message{msg} {
 				Object::properties.summary = message.c_str();
 			}
 		};
@@ -197,24 +206,27 @@
 		if(!pending) {
 
 			return make_shared<StringState>(
-							"empty",
+							"queue-empty",
 							Level::unimportant,
+							pending,
 							Message{ _("{} output queue is empty"), name }
 						);
 
 		} else if(pending == 1) {
 
 			return make_shared<StringState>(
-							"pending",
+							"one-queued",
 							Level::warning,
+							pending,
 							Message{ _("One pending request in the {} queue"), name }
 						);
 
 		}
 
 		return make_shared<StringState>(
-						"pending",
+						"has-queued",
 						Level::warning,
+						pending,
 						Message{ _("{} pending requests in the {} queue"), pending, name }
 					);
 
