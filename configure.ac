@@ -171,7 +171,7 @@ dnl ---------------------------------------------------------------------------
 dnl test for database engine
 dnl ---------------------------------------------------------------------------
 
-AC_ARG_WITH([engine], [AS_HELP_STRING([--with-engine], [Setup database engine])], [ app_cv_engine="$withval" ],[ app_cv_engine="cppdb" ])
+AC_ARG_WITH([engine], [AS_HELP_STRING([--with-engine=cppdb], [Setup database engine])], [ app_cv_engine="$withval" ],[ app_cv_engine="cppdb" ])
 AC_SUBST(ENGINE_NAME,"$app_cv_engine")
 
 case "$app_cv_engine" in
@@ -180,18 +180,18 @@ cppdb)
 		LIBS="$LIBS -lcppdb"
 		AC_DEFINE([HAVE_CPPDB], [1], [cppdb])
 	])
-	AC_SUBST(SQL_CFLAGS)
-	AC_SUBST(SQL_LIBS)
 	;;
 
 sqlite)
-	AC_MSG_ERROR([SQLite is unsupported])
+	PKG_CHECK_MODULES( [SQL], [sqlite3], AC_DEFINE(HAVE_SQLITE3,[],[Do we have sqlite3?]), AC_MSG_ERROR([sqlite3 not present.]) )
 	;;
 
 *)
 	AC_MSG_ERROR([Unknown database engine])
 esac
 	
+AC_SUBST(SQL_CFLAGS)
+AC_SUBST(SQL_LIBS)
 
 dnl ---------------------------------------------------------------------------
 dnl Output config
