@@ -105,13 +105,13 @@
 
  	}
 
- 	UDJAT_API void SQL::Statement::init(const XML::Node &node) {
+ 	UDJAT_API void SQL::Script::init(const XML::Node &node) {
 		for(auto child = node.child("init"); child; child = child.next_sibling("init")) {
-			SQL::Statement::exec(child);
+			SQL::Script::exec(child);
 		}
  	}
 
-	SQL::Statement::Statement(const XML::Node &node, const char *child_name, bool allow_empty, bool allow_text)
+	SQL::Script::Script(const XML::Node &node, const char *child_name, bool allow_empty, bool allow_text)
 		: dburl{connection_from_xml(node).as_quark()} {
 
 		if(!(dburl && *dburl)) {
@@ -144,7 +144,7 @@
 
 	}
 
-	const char * SQL::Statement::parse(Udjat::String &query) {
+	const char * SQL::Script::parse(Udjat::String &query) {
 
 		query.strip();
 		if(query.empty()) {
@@ -174,7 +174,7 @@
 
 	}
 
-	void SQL::Statement::push_back(const XML::Node &node, bool allow_empty) {
+	void SQL::Script::push_back(const XML::Node &node, bool allow_empty) {
 
 		size_t lines = 0;
 		for(auto &line : String{node.child_value()}.strip().split(";")) {
@@ -196,20 +196,20 @@
 
 	}
 
-	SQL::Statement::~Statement() {
+	SQL::Script::~Script() {
 	}
 
-	void SQL::Statement::exec() const {
+	void SQL::Script::exec() const {
 	}
 
-	void SQL::Statement::exec(const XML::Node &node) {
+	void SQL::Script::exec(const XML::Node &node) {
 
 		String connection{connection_from_xml(node)};
 		if(connection.empty()) {
 			throw runtime_error("Required attribute 'database-connection' is invalid or missing");
 		}
 
-		SQL::Statement{node}.exec(Udjat::Value::ObjectFactory());
+		SQL::Script{node}.exec(Udjat::Value::ObjectFactory());
 
 	}
 

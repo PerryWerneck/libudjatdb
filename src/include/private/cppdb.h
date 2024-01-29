@@ -35,8 +35,8 @@
 
 	namespace SQL {
 
-		void bind(const SQL::Statement::_Script &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response);
-		void exec(cppdb::session &session, const std::vector<SQL::Statement::_Script> &scripts, const Abstract::Object &request, Udjat::Value &response);
+		void bind(const SQL::Script::_Script &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response);
+		void exec(cppdb::session &session, const std::vector<SQL::Script::_Script> &scripts, const Abstract::Object &request, Udjat::Value &response);
 		void parse_result(cppdb::result &res, Udjat::Value &response);
 
 	}

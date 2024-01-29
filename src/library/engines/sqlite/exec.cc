@@ -34,7 +34,7 @@
  namespace Udjat {
 
 	/*
-	void SQL::bind(const SQL::Statement::_Script &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response) {
+	void SQL::bind(const SQL::Script::_Script &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response) {
 
 		for(const char *name : script.parameter_names) {
 
@@ -73,7 +73,7 @@
 		}
 	}
 
-	void SQL::exec(cppdb::session &session, const std::vector<SQL::Statement::_Script> &scripts, const Abstract::Object &request, Udjat::Value &response) {
+	void SQL::exec(cppdb::session &session, const std::vector<SQL::Script::_Script> &scripts, const Abstract::Object &request, Udjat::Value &response) {
 
 		debug(__FUNCTION__);
 
@@ -93,7 +93,7 @@
 	}
 	*/
 
-	void SQL::Statement::exec(const Udjat::Object &request) const {
+	void SQL::Script::exec(const Udjat::Object &request) const {
 
 		debug(__FUNCTION__);
 
@@ -102,21 +102,21 @@
 
 	}
 
-	void SQL::Statement::exec(std::shared_ptr<Udjat::Value> response) const {
+	void SQL::Script::exec(std::shared_ptr<Udjat::Value> response) const {
 
 		debug(__FUNCTION__);
 		SQL::Session{dburl}.exec(scripts,*response);
 
 	}
 
-	void SQL::Statement::exec(const Udjat::Object &request, Udjat::Value &response) const {
+	void SQL::Script::exec(const Udjat::Object &request, Udjat::Value &response) const {
 
 		debug(__FUNCTION__);
 		SQL::Session{dburl}.exec(scripts,request,response);
 
 	}
 
-	void SQL::Statement::exec(const Request &request, Udjat::Value &response) const {
+	void SQL::Script::exec(const Request &request, Udjat::Value &response) const {
 
 		debug(__FUNCTION__,"::Value start");
 		SQL::Session{dburl}.exec(scripts,request,response);
@@ -124,7 +124,7 @@
 
 	}
 
-	void SQL::Statement::exec(const Request &request, Udjat::Response::Table &response) const {
+	void SQL::Script::exec(const Request &request, Udjat::Response::Table &response) const {
 
 		debug(__FUNCTION__,"::Table start");
 		SQL::Session{dburl}.exec(scripts,request,response);

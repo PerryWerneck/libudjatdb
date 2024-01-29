@@ -30,7 +30,7 @@
  namespace Udjat {
 
 	SQL::ApiCall::ApiCall(const XML::Node &node)
-		: RequestPath{node}, SQL::Statement{node}, type{Worker::ResponseTypeFactory(node,"response-type","table")} {
+		: RequestPath{node}, SQL::Script{node}, type{Worker::ResponseTypeFactory(node,"response-type","table")} {
 	}
 
  }

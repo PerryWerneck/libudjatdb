@@ -35,13 +35,13 @@
 		private:
 
 			/// @brief SQL Script to insert an URL on queue.
-			const SQL::Statement ins;
+			const SQL::Script ins;
 
 			/// @brief SQL Script to get fields for retry;
-			const SQL::Statement send;
+			const SQL::Script send;
 
 			/// @brief SQL Script to remove URL sent from queue
-			const SQL::Statement after_send;
+			const SQL::Script after_send;
 
 			/// @brief Interval between URL send.
 			time_t send_interval;

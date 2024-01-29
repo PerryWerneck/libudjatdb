@@ -37,10 +37,10 @@
 		private:
 
 			/// @brief SQL Script to update agent value.
-			const SQL::Statement update;
+			const SQL::Script update;
 
 			/// @brief SQL Script to get properties
-			const SQL::Statement properties;
+			const SQL::Script properties;
 
 			/// @brief The name of agent value got by SQL query.
 			const char *value_name;
@@ -52,7 +52,7 @@
 					update{node,"refresh",true,false},
 					properties{node,"properties",true,false},
 					value_name{Quark{node,"value-from","value"}.c_str()} {
-				SQL::Statement::init(node);
+				SQL::Script::init(node);
 			}
 
 			bool refresh(bool) override {

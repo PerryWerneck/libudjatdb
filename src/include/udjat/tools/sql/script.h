@@ -38,7 +38,7 @@
 	namespace SQL {
 
 		/// @brief An SQL statement.
-		class UDJAT_API Statement {
+		class UDJAT_API Script {
 		public:
 
 			/// @brief An SQL script.
@@ -56,9 +56,9 @@
 			/// @param child_name The XML tagname for the script nodes.
 			/// @param allow_empty Allow empty scripts.
 			/// @param allo_text Allow using node 'cdata' for script text.
-			Statement(const XML::Node &node, const char *child_name = "script", bool allow_empty = false, bool allow_text = true);
+			Script(const XML::Node &node, const char *child_name = "script", bool allow_empty = false, bool allow_text = true);
 
-			virtual ~Statement();
+			virtual ~Script();
 
 			/// @brief False if query is empty.
 			inline size_t size() const noexcept {

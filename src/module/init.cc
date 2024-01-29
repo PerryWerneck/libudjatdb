@@ -102,7 +102,7 @@
 			switch(String{node.name()}.select("init","url-scheme","api-call",nullptr)) {
 			case 0: // Init
 				debug("Init script");
-				SQL::Statement::exec(node);
+				SQL::Script::exec(node);
 				break;
 
 			case 1: // URL Scheme
@@ -126,12 +126,12 @@
 			switch(String{node,"type"}.select("initializer","url-scheme","query","api-call",nullptr)) {
 			case 0: // Initializer
 				debug("Initializer");
-				SQL::Statement::exec(node);
+				SQL::Script::exec(node);
 				break;
 
 			case 1: // URL Scheme
 				debug("URL-Scheme");
-				// SQL::Statement{node};
+				// SQL::Script{node};
 				break;
 
 			case 2: // Query

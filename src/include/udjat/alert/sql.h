@@ -38,7 +38,7 @@
 		protected:
 
 			/// @brief SQL Script to run on alert activation.
-			const SQL::Statement script;
+			const SQL::Script script;
 
 			/// @brief Create an alert activation.
 			std::shared_ptr<Udjat::Alert::Activation> ActivationFactory() const override;

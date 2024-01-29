@@ -61,7 +61,7 @@
 
 				std::vector<Parameter> parameters;
 
-				Script(const SQL::Statement::_Script &script) : text{script.text} {
+				Script(const SQL::Script::_Script &script) : text{script.text} {
 					for(const auto &parm : script.parameter_names) {
 						parameters.emplace_back(parm);
 					}
@@ -75,7 +75,7 @@
 			std::shared_ptr<Value> results;
 
 		public:
-			Activation(const Abstract::Alert *alert, const SQL::Statement &statement)
+			Activation(const Abstract::Alert *alert, const SQL::Script &statement)
 				: Udjat::Alert::Activation{alert}, dburl{statement.dbconn()}, results{Udjat::Value::ObjectFactory()} {
 
 				for(const auto &from : statement) {

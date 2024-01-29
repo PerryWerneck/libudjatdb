@@ -18,7 +18,7 @@
  */
 
  /**
-  * @brief Brief description of this source.
+  * @brief Implements SQL API Calls.
   */
 
  #pragma once
@@ -33,7 +33,7 @@
 	namespace SQL {
 
 		/// @brief Map an Udjat::Worker path to SQL Query.
-		class UDJAT_PRIVATE ApiCall : public RequestPath, private SQL::Statement {
+		class UDJAT_PRIVATE ApiCall : public RequestPath, private SQL::Script {
 		private:
 			Worker::ResponseType type = Worker::None;	///< @brief Response type for this query.
 
@@ -47,7 +47,7 @@
 			template <typename T>
 			bool exec(Request &request, T &response) const {
 				head(request,response);
-				Statement::exec(request,response);
+				Script::exec(request,response);
 				return true;
 			}
 
