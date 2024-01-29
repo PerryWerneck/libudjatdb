@@ -78,6 +78,9 @@
 
 		for(auto &script : scripts) {
 			if(script.text && *script.text) {
+				if(Logger::enabled(Logger::Trace)) {
+					Logger::String{script.text}.trace("sql");
+				}
 				auto stmt = session.create_statement(script.text);
 				bind(script,stmt,request,response);
 

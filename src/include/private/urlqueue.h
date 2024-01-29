@@ -37,16 +37,16 @@
 			/// @brief SQL Script to insert an URL on queue.
 			const SQL::Script ins;
 
-			/// @brief SQL Script to get fields for retry;
+			/// @brief SQL Script to get fields for retry.
 			const SQL::Script send;
 
-			/// @brief SQL Script to remove URL sent from queue
+			/// @brief SQL Script to remove URL sent from queue.
 			const SQL::Script after_send;
 
-			/// @brief Interval between URL send.
+			/// @brief Seconds to wait after a sucessfull send to send another queued row.
 			time_t send_interval;
 
-			/// @brief Interval to send after inserting url on queue
+			/// @brief Interval to send after inserting url on queue.
 			time_t send_delay;
 
 			/// @brief Get State based on queue size.

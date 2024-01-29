@@ -9,7 +9,12 @@
 		Use attribute for database URL to avoid repetitions.
 	-->
 	<!-- attribute name='database-connection' value='sqlite3:db=/tmp/test.sqlite;@pool_size=10' / -->
-	<attribute name='database-connection' value='sqlite3:db=/tmp/test.sqlite' />
+
+	<!-- Alternative connection attribute for SQLite module -->
+	<attribute name='sqlite-file' value='/tmp/test.sqlite' />
+
+	<!-- Alternative connection attribute for CPPDb module -->
+	<attribute name='cppdb-connection' value='sqlite3:db=/tmp/test.sqlite' />
 
 	<!--
 	
@@ -34,7 +39,7 @@
 	</agent>
 	
 	<!-- Special type of SQL Agent keeping a queue of URLs -->
-	<agent type='sql' name='alerts' url-queue-name='sql' update-timer='60'>
+	<agent type='sql' name='alerts' url-queue-name='sql' update-timer='60' >
 	
 		<attribute name='summary' value='Alerts on queue' />
 		<attribute name='label' value='Alert queue' />

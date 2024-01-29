@@ -101,6 +101,7 @@
 					after_send.exec(*this,*response);
 					SQL::Agent<size_t>::set(--qrecs);
 					if(send_interval) {
+						debug("Will send next in ",send_interval," second(s)");
 						sched_update(send_interval);
 					}
 				}
