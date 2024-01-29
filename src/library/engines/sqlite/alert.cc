@@ -28,7 +28,6 @@
  #include <udjat/alert/activation.h>
  #include <udjat/alert/sql.h>
  #include <udjat/tools/value.h>
- #include <private/cppdb.h>
  #include <memory>
  #include <unistd.h>
  #include <udjat/tools/sql/script.h>
