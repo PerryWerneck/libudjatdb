@@ -29,6 +29,7 @@
  #include <udjat/tools/value.h>
  #include <udjat/tools/abstract/object.h>
  #include <cppdb/frontend.h>
+ #include <mutex>
 
  namespace Udjat {
 

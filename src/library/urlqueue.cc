@@ -45,7 +45,8 @@
 			ins{node,"insert",true,false},
 			send{node,"send",true,false},
 			after_send{node,"after-send",true,false},
-			send_delay{Object::getAttribute(node, "sqlite", "retry-delay", (unsigned int) 1)} {
+			send_interval{Object::getAttribute(node, "urlqueue", "send-interval", (unsigned int) 60)},
+			send_delay{Object::getAttribute(node, "urlqueue", "send-delay", (unsigned int) 2)} {
 	}
 
 	SQL::URLQueue::~URLQueue() {
@@ -59,9 +60,7 @@
 		bool rc = SQL::Agent<size_t>::refresh(b);
 		size_t qrecs = SQL::Agent<size_t>::get();
 
-		debug("--------------> ",qrecs);
-
-		{
+		if(qrecs) {
 
 			string url;
 
@@ -101,9 +100,9 @@
 
 				if(success) {
 					after_send.exec(*this,*response);
-					rc = SQL::Agent<size_t>::refresh(b);
-					if(send_delay) {
-						sched_update(send_delay);
+					SQL::Agent<size_t>::set(--qrecs);
+					if(send_interval) {
+						sched_update(send_interval);
 					}
 				}
 
@@ -137,6 +136,7 @@
 
 				auto value = Udjat::Value::ObjectFactory();
 
+				debug("----------------------------> Inserting alert on queue");
 				(*value)["url"] = url().c_str(),
 				(*value)["action"] = std::to_string(method()),
 				(*value)["payload"] = payload(),
@@ -146,11 +146,15 @@
 				{
 					URLQueue *obj = const_cast<URLQueue *>(this->agent);
 					if(obj) {
+						obj->SQL::Agent<size_t>::set(obj->SQL::Agent<size_t>::get()+1);
+						debug("QUEUE set to ",obj->SQL::Agent<size_t>::get());
 						obj->sched_update(1);	// Request agent update.
 					} else {
 						Logger::String{"Unable to request agent update"}.warning("urlqueue");
 					}
 				}
+
+				debug("-------- Inserted");
 
 				// Force as complete.
 				progress(1,1);

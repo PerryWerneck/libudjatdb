@@ -44,7 +44,10 @@
 			const SQL::Statement after_send;
 
 			/// @brief Interval between URL send.
-			time_t send_delay = 1;
+			time_t send_interval;
+
+			/// @brief Interval to send after inserting url on queue
+			time_t send_delay;
 
 			/// @brief Get State based on queue size.
 			std::shared_ptr<Abstract::State> state() const;

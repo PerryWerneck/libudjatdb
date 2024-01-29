@@ -49,8 +49,6 @@
 		size_t from = text.find("${");
 		while(from != string::npos) {
 
-			cout << from << endl;
-
 			size_t to = text.find("}",from+2);
 			if(to == string::npos) {
 				throw runtime_error("Invalid parameter formatting");

@@ -73,6 +73,9 @@
 	}
 
 	void SQL::exec(cppdb::session &session, const std::vector<SQL::Statement::Script> &scripts, const Abstract::Object &request, Udjat::Value &response) {
+
+		debug(__FUNCTION__);
+
 		for(auto &script : scripts) {
 			if(script.text && *script.text) {
 				auto stmt = session.create_statement(script.text);
@@ -90,6 +93,8 @@
 
 	void SQL::Statement::exec(const Udjat::Object &request) const {
 
+		debug(__FUNCTION__);
+
 		auto values = Udjat::Value::ObjectFactory();
 
 		cppdb::session session{dburl};
@@ -103,12 +108,32 @@
 
 	void SQL::Statement::exec(std::shared_ptr<Udjat::Value> response) const {
 
+		debug(__FUNCTION__);
+
 		cppdb::session session{dburl};
 		cppdb::transaction guard(session);
 
 		for(auto &script : scripts) {
+
 			if(script.text && *script.text) {
 				auto stmt = session.create_statement(script.text);
+
+				for(const char *name : script.parameter_names) {
+
+					string value;
+
+					if(response->getProperty(name,value)) {
+
+						debug("value(",name,")='",value,"' (from response)");
+						stmt.bind(value);
+
+					} else {
+
+						throw runtime_error(Logger::String{"Required property '",name,"' is missing"});
+
+					}
+				}
+
 				if(strcasestr(script.text,"select")) {
 					auto res = stmt.row();
 					parse_result(res,*response);
@@ -123,6 +148,8 @@
 	}
 
 	void SQL::Statement::exec(const Udjat::Object &request, Udjat::Value &response) const {
+
+		debug(__FUNCTION__);
 
 		cppdb::session session{dburl};
 		cppdb::transaction guard(session);

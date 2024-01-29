@@ -31,6 +31,7 @@
  #include <private/cppdb.h>
  #include <memory>
  #include <cppdb/frontend.h>
+ #include <unistd.h>
 
  using namespace std;
 
@@ -89,15 +90,6 @@
 					Logger::String{"Emitting alert"}.trace(name.c_str());
 				}
 
-				// Do we have all required parameters?
-				for(auto &script : scripts) {
-					for(auto &parameter : script.parameters) {
-						if(!parameter.valid) {
-							throw runtime_error(Logger::String{"Unable to get value of '",parameter.name,"'"});
-						}
-					}
-				}
-
 				// Execute scripts
 				{
 					cppdb::session session{dburl};
@@ -111,29 +103,31 @@
 
 						auto stmt = session.create_statement(script.text);
 						for(auto &parameter : script.parameters) {
-
-							// Update value from other scripts responses.
-							if(results->getProperty(parameter.name,parameter.value)) {
-								parameter.valid = true;
-							}
-
-							stmt.bind(parameter.value);
-
-							if(strncasecmp(script.text,"select",6)) {
-
-								// Not a select, just execute.
-								stmt.exec();
-
+							string rvalue;
+							if(results->getProperty(parameter.name,rvalue)) {
+								debug(parameter.name,"= '",parameter.value,"' (from result)");
+								stmt.bind(rvalue);
+							} else if(parameter.valid) {
+								debug(parameter.name,"= '",parameter.value,"' (from parameters)");
+								stmt.bind(parameter.value);
 							} else {
+								throw runtime_error(Logger::String{"Required parameter '",parameter.name,"' is missing"});
+							}
+						}
 
-								// It's a select, store results.
-								auto row = stmt.row();
-								for(int col = 0; col < row.cols();col++) {
-									string val;
-									row.fetch(col,val);
-									(*results)[row.name(col).c_str()] = val.c_str();
-								}
+						if(strncasecmp(script.text,"select",6)) {
 
+							// Not a select, just execute.
+							stmt.exec();
+
+						} else {
+
+							// It's a select, store results.
+							auto row = stmt.row();
+							for(int col = 0; col < row.cols();col++) {
+								string val;
+								row.fetch(col,val);
+								(*results)[row.name(col).c_str()] = val.c_str();
 							}
 
 						}
@@ -141,6 +135,7 @@
 					}
 
 					guard.commit();
+
 				}
 
 			}

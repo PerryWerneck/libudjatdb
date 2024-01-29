@@ -8,7 +8,8 @@
 	<!--
 		Use attribute for database URL to avoid repetitions.
 	-->
-	<attribute name='database-connection' value='sqlite3:db=/tmp/test.sqlite;@pool_size=10' />
+	<!-- attribute name='database-connection' value='sqlite3:db=/tmp/test.sqlite;@pool_size=10' / -->
+	<attribute name='database-connection' value='sqlite3:db=/tmp/test.sqlite' />
 
 	<!--
 	
@@ -78,12 +79,12 @@
 		select * from alerts
 	</api-call>
 
-	<alert type='sql' name='orphaned'>
+	<!-- alert type='sql' name='orphaned'>
 		insert into sample (name,value) values ("alert","orphaned");
-	</alert>
+	</alert -->
 
 	<!-- queued alert -->	
-	<alert name='hello' url='sql+http://127.0.0.1/cgi-bin/post-receiver' action='post'>
+	<alert name='hello' url='sql+http://127.0.0.1/cgi-bin/post_receiver' action='post'>
 		{"Message":"I'm Alive","timestamp":"${timestamp(%Y/%m/%d %H:%M:%S)}"}
 	</alert>
 	
