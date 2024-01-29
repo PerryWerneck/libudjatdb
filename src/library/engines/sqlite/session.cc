@@ -79,6 +79,9 @@
 	}
 
 	sqlite3_stmt * SQL::Session::prepare(const SQL::Statement::Script &script) {
+
+		debug("Preparing '",script.text,"'");
+
 		sqlite3_stmt *stmt;
 		check(
 			sqlite3_prepare_v2(
@@ -94,14 +97,14 @@
 
 	void SQL::Session::bind(const SQL::Statement::Script &script, sqlite3_stmt *stmt, const Abstract::Object &request, Udjat::Value &response) {
 
-		int column = 0;
+		int column = 1;
 		for(const char *name : script.parameter_names) {
 
 			string value;
 
 			if(request.getProperty(name,value)) {
 
-				debug("value(",name,")='",value,"' (from request)");
+				debug("value(",column,",'",name,"')='",value,"' (from request)");
 				check(
 					sqlite3_bind_text(
 						stmt,
@@ -114,7 +117,7 @@
 
 			} else if(response.getProperty(name,value)) {
 
-				debug("value(",name,")='",value,"' (from response)");
+				debug("value(",column,",'",name,"')='",value,"' (from response)");
 				check(
 					sqlite3_bind_text(
 						stmt,
@@ -138,14 +141,14 @@
 
 	void SQL::Session::bind(const SQL::Statement::Script &script, sqlite3_stmt *stmt, Udjat::Value &response) {
 
-		int column = 0;
+		int column = 1;
 		for(const char *name : script.parameter_names) {
 
 			string value;
 
 			if(response.getProperty(name,value)) {
 
-				debug("value(",name,")='",value,"' (from response)");
+				debug("value(",column,",'",name,"')='",value,"' (from request)");
 				check(
 					sqlite3_bind_text(
 						stmt,
@@ -245,6 +248,7 @@
 		int state = sqlite3_step(stmt);
 		switch(state) {
 		case SQLITE_DONE:	// Executed, no row
+			debug("sqlite-done");
 			break;
 
 		case SQLITE_ROW:	// Got a row.
@@ -340,7 +344,7 @@
 				try {
 
 					{
-						int column = 0;
+						int column = 1;
 						for(const char *name : script.parameter_names) {
 
 							string value;

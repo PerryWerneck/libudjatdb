@@ -79,9 +79,9 @@
 		select * from alerts
 	</api-call>
 
-	<!-- alert type='sql' name='orphaned'>
+	<alert type='sql' name='orphaned'>
 		insert into sample (name,value) values ("alert","orphaned");
-	</alert -->
+	</alert>
 
 	<!-- queued alert -->	
 	<alert name='hello' url='sql+http://127.0.0.1/cgi-bin/post_receiver' action='post'>
