@@ -49,8 +49,8 @@
 			/// @brief Interval to send after inserting url on queue.
 			time_t send_delay;
 
-			/// @brief Get State based on queue size.
-			std::shared_ptr<Abstract::State> state() const;
+			/// @brief Compute State based on queue size.
+			std::shared_ptr<Abstract::State> computeState() override;
 
 		public:
 			URLQueue(const XML::Node &node);
@@ -59,6 +59,7 @@
 			bool refresh(bool b) override;
 
 			std::shared_ptr<Protocol::Worker> WorkerFactory() const override;
+
 		};
 
 	}

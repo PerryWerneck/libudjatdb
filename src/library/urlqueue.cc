@@ -31,6 +31,7 @@
  #include <udjat/tools/http/client.h>
  #include <private/urlqueue.h>
  #include <udjat/tools/value.h>
+ #include <udjat/tools/intl.h>
  #include <private/module.h>
  #include <memory>
 
@@ -164,6 +165,58 @@
 		};
 
 		return make_shared<Worker>(this);
+
+	}
+
+	std::shared_ptr<Abstract::State> SQL::URLQueue::computeState() {
+
+		// Get current value.
+		size_t pending = SQL::Agent<size_t>::get();
+
+		// Do we have XML defined states?
+		for(auto state : states) {
+			if(state->compare(pending))
+				return state;
+		}
+
+		// No, we dont! Using internal ones
+
+		/// @brief Message based state.
+		class StringState : public Abstract::State {
+		private:
+			std::string message;
+
+		public:
+			StringState(const char *name, Level level, const std::string &msg) : Abstract::State(name,level), message{msg} {
+				Object::properties.summary = message.c_str();
+			}
+		};
+
+		const char * name = Protocol::c_str();
+
+		if(!pending) {
+
+			return make_shared<StringState>(
+							"empty",
+							Level::unimportant,
+							Message{ _("{} output queue is empty"), name }
+						);
+
+		} else if(pending == 1) {
+
+			return make_shared<StringState>(
+							"pending",
+							Level::warning,
+							Message{ _("One pending request in the {} queue"), name }
+						);
+
+		}
+
+		return make_shared<StringState>(
+						"pending",
+						Level::warning,
+						Message{ _("{} pending requests in the {} queue"), pending, name }
+					);
 
 	}
 
