@@ -1,0 +1,5 @@
+<multibuild>
+	<package>cppdb</package>
+	<package>sqlite</package>
+</multibuild>
+

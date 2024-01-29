@@ -33,7 +33,6 @@
  #include <udjat/tools/object.h>
  #include <udjat/tools/configuration.h>
  #include <udjat/tools/sql/statement.h>
- #include <private/session.h>
  #include <udjat/tools/abstract/response.h>
 
  using namespace std;

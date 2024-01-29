@@ -1,5 +1,5 @@
 #
-# spec file for package udjat-module-cppdb
+# spec file for package udjat-module-database
 #
 # Copyright (c) 2015 SUSE LINUX GmbH, Nuernberg, Germany.
 # Copyright (C) <2008> <Banco do Brasil S.A.>
@@ -16,17 +16,23 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
+%global flavor @BUILD_FLAVOR@%{nil}
+
+%if "%flavor" == ""
+ExclusiveArch:  do_not_build
+%endif
+
 %define product_name %(pkg-config --variable=product_name libudjat)
 %define module_path %(pkg-config --variable=module_path libudjat)
 
-Summary:		CPPDB Database modules for %{product_name}
-Name:			udjat-module-cppdb
-Version:		1.0
+Summary:		Database module for %{product_name}
+Name:			udjat-module-%{flavor}
+Version:		2.0
 Release:		0
 License:		LGPL-3.0
 Source:			%{name}-%{version}.tar.xz
 
-URL:			https://github.com/PerryWerneck/udjat-module-cppdb
+URL:			https://github.com/PerryWerneck/udjat-module-database
 
 Group:			Development/Libraries/C and C++
 BuildRoot:		/var/tmp/%{name}-%{version}
@@ -42,11 +48,18 @@ BuildRequires:	binutils
 BuildRequires:	coreutils
 BuildRequires:	gcc-c++
 
+%if %{flavor} == cppdb
 BuildRequires:	cppdb-devel
+%endif
+
+%if %{flavor} == sqlite
+BuildRequires:  pkgconfig(sqlite3)
+%endif
+
 BuildRequires:	pkgconfig(libudjat)
 
 %description
-CPPDB Based database module for %{product_name}
+Database module for %{product_name} using %{flavor} backend.
 
 #---[ Build & Install ]-----------------------------------------------------------------------------------------------
 
@@ -56,7 +69,7 @@ CPPDB Based database module for %{product_name}
 NOCONFIGURE=1 \
 	./autogen.sh
 
-%configure 
+%configure --with-engine=%{flavor}
 
 %build
 make all
