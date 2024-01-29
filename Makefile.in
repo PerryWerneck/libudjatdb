@@ -57,14 +57,16 @@ CFLAGS= \
 	@CXXFLAGS@ \
 	-DBUILD_DATE=`date +%Y%m%d` \
 	-I$(srcdir)/src/include \
-	@UDJAT_CFLAGS@
+	@UDJAT_CFLAGS@ \
+	@SQL_CFLAGS@
 
 LDFLAGS=\
 	@LDFLAGS@
 
 LIBS= \
 	@LIBS@ \
-	@UDJAT_LIBS@
+	@UDJAT_LIBS@ \
+	@SQL_LIBS@
 	
 #---[ Debug Rules ]----------------------------------------------------------------------
 

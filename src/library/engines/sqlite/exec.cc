@@ -27,6 +27,7 @@
  #include <udjat/tools/value.h>
  #include <string>
  #include <sqlite3.h>
+ #include <private/sqlite.h>
 
  using namespace std;
 
@@ -90,87 +91,35 @@
 			}
 		}
 	}
+	*/
 
 	void SQL::Statement::exec(const Udjat::Object &request) const {
 
 		debug(__FUNCTION__);
 
 		auto values = Udjat::Value::ObjectFactory();
-
-		cppdb::session session{dburl};
-		cppdb::transaction guard(session);
-
-		SQL::exec(session,scripts,request,*values);
-
-		guard.commit();
+		SQL::Session{dburl}.exec(scripts,request,*values);
 
 	}
 
 	void SQL::Statement::exec(std::shared_ptr<Udjat::Value> response) const {
 
 		debug(__FUNCTION__);
-
-		cppdb::session session{dburl};
-		cppdb::transaction guard(session);
-
-		for(auto &script : scripts) {
-
-			if(script.text && *script.text) {
-				auto stmt = session.create_statement(script.text);
-
-				for(const char *name : script.parameter_names) {
-
-					string value;
-
-					if(response->getProperty(name,value)) {
-
-						debug("value(",name,")='",value,"' (from response)");
-						stmt.bind(value);
-
-					} else {
-
-						throw runtime_error(Logger::String{"Required property '",name,"' is missing"});
-
-					}
-				}
-
-				if(strcasestr(script.text,"select")) {
-					auto res = stmt.row();
-					parse_result(res,*response);
-				} else {
-					stmt.exec();
-				}
-			}
-		}
-
-		guard.commit();
+		SQL::Session{dburl}.exec(scripts,*response);
 
 	}
 
 	void SQL::Statement::exec(const Udjat::Object &request, Udjat::Value &response) const {
 
 		debug(__FUNCTION__);
-
-		cppdb::session session{dburl};
-		cppdb::transaction guard(session);
-
-		SQL::exec(session,scripts,request,response);
-
-		guard.commit();
+		SQL::Session{dburl}.exec(scripts,request,response);
 
 	}
 
 	void SQL::Statement::exec(const Request &request, Udjat::Value &response) const {
 
 		debug(__FUNCTION__,"::Value start");
-
-		cppdb::session session{dburl};
-		cppdb::transaction guard(session);
-
-		SQL::exec(session,scripts,request,response);
-
-		guard.commit();
-
+		SQL::Session{dburl}.exec(scripts,request,response);
 		debug(__FUNCTION__,"::Value ends");
 
 	}
@@ -178,91 +127,9 @@
 	void SQL::Statement::exec(const Request &request, Udjat::Response::Table &response) const {
 
 		debug(__FUNCTION__,"::Table start");
-
-		cppdb::session session{dburl};
-		cppdb::transaction guard(session);
-
-		for(const auto &script : scripts) {
-
-			if(strcasestr(script.text,"select")) {
-
-				debug(__FUNCTION__,"('",script.text,"')");
-
-				// It's a select, get report
-				auto stmt = session.create_statement(script.text);
-				for(const char *name : scripts[0].parameter_names) {
-
-					string value;
-					if(request.getProperty(name,value)) {
-
-						debug("value(",name,")='",value,"' (from request)");
-						stmt.bind(value);
-
-					} else {
-
-						throw runtime_error(Logger::String{"Required property '",name,"' is missing"});
-
-					}
-
-				}
-
-				auto result = stmt.row();
-
-				if(!result.empty()) {
-
-					// Get first line and column names.
-					int numcols = result.cols();
-					std::vector<string> values;
-					std::vector<string> colnames;
-
-					for(int col = 0; col < numcols;col++) {
-						string val;
-						result.fetch(col,val);
-						values.push_back(val);
-						colnames.push_back(result.name(col));
-					}
-
-					// Start report...
-					response.start(colnames);
-
-					// ...and store first line
-					for(auto &value : values) {
-						response << value;
-					}
-
-					size_t rows = 1;
-
-					// Get other lines.
-					while(result.next()) {
-						rows++;
-						for(int col = 0; col < numcols;col++) {
-							string value;
-							result.fetch(col,value);
-							response << value;
-						}
-
-					}
-					response.count(rows);
-
-				} else {
-					debug("Empty response");
-					response.count(0);
-				}
-
-			}
-#ifdef DEBUG
-			else {
-				debug("Rejecting '",script.text,"'");
-			}
-#endif // DEBUG
-
-		}
-
-		guard.commit();
-
-		debug(__FUNCTION__,"::Value ends");
+		SQL::Session{dburl}.exec(scripts,request,response);
+		debug(__FUNCTION__,"::Table ends");
 	}
-	*/
 
  }
 

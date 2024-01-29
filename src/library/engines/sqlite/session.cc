@@ -26,7 +26,10 @@
  #include <udjat/tools/logger.h>
  #include <mutex>
  #include <sqlite3.h>
- #include <private/sqlite3.h>
+ #include <private/sqlite.h>
+ #include <mutex>
+
+ using namespace std;
 
  namespace Udjat {
 
@@ -68,5 +71,24 @@
 
 	}
 
+	void SQL::Session::exec(const std::vector<SQL::Statement::Script> &scripts, const Abstract::Object &request, Udjat::Value &response) {
+		lock_guard<std::mutex> lock(guard);
+
+	}
+
+	void SQL::Session::exec(const std::vector<SQL::Statement::Script> &scripts, Udjat::Value &response) {
+		lock_guard<std::mutex> lock(guard);
+
+	}
+
+	void SQL::Session::exec(const std::vector<SQL::Statement::Script> &scripts, const Request &request, Udjat::Value &response) {
+		lock_guard<std::mutex> lock(guard);
+
+	}
+
+	void SQL::Session::exec(const std::vector<SQL::Statement::Script> &scripts, const Request &request, Udjat::Response::Table &response) {
+		lock_guard<std::mutex> lock(guard);
+
+	}
 
  }

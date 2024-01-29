@@ -26,6 +26,10 @@
  #include <udjat/defs.h>
  #include <mutex>
  #include <sqlite3.h>
+ #include <udjat/tools/sql/statement.h>
+ #include <udjat/tools/report.h>
+ #include <udjat/tools/request.h>
+ #include <udjat/tools/response.h>
 
  namespace Udjat {
 
@@ -37,9 +41,14 @@
 			static std::mutex guard;
 
 		public:
+
 			Session(const char *dbname);
 			~Session();
 
+			void exec(const std::vector<SQL::Statement::Script> &scripts, const Abstract::Object &request, Udjat::Value &response);
+			void exec(const std::vector<SQL::Statement::Script> &scripts, Udjat::Value &response);
+			void exec(const std::vector<SQL::Statement::Script> &scripts, const Request &request, Udjat::Value &response);
+			void exec(const std::vector<SQL::Statement::Script> &scripts, const Request &request, Udjat::Response::Table &response);
 
 		};
 
