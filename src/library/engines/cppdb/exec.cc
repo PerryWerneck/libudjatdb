@@ -23,7 +23,7 @@
 
  #include <config.h>
  #include <udjat/defs.h>
- #include <udjat/tools/sql/statement.h>
+ #include <udjat/tools/sql/script.h>
  #include <udjat/tools/value.h>
  #include <cppdb/frontend.h>
  #include <private/cppdb.h>
@@ -33,7 +33,7 @@
 
  namespace Udjat {
 
-	void SQL::bind(const SQL::Statement::Script &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response) {
+	void SQL::bind(const SQL::Statement::_Script &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response) {
 
 		for(const char *name : script.parameter_names) {
 
@@ -72,7 +72,7 @@
 		}
 	}
 
-	void SQL::exec(cppdb::session &session, const std::vector<SQL::Statement::Script> &scripts, const Abstract::Object &request, Udjat::Value &response) {
+	void SQL::exec(cppdb::session &session, const std::vector<SQL::Statement::_Script> &scripts, const Abstract::Object &request, Udjat::Value &response) {
 
 		debug(__FUNCTION__);
 

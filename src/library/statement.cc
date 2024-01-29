@@ -32,7 +32,7 @@
  #include <udjat/tools/logger.h>
  #include <udjat/tools/object.h>
  #include <udjat/tools/configuration.h>
- #include <udjat/tools/sql/statement.h>
+ #include <udjat/tools/sql/script.h>
  #include <udjat/tools/abstract/response.h>
 
  using namespace std;

@@ -33,13 +33,13 @@
  #include <udjat/tools/quark.h>
 
 
- #include <udjat/tools/sql/statement.h>
+ #include <udjat/tools/sql/script.h>
 
  using namespace std;
 
  namespace Udjat {
 
-	SQL::Statement::Script::Script(const char *script) {
+	SQL::Statement::_Script::_Script(const char *script) {
 
 		if(!(script && *script)) {
 			throw runtime_error("Rejecting build of an empty SQL script");

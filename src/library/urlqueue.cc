@@ -27,7 +27,7 @@
  #include <udjat/agent/sql.h>
  #include <udjat/module/info.h>
  #include <udjat/tools/protocol.h>
- #include <udjat/tools/sql/statement.h>
+ #include <udjat/tools/sql/script.h>
  #include <udjat/tools/http/client.h>
  #include <private/urlqueue.h>
  #include <udjat/tools/value.h>

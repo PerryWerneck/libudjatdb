@@ -42,12 +42,12 @@
 		public:
 
 			/// @brief An SQL script.
-			struct Script {
+			struct _Script {
 
 				const char *text;
 
 				std::vector<const char *> parameter_names;
-				Script(const char *script);
+				_Script(const char *script);
 
 			};
 
@@ -98,7 +98,7 @@
 			/// @brief The database URL;
 			const char *dburl = nullptr;
 
-			std::vector<Script> scripts;
+			std::vector<_Script> scripts;
 
 			static const char * parse(Udjat::String &query);
 			void push_back(const XML::Node &node, bool allow_empty = false);

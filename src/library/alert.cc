@@ -22,7 +22,7 @@
   */
 
  #include <config.h>
- #include <udjat/tools/sql/statement.h>
+ #include <udjat/tools/sql/script.h>
  #include <udjat/tools/abstract/object.h>
  #include <udjat/alert/abstract.h>
  #include <udjat/alert/activation.h>

@@ -24,7 +24,7 @@
  #include <udjat/module/abstract.h>
  #include <udjat/tools/factory.h>
  #include <stdexcept>
- #include <udjat/tools/sql/statement.h>
+ #include <udjat/tools/sql/script.h>
  #include <udjat/tools/sql/apicall.h>
  #include <udjat/agent/sql.h>
  #include <udjat/tools/method.h>

@@ -26,7 +26,7 @@
  #include <udjat/defs.h>
  #include <mutex>
  #include <sqlite3.h>
- #include <udjat/tools/sql/statement.h>
+ #include <udjat/tools/sql/script.h>
  #include <udjat/tools/report.h>
  #include <udjat/tools/request.h>
  #include <udjat/tools/response.h>
@@ -42,9 +42,9 @@
 
 			void check(int rc);
 
-			sqlite3_stmt * prepare(const SQL::Statement::Script &script);
-			void bind(const SQL::Statement::Script &script, sqlite3_stmt *stmt, const Abstract::Object &request, Udjat::Value &response);
-			void bind(const SQL::Statement::Script &script, sqlite3_stmt *stmt, Udjat::Value &response);
+			sqlite3_stmt * prepare(const SQL::Statement::_Script &script);
+			void bind(const SQL::Statement::_Script &script, sqlite3_stmt *stmt, const Abstract::Object &request, Udjat::Value &response);
+			void bind(const SQL::Statement::_Script &script, sqlite3_stmt *stmt, Udjat::Value &response);
 
 			int step(sqlite3_stmt *stmt, Udjat::Value &response);
 
@@ -56,10 +56,10 @@
 			Session(const char *dbname);
 			~Session();
 
-			void exec(const std::vector<SQL::Statement::Script> &scripts, const Abstract::Object &request, Udjat::Value &response);
-			void exec(const std::vector<SQL::Statement::Script> &scripts, Udjat::Value &response);
-			void exec(const std::vector<SQL::Statement::Script> &scripts, const Request &request, Udjat::Value &response);
-			void exec(const std::vector<SQL::Statement::Script> &scripts, const Request &request, Udjat::Response::Table &response);
+			void exec(const std::vector<SQL::Statement::_Script> &scripts, const Abstract::Object &request, Udjat::Value &response);
+			void exec(const std::vector<SQL::Statement::_Script> &scripts, Udjat::Value &response);
+			void exec(const std::vector<SQL::Statement::_Script> &scripts, const Request &request, Udjat::Value &response);
+			void exec(const std::vector<SQL::Statement::_Script> &scripts, const Request &request, Udjat::Response::Table &response);
 
 		};
 

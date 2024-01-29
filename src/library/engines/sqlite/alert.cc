@@ -22,7 +22,7 @@
   */
 
  #include <config.h>
- #include <udjat/tools/sql/statement.h>
+ #include <udjat/tools/sql/script.h>
  #include <udjat/tools/abstract/object.h>
  #include <udjat/alert/abstract.h>
  #include <udjat/alert/activation.h>
@@ -61,7 +61,7 @@
 
 				std::vector<Parameter> parameters;
 
-				Script(const SQL::Statement::Script &script) : text{script.text} {
+				Script(const SQL::Statement::_Script &script) : text{script.text} {
 					for(const auto &parm : script.parameter_names) {
 						parameters.emplace_back(parm);
 					}
