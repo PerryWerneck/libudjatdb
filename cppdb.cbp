@@ -36,7 +36,6 @@
 		<Unit filename="src/include/private/controller.h" />
 		<Unit filename="src/include/private/cppdb.h" />
 		<Unit filename="src/include/private/module.h" />
-		<Unit filename="src/include/private/session.h" />
 		<Unit filename="src/include/private/sqlite.h" />
 		<Unit filename="src/include/private/urlqueue.h" />
 		<Unit filename="src/include/udjat/agent/sql.h" />

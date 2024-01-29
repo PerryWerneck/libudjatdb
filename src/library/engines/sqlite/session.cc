@@ -78,21 +78,25 @@
 		}
 	}
 
-	sqlite3_stmt * SQL::Session::prepare(const SQL::Statement &script) {
+	sqlite3_stmt * SQL::Session::prepare(const char *text) {
 
-		debug("Preparing '",script.text,"'");
+		debug("Preparing '",text,"'");
 
 		sqlite3_stmt *stmt;
 		check(
 			sqlite3_prepare_v2(
 				db,           	// Database handle
-				script.text,    // SQL statement, UTF-8 encoded
+				text,		    // SQL statement, UTF-8 encoded
 				-1,             // Maximum length of zSql in bytes.
 				&stmt,          // OUT: Statement handle
 				NULL            // OUT: Pointer to unused portion of zSql
 			)
 		);
 		return stmt;
+	}
+
+	sqlite3_stmt * SQL::Session::prepare(const SQL::Statement &script) {
+		return prepare(script.text);
 	}
 
 	void SQL::Session::bind(const SQL::Statement &script, sqlite3_stmt *stmt, const Abstract::Object &request, Udjat::Value &response) {

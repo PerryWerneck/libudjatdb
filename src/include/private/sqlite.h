@@ -40,8 +40,14 @@
 			sqlite3 *db = NULL;
 			static std::mutex guard;
 
+		public:
+
+			Session(const char *dbname);
+			~Session();
+
 			void check(int rc);
 
+			sqlite3_stmt * prepare(const char *script);
 			sqlite3_stmt * prepare(const SQL::Statement &script);
 			void bind(const SQL::Statement &script, sqlite3_stmt *stmt, const Abstract::Object &request, Udjat::Value &response);
 			void bind(const SQL::Statement &script, sqlite3_stmt *stmt, Udjat::Value &response);
@@ -50,11 +56,6 @@
 
 			void get(sqlite3_stmt *stmt, Udjat::Value &response);
 			void get(sqlite3_stmt *stmt, Udjat::Response::Table &response);
-
-		public:
-
-			Session(const char *dbname);
-			~Session();
 
 			void exec(const std::vector<SQL::Statement> &scripts, const Abstract::Object &request, Udjat::Value &response);
 			void exec(const std::vector<SQL::Statement> &scripts, Udjat::Value &response);

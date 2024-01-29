@@ -31,7 +31,9 @@
  #include <private/cppdb.h>
  #include <memory>
  #include <unistd.h>
+ #include <udjat/tools/sql/script.h>
  #include <sqlite3.h>
+ #include <private/sqlite.h>
 
  using namespace std;
 
@@ -45,7 +47,7 @@
 
 			const char *dburl;
 
-			struct Script {
+			struct Statement {
 
 				const char *text;
 
@@ -61,7 +63,7 @@
 
 				std::vector<Parameter> parameters;
 
-				Script(const SQL::Statement &script) : text{script.text} {
+				Statement(const SQL::Statement &script) : text{script.text} {
 					for(const auto &parm : script.parameter_names) {
 						parameters.emplace_back(parm);
 					}
@@ -69,17 +71,18 @@
 
 			};
 
-			std::vector<Script> scripts;
+			/// @brief The SQL statements.
+			std::vector<Statement> statements;
 
 			/// @brief Script results.
 			std::shared_ptr<Value> results;
 
 		public:
-			Activation(const Abstract::Alert *alert, const SQL::Script &statement)
-				: Udjat::Alert::Activation{alert}, dburl{statement.dbconn()}, results{Udjat::Value::ObjectFactory()} {
+			Activation(const Abstract::Alert *alert, const SQL::Script &script)
+				: Udjat::Alert::Activation{alert}, dburl{script.dbconn()}, results{Udjat::Value::ObjectFactory()} {
 
-				for(const auto &from : statement) {
-					scripts.emplace_back(from);
+				for(const auto &from : script) {
+					statements.emplace_back(from);
 				}
 
 			}
@@ -90,16 +93,69 @@
 					Logger::String{"Emitting alert"}.trace(name.c_str());
 				}
 
-				// Execute scripts
+				// Execute statements
 				{
+					SQL::Session session{dburl};
+
+					for(auto &statement : statements) {
+
+						if(Logger::enabled(Logger::Debug)) {
+							Logger::String{statement.text}.write(Logger::Debug,name.c_str());
+						}
+
+						auto stmt = session.prepare(statement.text);
+
+						try {
+
+							int column = 1;
+							for(auto &parameter : statement.parameters) {
+								string rvalue;
+								if(results->getProperty(parameter.name,rvalue)) {
+									debug(parameter.name,"= '",parameter.value,"' (from result)");
+									session.check(
+										sqlite3_bind_text(
+											stmt,
+											column,
+											rvalue.c_str(),
+											rvalue.size()+1,
+											SQLITE_TRANSIENT
+										)
+									);
+								} else if(parameter.valid) {
+									debug(parameter.name,"= '",parameter.value,"' (from parameters)");
+									session.check(
+										sqlite3_bind_text(
+											stmt,
+											column,
+											parameter.value.c_str(),
+											parameter.value.size()+1,
+											SQLITE_TRANSIENT
+										)
+									);
+								} else {
+									throw runtime_error(Logger::String{"Required parameter '",parameter.name,"' is missing"});
+								}
+								column++;
+							}
+
+							session.step(stmt, *results);
+
+						} catch(...) {
+							sqlite3_finalize(stmt);
+							throw;
+						}
+						sqlite3_finalize(stmt);
+
+					}
+
 				}
 
 			}
 
 			Udjat::Alert::Activation & set(const Abstract::Object &object) override {
 
-				for(auto &script : scripts) {
-					for(auto &parameter : script.parameters) {
+				for(auto &statement : statements) {
+					for(auto &parameter : statement.parameters) {
 						parameter.valid = parameter.valid || object.getProperty(parameter.name,parameter.value);
 					}
 				}
