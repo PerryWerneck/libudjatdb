@@ -42,7 +42,7 @@
 		<Unit filename="src/include/udjat/agent/sql.h" />
 		<Unit filename="src/include/udjat/alert/sql.h" />
 		<Unit filename="src/include/udjat/tools/sql/apicall.h" />
-		<Unit filename="src/include/udjat/tools/sql/statement.h" />
+		<Unit filename="src/include/udjat/tools/sql/script.h" />
 		<Unit filename="src/library/alert.cc" />
 		<Unit filename="src/library/apicall.cc" />
 		<Unit filename="src/library/controller.cc" />

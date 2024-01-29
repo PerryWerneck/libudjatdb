@@ -61,7 +61,7 @@
 
 				std::vector<Parameter> parameters;
 
-				Script(const SQL::Script::_Script &script) : text{script.text} {
+				Script(const SQL::Statement &script) : text{script.text} {
 					for(const auto &parm : script.parameter_names) {
 						parameters.emplace_back(parm);
 					}

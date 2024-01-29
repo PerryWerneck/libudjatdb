@@ -37,19 +37,18 @@
 
 	namespace SQL {
 
+		/// @brief A single SQL statement.
+		class UDJAT_API Statement {
+		public:
+			const char *text;
+			std::vector<const char *> parameter_names;
+			Statement(const char *script);
+
+		};
+
 		/// @brief An SQL statement.
 		class UDJAT_API Script {
 		public:
-
-			/// @brief An SQL script.
-			struct _Script {
-
-				const char *text;
-
-				std::vector<const char *> parameter_names;
-				_Script(const char *script);
-
-			};
 
 			/// @brief Create SQL statement from XML definition.
 			/// @param node the parent node.
@@ -98,7 +97,7 @@
 			/// @brief The database URL;
 			const char *dburl = nullptr;
 
-			std::vector<_Script> scripts;
+			std::vector<Statement> scripts;
 
 			static const char * parse(Udjat::String &query);
 			void push_back(const XML::Node &node, bool allow_empty = false);

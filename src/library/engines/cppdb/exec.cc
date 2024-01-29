@@ -33,7 +33,7 @@
 
  namespace Udjat {
 
-	void SQL::bind(const SQL::Script::_Script &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response) {
+	void SQL::bind(const SQL::Statement &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response) {
 
 		for(const char *name : script.parameter_names) {
 
@@ -72,7 +72,7 @@
 		}
 	}
 
-	void SQL::exec(cppdb::session &session, const std::vector<SQL::Script::_Script> &scripts, const Abstract::Object &request, Udjat::Value &response) {
+	void SQL::exec(cppdb::session &session, const std::vector<SQL::Statement> &scripts, const Abstract::Object &request, Udjat::Value &response) {
 
 		debug(__FUNCTION__);
 

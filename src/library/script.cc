@@ -39,7 +39,7 @@
 
  namespace Udjat {
 
-	SQL::Script::_Script::_Script(const char *script) {
+	SQL::Statement::Statement(const char *script) {
 
 		if(!(script && *script)) {
 			throw runtime_error("Rejecting build of an empty SQL script");

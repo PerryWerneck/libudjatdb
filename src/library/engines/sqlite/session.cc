@@ -78,7 +78,7 @@
 		}
 	}
 
-	sqlite3_stmt * SQL::Session::prepare(const SQL::Script::_Script &script) {
+	sqlite3_stmt * SQL::Session::prepare(const SQL::Statement &script) {
 
 		debug("Preparing '",script.text,"'");
 
@@ -95,7 +95,7 @@
 		return stmt;
 	}
 
-	void SQL::Session::bind(const SQL::Script::_Script &script, sqlite3_stmt *stmt, const Abstract::Object &request, Udjat::Value &response) {
+	void SQL::Session::bind(const SQL::Statement &script, sqlite3_stmt *stmt, const Abstract::Object &request, Udjat::Value &response) {
 
 		int column = 1;
 		for(const char *name : script.parameter_names) {
@@ -139,7 +139,7 @@
 
 	}
 
-	void SQL::Session::bind(const SQL::Script::_Script &script, sqlite3_stmt *stmt, Udjat::Value &response) {
+	void SQL::Session::bind(const SQL::Statement &script, sqlite3_stmt *stmt, Udjat::Value &response) {
 
 		int column = 1;
 		for(const char *name : script.parameter_names) {
@@ -263,7 +263,7 @@
 		return state;
 	}
 
-	void SQL::Session::exec(const std::vector<SQL::Script::_Script> &scripts, const Abstract::Object &request, Udjat::Value &response) {
+	void SQL::Session::exec(const std::vector<SQL::Statement> &scripts, const Abstract::Object &request, Udjat::Value &response) {
 
 		debug(__FUNCTION__);
 		lock_guard<std::mutex> lock(guard);
@@ -286,7 +286,7 @@
 
 	}
 
-	void SQL::Session::exec(const std::vector<SQL::Script::_Script> &scripts, Udjat::Value &response) {
+	void SQL::Session::exec(const std::vector<SQL::Statement> &scripts, Udjat::Value &response) {
 
 		debug(__FUNCTION__);
 		lock_guard<std::mutex> lock(guard);
@@ -310,7 +310,7 @@
 
 	}
 
-	void SQL::Session::exec(const std::vector<SQL::Script::_Script> &scripts, const Request &request, Udjat::Value &response) {
+	void SQL::Session::exec(const std::vector<SQL::Statement> &scripts, const Request &request, Udjat::Value &response) {
 
 		debug(__FUNCTION__);
 		lock_guard<std::mutex> lock(guard);
@@ -333,7 +333,7 @@
 
 	}
 
-	void SQL::Session::exec(const std::vector<SQL::Script::_Script> &scripts, const Request &request, Udjat::Response::Table &response) {
+	void SQL::Session::exec(const std::vector<SQL::Statement> &scripts, const Request &request, Udjat::Response::Table &response) {
 
 		debug(__FUNCTION__);
 		lock_guard<std::mutex> lock(guard);
