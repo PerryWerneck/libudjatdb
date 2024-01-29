@@ -18,7 +18,7 @@
  */
 
  /**
-  * @brief Brief description of this source.
+  * @brief Implement APICALL methods.
   */
 
  #include <config.h>
@@ -26,10 +26,7 @@
  #include <udjat/tools/xml.h>
  #include <udjat/tools/sql/apicall.h>
  #include <udjat/tools/logger.h>
- #include <udjat/tools/timestamp.h>
- #include <udjat/tools/abstract/response.h>
- #include <udjat/tools/worker.h>
- #include <cppdb/frontend.h>
+
  namespace Udjat {
 
 	SQL::ApiCall::ApiCall(const XML::Node &node)
