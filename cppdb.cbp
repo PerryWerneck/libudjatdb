@@ -54,6 +54,7 @@
 		<Unit filename="src/library/engines/sqlite/module.cc" />
 		<Unit filename="src/library/engines/sqlite/session.cc" />
 		<Unit filename="src/library/script.cc" />
+		<Unit filename="src/library/statement.cc" />
 		<Unit filename="src/library/urlqueue.cc" />
 		<Unit filename="src/module/init.cc" />
 		<Unit filename="src/testprogram/testprogram.cc" />

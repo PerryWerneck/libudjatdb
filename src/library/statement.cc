@@ -45,6 +45,20 @@
 
 			XML::Attribute attr;
 
+#ifdef HAVE_CPPDB
+			attr = parent.attribute("cppdb-connection");
+			if(attr) {
+				return String{attr.as_string()}.expand(node).strip();
+			}
+#endif // HAVE_CPPDB
+
+#ifdef HAVE_SQLITE3
+			attr = parent.attribute("sqlite-file");
+			if(attr) {
+				return String{attr.as_string()}.expand(node).strip();
+			}
+#endif // HAVE_SQLITE3
+
 			attr = parent.attribute("connection");
 			if(attr) {
 				return String{attr.as_string()}.expand(node).strip();
@@ -56,6 +70,18 @@
 			}
 
 			for(XML::Node child = parent.child("attribute");child;child = child.next_sibling("attribute")) {
+
+#ifdef HAVE_CPPDB
+				if(!strcasecmp(child.attribute("name").as_string(),"cppdb-connection")) {
+					return String{child.attribute("value").as_string()}.expand(node).strip();
+				}
+#endif // HAVE_CPPDB
+
+#ifdef HAVE_SQLITE3
+				if(!strcasecmp(child.attribute("name").as_string(),"sqlite-file")) {
+					return String{child.attribute("value").as_string()}.expand(node).strip();
+				}
+#endif // HAVE_SQLITE3
 
 				if(!strcasecmp(child.attribute("name").as_string(),"database-connection")) {
 					return String{child.attribute("value").as_string()}.expand(node).strip();
