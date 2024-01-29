@@ -24,6 +24,7 @@
  #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/tools/logger.h>
+ #include <udjat/tools/sql/statement.h>
  #include <mutex>
  #include <sqlite3.h>
  #include <private/sqlite.h>
@@ -71,23 +72,228 @@
 
 	}
 
+	void SQL::Session::check(int rc) {
+		if (rc != SQLITE_OK && rc != SQLITE_DONE) {
+			throw runtime_error(sqlite3_errmsg(db));
+		}
+	}
+
+	sqlite3_stmt * SQL::Session::prepare(const SQL::Statement::Script &script) {
+		sqlite3_stmt *stmt;
+		check(
+			sqlite3_prepare_v2(
+				db,           	// Database handle
+				script.text,    // SQL statement, UTF-8 encoded
+				-1,             // Maximum length of zSql in bytes.
+				&stmt,          // OUT: Statement handle
+				NULL            // OUT: Pointer to unused portion of zSql
+			)
+		);
+		return stmt;
+	}
+
+	void SQL::Session::bind(const SQL::Statement::Script &script, sqlite3_stmt *stmt, const Abstract::Object &request, Udjat::Value &response) {
+
+		int column = 0;
+		for(const char *name : script.parameter_names) {
+
+			string value;
+
+			if(request.getProperty(name,value)) {
+
+				debug("value(",name,")='",value,"' (from request)");
+				check(
+					sqlite3_bind_text(
+						stmt,
+						column,
+						value.c_str(),
+						value.size()+1,
+						SQLITE_TRANSIENT
+					)
+				);
+
+			} else if(response.getProperty(name,value)) {
+
+				debug("value(",name,")='",value,"' (from response)");
+				check(
+					sqlite3_bind_text(
+						stmt,
+						column,
+						value.c_str(),
+						value.size()+1,
+						SQLITE_TRANSIENT
+					)
+				);
+
+			} else {
+
+				throw runtime_error(Logger::String{"Required property '",name,"' is missing"});
+
+			}
+			column++;
+
+		}
+
+	}
+
+	void SQL::Session::bind(const SQL::Statement::Script &script, sqlite3_stmt *stmt, Udjat::Value &response) {
+
+		int column = 0;
+		for(const char *name : script.parameter_names) {
+
+			string value;
+
+			if(response.getProperty(name,value)) {
+
+				debug("value(",name,")='",value,"' (from response)");
+				check(
+					sqlite3_bind_text(
+						stmt,
+						column,
+						value.c_str(),
+						value.size()+1,
+						SQLITE_TRANSIENT
+					)
+				);
+
+			} else {
+
+				throw runtime_error(Logger::String{"Required property '",name,"' is missing"});
+
+			}
+			column++;
+
+		}
+
+	}
+
+	void SQL::Session::get(sqlite3_stmt *stmt, Udjat::Value &response) {
+
+		int colnum = sqlite3_data_count(stmt);
+
+		for(int col = 0; col < colnum;col++) {
+			const char *name = sqlite3_column_name(stmt,col);
+			debug(name,"='",(const char *) sqlite3_column_text(stmt,col));
+
+			switch(sqlite3_column_type(stmt,col)) {
+			case SQLITE_INTEGER:
+				response[name] = sqlite3_column_int(stmt,col);
+				break;
+
+			case SQLITE_FLOAT:
+				response[name] = sqlite3_column_double(stmt,col);
+				break;
+
+			case SQLITE_TEXT:
+				response[name] = (const char *) sqlite3_column_text(stmt,col);
+				break;
+
+			case SQLITE_BLOB:
+				throw runtime_error(Logger::String{"Unsupported 'blob' column ",name});
+				break;
+
+			case SQLITE_NULL:
+				response[name] = "";
+				break;
+
+			default:
+				Logger::String{"Unexpected data type in column '",name,"', assuming string"}.warning("sqlite");
+				response[name] = (const char *) sqlite3_column_text(stmt,col);
+			}
+		}
+
+	}
+
+	int SQL::Session::step(sqlite3_stmt *stmt, Udjat::Value &response) {
+
+		int state = sqlite3_step(stmt);
+		switch(state) {
+		case SQLITE_DONE:	// Executed, no row
+			break;
+
+		case SQLITE_ROW:	// Got a row.
+			get(stmt,response);
+			break;
+
+		default:
+			throw runtime_error("Unexpected error on database query");
+
+		}
+
+		return state;
+	}
+
 	void SQL::Session::exec(const std::vector<SQL::Statement::Script> &scripts, const Abstract::Object &request, Udjat::Value &response) {
+
+		debug(__FUNCTION__);
 		lock_guard<std::mutex> lock(guard);
+
+		for(auto &script : scripts) {
+			if(script.text && *script.text) {
+				sqlite3_stmt *stmt = prepare(script);
+				try {
+
+					bind(script, stmt, request, response);
+					step(stmt, response);
+
+				} catch(...) {
+					sqlite3_finalize(stmt);
+					throw;
+				}
+				sqlite3_finalize(stmt);
+			}
+		}
 
 	}
 
 	void SQL::Session::exec(const std::vector<SQL::Statement::Script> &scripts, Udjat::Value &response) {
+
+		debug(__FUNCTION__);
 		lock_guard<std::mutex> lock(guard);
+
+		for(auto &script : scripts) {
+			if(script.text && *script.text) {
+				sqlite3_stmt *stmt = prepare(script);
+				try {
+
+					bind(script, stmt, response);
+					step(stmt, response);
+
+				} catch(...) {
+					sqlite3_finalize(stmt);
+					throw;
+				}
+				sqlite3_finalize(stmt);
+			}
+		}
+
 
 	}
 
 	void SQL::Session::exec(const std::vector<SQL::Statement::Script> &scripts, const Request &request, Udjat::Value &response) {
+
+		debug(__FUNCTION__);
 		lock_guard<std::mutex> lock(guard);
+
+		for(auto &script : scripts) {
+			if(script.text && *script.text) {
+				sqlite3_stmt *stmt = prepare(script);
+				try {
+
+					bind(script, stmt, request, response);
+					step(stmt, response);
+
+				} catch(...) {
+					sqlite3_finalize(stmt);
+					throw;
+				}
+				sqlite3_finalize(stmt);
+			}
+		}
 
 	}
 
 	void SQL::Session::exec(const std::vector<SQL::Statement::Script> &scripts, const Request &request, Udjat::Response::Table &response) {
-		lock_guard<std::mutex> lock(guard);
 
 	}
 
