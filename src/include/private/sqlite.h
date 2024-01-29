@@ -47,7 +47,9 @@
 			void bind(const SQL::Statement::Script &script, sqlite3_stmt *stmt, Udjat::Value &response);
 
 			int step(sqlite3_stmt *stmt, Udjat::Value &response);
+
 			void get(sqlite3_stmt *stmt, Udjat::Value &response);
+			void get(sqlite3_stmt *stmt, Udjat::Response::Table &response);
 
 		public:
 

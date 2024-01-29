@@ -33,7 +33,11 @@
 
 	udjat_module_init();
 
-	auto rc = Application{}.run(argc,argv,"./test.xml");
+	#ifdef HAVE_SQLITE3
+		auto rc = Application{}.run(argc,argv,"./sqlite.xml");
+	#else
+		auto rc = Application{}.run(argc,argv,"./cppdb.xml");
+	#endif // HAVE_SQLITE3
 
 	debug("Application exits with rc=",rc);
 

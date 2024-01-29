@@ -204,6 +204,42 @@
 
 	}
 
+	void SQL::Session::get(sqlite3_stmt *stmt, Udjat::Response::Table &response) {
+
+		int colnum = sqlite3_data_count(stmt);
+
+		for(int col = 0; col < colnum;col++) {
+
+			switch(sqlite3_column_type(stmt,col)) {
+			case SQLITE_INTEGER:
+				response.push_back(sqlite3_column_int(stmt,col));
+				break;
+
+			case SQLITE_FLOAT:
+				response.push_back(sqlite3_column_double(stmt,col));
+				break;
+
+			case SQLITE_TEXT:
+				response.push_back((const char *) sqlite3_column_text(stmt,col));
+				break;
+
+			case SQLITE_BLOB:
+				throw runtime_error(Logger::String{"Unsupported 'blob' column ",sqlite3_column_name(stmt,col)});
+				break;
+
+			case SQLITE_NULL:
+				response.push_back("");
+				break;
+
+			default:
+				Logger::String{"Unexpected data type in column '",sqlite3_column_name(stmt,col),"', assuming string"}.warning("sqlite");
+				response.push_back((const char *) sqlite3_column_text(stmt,col));
+			}
+
+		}
+
+	}
+
 	int SQL::Session::step(sqlite3_stmt *stmt, Udjat::Value &response) {
 
 		int state = sqlite3_step(stmt);
@@ -216,7 +252,7 @@
 			break;
 
 		default:
-			throw runtime_error("Unexpected error on database query");
+			throw runtime_error(sqlite3_errmsg(db));
 
 		}
 
@@ -294,6 +330,83 @@
 	}
 
 	void SQL::Session::exec(const std::vector<SQL::Statement::Script> &scripts, const Request &request, Udjat::Response::Table &response) {
+
+		debug(__FUNCTION__);
+		lock_guard<std::mutex> lock(guard);
+
+		for(auto &script : scripts) {
+			if(script.text && *script.text) {
+				sqlite3_stmt *stmt = prepare(script);
+				try {
+
+					{
+						int column = 0;
+						for(const char *name : script.parameter_names) {
+
+							string value;
+
+							if(request.getProperty(name,value)) {
+
+								debug("value(",name,")='",value,"' (from request)");
+								check(
+									sqlite3_bind_text(
+										stmt,
+										column,
+										value.c_str(),
+										value.size()+1,
+										SQLITE_TRANSIENT
+									)
+								);
+
+							} else {
+
+								throw runtime_error(Logger::String{"Required property '",name,"' is missing"});
+
+							}
+							column++;
+
+						}
+					}
+
+					int state = sqlite3_step(stmt);
+					switch(state) {
+					case SQLITE_DONE:	// Executed, no row
+						break;
+
+					case SQLITE_ROW:	// Got a row.
+						{
+							int numcols = sqlite3_data_count(stmt);
+							std::vector<string> colnames;
+
+							for(int col = 0; col < numcols;col++) {
+								colnames.push_back(sqlite3_column_name(stmt,col));
+							}
+
+							// Start report...
+							response.start(colnames);
+
+							// Get first row.
+							get(stmt,response);
+
+							while(sqlite3_step(stmt) == SQLITE_ROW) {
+								get(stmt,response);
+							}
+
+						}
+						break;
+
+					default:
+						throw runtime_error(sqlite3_errmsg(db));
+
+					}
+
+				} catch(...) {
+					sqlite3_finalize(stmt);
+					throw;
+				}
+				sqlite3_finalize(stmt);
+			}
+		}
 
 	}
 
