@@ -18,26 +18,20 @@
  */
 
  /**
-  * @brief Internal definitions for CPPDB module.
+  * @brief Brief description of this source.
   */
 
  #pragma once
 
  #include <config.h>
  #include <udjat/defs.h>
- #include <udjat/tools/sql/statement.h>
- #include <udjat/tools/value.h>
- #include <udjat/tools/abstract/object.h>
- #include <cppdb/frontend.h>
- #include <mutex>
+ #include <udjat/module/info.h>
 
  namespace Udjat {
 
 	namespace SQL {
 
-		void bind(const SQL::Statement::Script &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response);
-		void exec(cppdb::session &session, const std::vector<SQL::Statement::Script> &scripts, const Abstract::Object &request, Udjat::Value &response);
-		void parse_result(cppdb::result &res, Udjat::Value &response);
+		extern const ModuleInfo module_info;
 
 	}
 

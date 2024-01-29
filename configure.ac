@@ -6,7 +6,7 @@ AC_PREREQ(2.59)
 
 dnl Initialise automake with the package name, version and
 dnl bug-reporting address.
-AC_INIT([udjat-module-cppdb], [1.0], [perry.werneck@gmail.com], [udjat-module-dmi], [https://github.com/PerryWerneck/udjat-module-cppdb])
+AC_INIT([udjat-module-database], [1.0], [perry.werneck@gmail.com], [udjat-module-database], [https://github.com/PerryWerneck/udjat-module-cppdb])
 
 dnl Place auxilliary scripts here.
 AC_CONFIG_AUX_DIR([scripts])
@@ -168,25 +168,30 @@ AC_DEFINE_UNQUOTED(MODULE_PATH, $app_cv_module_path, [The path for module instal
 AC_SUBST(MODULE_PATH,$app_cv_module_path)
 
 dnl ---------------------------------------------------------------------------
-dnl test for pugixml
-dnl ---------------------------------------------------------------------------
-dnl 
-dnl PKG_CHECK_MODULES(PUGIXML, pugixml, AC_DEFINE(HAVE_PUGIXML,[],[Do we have pugixml]),AC_MSG_ERROR(pugixml is required))
-dnl 
-dnl AC_SUBST(PUGIXML_LIBS)
-dnl AC_SUBST(PUGIXML_CFLAGS)
-dnl 
-dnl ---------------------------------------------------------------------------
-dnl test for cppdb
+dnl test for database engine
 dnl ---------------------------------------------------------------------------
 
-AC_CHECK_HEADERS([cppdb/defs.h],[
-    LIBS="$LIBS -lcppdb"
-    AC_DEFINE([HAVE_CPPDB], [1], [cppdb])
-])
+AC_ARG_WITH([engine], [AS_HELP_STRING([--with-engine], [Setup database engine])], [ app_cv_engine="$withval" ],[ app_cv_engine="cppdb" ])
+AC_SUBST(ENGINE_NAME,"$app_cv_engine")
 
-AC_SUBST(SQL_CFLAGS)
-AC_SUBST(SQL_LIBS)
+case "$app_cv_engine" in
+cppdb)
+	AC_CHECK_HEADERS([cppdb/defs.h],[
+		LIBS="$LIBS -lcppdb"
+		AC_DEFINE([HAVE_CPPDB], [1], [cppdb])
+	])
+	AC_SUBST(SQL_CFLAGS)
+	AC_SUBST(SQL_LIBS)
+	;;
+
+sqlite)
+	AC_MSG_ERROR([SQLite is unsupported])
+	;;
+
+*)
+	AC_MSG_ERROR([Unknown database engine])
+esac
+	
 
 dnl ---------------------------------------------------------------------------
 dnl Output config

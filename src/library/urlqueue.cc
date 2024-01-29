@@ -31,17 +31,16 @@
  #include <udjat/tools/http/client.h>
  #include <private/urlqueue.h>
  #include <udjat/tools/value.h>
+ #include <private/module.h>
  #include <memory>
 
  using namespace std;
 
  namespace Udjat {
 
-	static const ModuleInfo module_info{"cppdb", "CPPDB URL Queue Agent"};
-
 	SQL::URLQueue::URLQueue(const XML::Node &node)
 		:	SQL::Agent<size_t>(node),
-			Udjat::Protocol{Quark(node,"url-queue-name","sql").c_str(),module_info},
+			Udjat::Protocol{Quark(node,"url-queue-name","sql").c_str(),SQL::module_info},
 			ins{node,"insert",true,false},
 			send{node,"send",true,false},
 			after_send{node,"after-send",true,false},

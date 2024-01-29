@@ -2,10 +2,11 @@
 #---[ Library configuration ]------------------------------------------------------------
 
 PACKAGE_NAME=@PACKAGE_NAME@
+ENGINE_NAME=@ENGINE_NAME@
 
 MAIN_SOURCES= \
 	$(wildcard src/library/*.cc) \
-	$(wildcard src/library/engines/cppdb/*.cc) \
+	$(wildcard src/library/engines/$(ENGINE_NAME)/*.cc) \
 	$(wildcard src/module/*.cc) \
 	$(wildcard src/os/@OSNAME@/*.cc)
 
@@ -121,12 +122,12 @@ $(OBJRLS)/%.o: \
 #---[ Release Targets ]------------------------------------------------------------------
 
 all: \
-	$(BINRLS)/$(PACKAGE_NAME)@LIBEXT@
+	$(BINRLS)/udjat-module-$(ENGINE_NAME)@LIBEXT@
 
 Release: \
-	$(BINRLS)/$(PACKAGE_NAME)@LIBEXT@
+	$(BINRLS)/udjat-module-$(ENGINE_NAME)@LIBEXT@
 
-$(BINRLS)/$(PACKAGE_NAME)@LIBEXT@: \
+$(BINRLS)/udjat-module-$(ENGINE_NAME)@LIBEXT@: \
 	$(foreach SRC, $(basename $(MAIN_SOURCES)), $(OBJRLS)/$(SRC).o)
 
 	@$(MKDIR) $(@D)
@@ -143,14 +144,14 @@ $(BINRLS)/$(PACKAGE_NAME)@LIBEXT@: \
 #---[ Install Targets ]------------------------------------------------------------------
 
 install: \
-	$(BINRLS)/$(PACKAGE_NAME)@LIBEXT@
+	$(BINRLS)/udjat-module-$(ENGINE_NAME)@LIBEXT@
 
 	@$(MKDIR) \
 		$(DESTDIR)@MODULE_PATH@
 
 	@$(INSTALL_PROGRAM) \
-		$(BINRLS)/$(PACKAGE_NAME)@LIBEXT@ \
-		$(DESTDIR)@MODULE_PATH@/$(PACKAGE_NAME)@LIBEXT@
+		$(BINRLS)/udjat-module-$(ENGINE_NAME)@LIBEXT@ \
+		$(DESTDIR)@MODULE_PATH@/udjat-module-$(ENGINE_NAME)@LIBEXT@
 		
 #---[ Uninstall Targets ]----------------------------------------------------------------
 
@@ -160,7 +161,7 @@ uninstall: \
 uninstall-linux-lib:
 
 	@rm -f \
-		$(DESTDIR)@MODULE_PATH@/$(PACKAGE_NAME)@LIBEXT@
+		$(DESTDIR)@MODULE_PATH@/udjat-module-$(ENGINE_NAME)@LIBEXT@
 		
 
 #---[ Debug Targets ]--------------------------------------------------------------------
@@ -170,7 +171,7 @@ Debug: \
 
 $(BINDBG)/udjat@EXEEXT@: \
 	$(foreach SRC, $(basename $(TEST_SOURCES)), $(OBJDBG)/$(SRC).o) \
-	$(BINDBG)/$(PACKAGE_NAME)@LIBEXT@
+	$(BINDBG)/udjat-module-$(ENGINE_NAME)@LIBEXT@
 
 	@$(MKDIR) $(@D)
 	@echo $< ...
@@ -183,7 +184,7 @@ $(BINDBG)/udjat@EXEEXT@: \
 		$(LIBS)
 
 
-$(BINDBG)/$(PACKAGE_NAME)@LIBEXT@: \
+$(BINDBG)/udjat-module-$(ENGINE_NAME)@LIBEXT@: \
 	$(foreach SRC, $(basename $(MAIN_SOURCES)), $(OBJDBG)/$(SRC).o)
 
 	@$(MKDIR) $(@D)

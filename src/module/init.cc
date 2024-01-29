@@ -30,6 +30,7 @@
  #include <udjat/tools/method.h>
  #include <udjat/alert/sql.h>
  #include <private/urlqueue.h>
+ #include <private/module.h>
 
  using namespace Udjat;
  using namespace std;
@@ -37,15 +38,13 @@
  /// @brief Register udjat module.
  Udjat::Module * udjat_module_init() {
 
-	static const ModuleInfo module_info{"cppdb", "CPPDB SQL Module"};
-
 	class Module : public Udjat::Module, private Udjat::Worker, private Udjat::Factory {
 	private:
 
 		std::vector<SQL::ApiCall> queries;
 
 	public:
-		Module() : Udjat::Module("cppdb",module_info), Udjat::Worker("sql",module_info), Udjat::Factory("sql",module_info) {
+		Module() : Udjat::Module("cppdb",SQL::module_info), Udjat::Worker("sql",SQL::module_info), Udjat::Factory("sql",SQL::module_info) {
 		};
 
 		~Module() {
