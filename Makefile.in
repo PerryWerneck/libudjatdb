@@ -1,34 +1,4 @@
 
-#---[ Library configuration ]------------------------------------------------------------
-
-PACKAGE_NAME=@PACKAGE_NAME@
-ENGINE_NAME=@ENGINE_NAME@
-
-MAIN_SOURCES= \
-	$(wildcard src/library/*.cc) \
-	$(wildcard src/library/engines/$(ENGINE_NAME)/*.cc) \
-	$(wildcard src/module/*.cc) \
-	$(wildcard src/os/@OSNAME@/*.cc)
-
-TEST_SOURCES= \
-	$(wildcard src/testprogram/*.cc)
-
-#---[ Tools ]----------------------------------------------------------------------------
-
-CXX=@CXX@
-LD=@CXX@
-LN_S=@LN_S@
-MKDIR=@MKDIR_P@
-INSTALL=@INSTALL@
-INSTALL_DATA=@INSTALL_DATA@
-INSTALL_PROGRAM=@INSTALL_PROGRAM@
-XGETTEXT=@XGETTEXT@
-MSGCAT=@MSGCAT@
-WINDRES=@WINDRES@
-AR=@AR@
-VALGRIND=@VALGRIND@
-DLLTOOL=@DLLTOOL@
-
 #---[ Paths ]----------------------------------------------------------------------------
 
 prefix=@prefix@
@@ -50,6 +20,36 @@ OBJRLS=$(OBJDIR)/Release
 BINDIR=.bin
 BINDBG=$(BINDIR)/Debug
 BINRLS=$(BINDIR)/Release
+
+#---[ Library configuration ]------------------------------------------------------------
+
+PACKAGE_NAME=@PACKAGE_NAME@
+ENGINE_NAME=@ENGINE_NAME@
+
+MAIN_SOURCES= \
+	$(wildcard $(srcdir)/src/library/*.cc) \
+	$(wildcard $(srcdir)/src/library/engines/$(ENGINE_NAME)/*.cc) \
+	$(wildcard $(srcdir)/src/module/*.cc) \
+	$(wildcard $(srcdir)/src/os/@OSNAME@/*.cc)
+
+TEST_SOURCES= \
+	$(wildcard $(srcdir)/src/testprogram/*.cc)
+
+#---[ Tools ]----------------------------------------------------------------------------
+
+CXX=@CXX@
+LD=@CXX@
+LN_S=@LN_S@
+MKDIR=@MKDIR_P@
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+XGETTEXT=@XGETTEXT@
+MSGCAT=@MSGCAT@
+WINDRES=@WINDRES@
+AR=@AR@
+VALGRIND=@VALGRIND@
+DLLTOOL=@DLLTOOL@
 
 #---[ Rules ]----------------------------------------------------------------------------
 

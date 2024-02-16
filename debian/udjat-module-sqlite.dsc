@@ -4,7 +4,7 @@ Version: 1.0-0
 Binary: udjat-module-sqlite
 Maintainer: Perry Werneck <perry.werneck@gmail.com>
 Architecture: any
-Build-Depends: debhelper (>= 7), autotools-dev, autoconf, automake, pkg-config, gettext, libudjat-dev, libsqlite-dev
+Build-Depends: debhelper (>= 7), autotools-dev, autoconf, automake, pkg-config, gettext, libudjat-dev, libsqlite3-dev
 Standards-Version: 3.9.1.0
 DEBTRANSFORM-RELEASE: 1
 Files: 

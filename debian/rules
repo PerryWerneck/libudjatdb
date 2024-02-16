@@ -24,7 +24,7 @@ build-stamp:
 
 	# Add here commands to compile the package.
 	NOCONFIGURE=1 ./autogen.sh 
-	./configure --prefix=/usr
+	./configure --prefix=/usr --with-engine=sqlite
 	make all
 	# --- end custom part for compiling
 

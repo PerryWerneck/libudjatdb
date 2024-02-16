@@ -30,7 +30,7 @@ Name:			udjat-module-%{flavor}
 Version:		2.0
 Release:		0
 License:		LGPL-3.0
-Source:			%{name}-%{version}.tar.xz
+Source:			udjat-module-database-%{version}.tar.xz
 
 URL:			https://github.com/PerryWerneck/udjat-module-database
 
@@ -64,7 +64,7 @@ Database module for %{product_name} using %{flavor} backend.
 #---[ Build & Install ]-----------------------------------------------------------------------------------------------
 
 %prep
-%setup
+%setup -n udjat-module-database-%{version}
 
 NOCONFIGURE=1 \
 	./autogen.sh
