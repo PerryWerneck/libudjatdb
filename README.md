@@ -62,7 +62,7 @@ Database module for udjat using cppdb or sqlite as backend.
 	</agent>
 	
 	<!-- Declare an user monitor agent -->
-	<users name='users' update-timer='60'>
+	<agent type='users' name='users' update-timer='60'>
 
 		<!-- The URL is prefixed with 'sql+' to be stored on database -->
 		<alert name='logout' event='logout' max-retries='1' action='post' url='sql+http://localhost'>
