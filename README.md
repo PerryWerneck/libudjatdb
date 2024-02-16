@@ -70,6 +70,11 @@ Database module for udjat using cppdb or sqlite as backend.
 		</alert>
 
 	</users>
+
+	<!-- Declare an API call to get pending alerts -->
+	<api-call type='sql' name='pending' action='get' response-type='table'>
+		select * from alerts
+	</api-call>
 	
 </config>
 ```
