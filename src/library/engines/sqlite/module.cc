@@ -18,24 +18,19 @@
  */
 
  /**
-  * @brief Brief description of this source.
+  * @brief CPPDB module infos.
   */
 
  #include <config.h>
- #include <udjat/tools/sql/script.h>
- #include <udjat/tools/abstract/object.h>
- #include <udjat/alert/abstract.h>
- #include <udjat/alert/activation.h>
- #include <udjat/alert/sql.h>
- #include <udjat/tools/value.h>
-
- using namespace std;
+ #include <udjat/defs.h>
+ #include <udjat/tools/intl.h>
+ #include <private/module.h>
+ #include <udjat/module/info.h>
+ #include <sqlite3.h>
 
  namespace Udjat {
 
-	SQL::Alert::Alert(const XML::Node &node, const char *defaults) : Abstract::Alert(node,defaults), script{node} {
-	}
-
+	const ModuleInfo SQL::module_info{"sqlite", "SQLite " SQLITE_VERSION " SQL Module"};
 
  }
 

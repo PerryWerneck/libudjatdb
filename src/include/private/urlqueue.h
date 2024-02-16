@@ -18,37 +18,51 @@
  */
 
  /**
-  * @brief Describe SQL alert.
+  * @brief Declares the URL Queue Agent.
   */
 
  #pragma once
-
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
- #include <udjat/tools/sql/script.h>
- #include <udjat/alert/abstract.h>
- #include <udjat/alert/activation.h>
+ #include <udjat/agent/sql.h>
+ #include <udjat/tools/protocol.h>
 
  namespace Udjat {
 
 	namespace SQL {
 
-		/// @brief Default alert (based on URL and payload).
-		class UDJAT_API Alert : public Abstract::Alert {
-		protected:
+		class UDJAT_PRIVATE URLQueue : public SQL::Agent<size_t>, public Udjat::Protocol {
+		private:
 
-			/// @brief SQL Script to run on alert activation.
-			const SQL::Script script;
+			/// @brief SQL Script to insert an URL on queue.
+			const SQL::Script ins;
 
-			/// @brief Create an alert activation.
-			std::shared_ptr<Udjat::Alert::Activation> ActivationFactory() const override;
+			/// @brief SQL Script to get fields for retry.
+			const SQL::Script send;
+
+			/// @brief SQL Script to remove URL sent from queue.
+			const SQL::Script after_send;
+
+			/// @brief Seconds to wait after a sucessfull send to send another queued row.
+			time_t send_interval;
+
+			/// @brief Interval to send after inserting url on queue.
+			time_t send_delay;
+
+			/// @brief Compute State based on queue size.
+			std::shared_ptr<Abstract::State> computeState() override;
 
 		public:
+			URLQueue(const XML::Node &node);
+			virtual ~URLQueue();
 
-			Alert(const XML::Node &node, const char *defaults = "alert-defaults");
+			bool refresh(bool b) override;
+
+			std::shared_ptr<Protocol::Worker> WorkerFactory() const override;
 
 		};
 
 	}
 
  }
+

@@ -1,32 +1,4 @@
 
-#---[ Library configuration ]------------------------------------------------------------
-
-PACKAGE_NAME=@PACKAGE_NAME@
-
-MAIN_SOURCES= \
-	$(wildcard src/library/*.cc) \
-	$(wildcard src/module/*.cc) \
-	$(wildcard src/os/@OSNAME@/*.cc)
-
-TEST_SOURCES= \
-	$(wildcard src/testprogram/*.cc)
-
-#---[ Tools ]----------------------------------------------------------------------------
-
-CXX=@CXX@
-LD=@CXX@
-LN_S=@LN_S@
-MKDIR=@MKDIR_P@
-INSTALL=@INSTALL@
-INSTALL_DATA=@INSTALL_DATA@
-INSTALL_PROGRAM=@INSTALL_PROGRAM@
-XGETTEXT=@XGETTEXT@
-MSGCAT=@MSGCAT@
-WINDRES=@WINDRES@
-AR=@AR@
-VALGRIND=@VALGRIND@
-DLLTOOL=@DLLTOOL@
-
 #---[ Paths ]----------------------------------------------------------------------------
 
 prefix=@prefix@
@@ -49,20 +21,52 @@ BINDIR=.bin
 BINDBG=$(BINDIR)/Debug
 BINRLS=$(BINDIR)/Release
 
+#---[ Library configuration ]------------------------------------------------------------
+
+PACKAGE_NAME=@PACKAGE_NAME@
+ENGINE_NAME=@ENGINE_NAME@
+
+MAIN_SOURCES= \
+	$(wildcard $(srcdir)/src/library/*.cc) \
+	$(wildcard $(srcdir)/src/library/engines/$(ENGINE_NAME)/*.cc) \
+	$(wildcard $(srcdir)/src/module/*.cc) \
+	$(wildcard $(srcdir)/src/os/@OSNAME@/*.cc)
+
+TEST_SOURCES= \
+	$(wildcard $(srcdir)/src/testprogram/*.cc)
+
+#---[ Tools ]----------------------------------------------------------------------------
+
+CXX=@CXX@
+LD=@CXX@
+LN_S=@LN_S@
+MKDIR=@MKDIR_P@
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+XGETTEXT=@XGETTEXT@
+MSGCAT=@MSGCAT@
+WINDRES=@WINDRES@
+AR=@AR@
+VALGRIND=@VALGRIND@
+DLLTOOL=@DLLTOOL@
+
 #---[ Rules ]----------------------------------------------------------------------------
 
 CFLAGS= \
 	@CXXFLAGS@ \
 	-DBUILD_DATE=`date +%Y%m%d` \
 	-I$(srcdir)/src/include \
-	@UDJAT_CFLAGS@
+	@UDJAT_CFLAGS@ \
+	@SQL_CFLAGS@
 
 LDFLAGS=\
 	@LDFLAGS@
 
 LIBS= \
 	@LIBS@ \
-	@UDJAT_LIBS@
+	@UDJAT_LIBS@ \
+	@SQL_LIBS@
 	
 #---[ Debug Rules ]----------------------------------------------------------------------
 
@@ -120,12 +124,12 @@ $(OBJRLS)/%.o: \
 #---[ Release Targets ]------------------------------------------------------------------
 
 all: \
-	$(BINRLS)/$(PACKAGE_NAME)@LIBEXT@
+	$(BINRLS)/udjat-module-$(ENGINE_NAME)@LIBEXT@
 
 Release: \
-	$(BINRLS)/$(PACKAGE_NAME)@LIBEXT@
+	$(BINRLS)/udjat-module-$(ENGINE_NAME)@LIBEXT@
 
-$(BINRLS)/$(PACKAGE_NAME)@LIBEXT@: \
+$(BINRLS)/udjat-module-$(ENGINE_NAME)@LIBEXT@: \
 	$(foreach SRC, $(basename $(MAIN_SOURCES)), $(OBJRLS)/$(SRC).o)
 
 	@$(MKDIR) $(@D)
@@ -142,14 +146,14 @@ $(BINRLS)/$(PACKAGE_NAME)@LIBEXT@: \
 #---[ Install Targets ]------------------------------------------------------------------
 
 install: \
-	$(BINRLS)/$(PACKAGE_NAME)@LIBEXT@
+	$(BINRLS)/udjat-module-$(ENGINE_NAME)@LIBEXT@
 
 	@$(MKDIR) \
 		$(DESTDIR)@MODULE_PATH@
 
 	@$(INSTALL_PROGRAM) \
-		$(BINRLS)/$(PACKAGE_NAME)@LIBEXT@ \
-		$(DESTDIR)@MODULE_PATH@/$(PACKAGE_NAME)@LIBEXT@
+		$(BINRLS)/udjat-module-$(ENGINE_NAME)@LIBEXT@ \
+		$(DESTDIR)@MODULE_PATH@/udjat-module-$(ENGINE_NAME)@LIBEXT@
 		
 #---[ Uninstall Targets ]----------------------------------------------------------------
 
@@ -159,7 +163,7 @@ uninstall: \
 uninstall-linux-lib:
 
 	@rm -f \
-		$(DESTDIR)@MODULE_PATH@/$(PACKAGE_NAME)@LIBEXT@
+		$(DESTDIR)@MODULE_PATH@/udjat-module-$(ENGINE_NAME)@LIBEXT@
 		
 
 #---[ Debug Targets ]--------------------------------------------------------------------
@@ -169,7 +173,7 @@ Debug: \
 
 $(BINDBG)/udjat@EXEEXT@: \
 	$(foreach SRC, $(basename $(TEST_SOURCES)), $(OBJDBG)/$(SRC).o) \
-	$(BINDBG)/$(PACKAGE_NAME)@LIBEXT@
+	$(BINDBG)/udjat-module-$(ENGINE_NAME)@LIBEXT@
 
 	@$(MKDIR) $(@D)
 	@echo $< ...
@@ -182,7 +186,7 @@ $(BINDBG)/udjat@EXEEXT@: \
 		$(LIBS)
 
 
-$(BINDBG)/$(PACKAGE_NAME)@LIBEXT@: \
+$(BINDBG)/udjat-module-$(ENGINE_NAME)@LIBEXT@: \
 	$(foreach SRC, $(basename $(MAIN_SOURCES)), $(OBJDBG)/$(SRC).o)
 
 	@$(MKDIR) $(@D)

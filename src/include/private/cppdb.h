@@ -18,24 +18,27 @@
  */
 
  /**
-  * @brief Brief description of this source.
+  * @brief Internal definitions for CPPDB module.
   */
 
- #include <config.h>
- #include <udjat/tools/sql/script.h>
- #include <udjat/tools/abstract/object.h>
- #include <udjat/alert/abstract.h>
- #include <udjat/alert/activation.h>
- #include <udjat/alert/sql.h>
- #include <udjat/tools/value.h>
+ #pragma once
 
- using namespace std;
+ #include <config.h>
+ #include <udjat/defs.h>
+ #include <udjat/tools/sql/script.h>
+ #include <udjat/tools/value.h>
+ #include <udjat/tools/abstract/object.h>
+ #include <cppdb/frontend.h>
+ #include <mutex>
 
  namespace Udjat {
 
-	SQL::Alert::Alert(const XML::Node &node, const char *defaults) : Abstract::Alert(node,defaults), script{node} {
+	namespace SQL {
+
+		void bind(const SQL::Statement &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response);
+		void exec(cppdb::session &session, const std::vector<SQL::Statement> &scripts, const Abstract::Object &request, Udjat::Value &response);
+		void parse_result(cppdb::result &res, Udjat::Value &response);
+
 	}
 
-
  }
-

@@ -26,15 +26,13 @@
  #include <udjat/version.h>
  #include <udjat/tools/xml.h>
  #include <udjat/tools/object.h>
- #include <cppdb/frontend.h>
  #include <vector>
  #include <stdexcept>
  #include <udjat/tools/string.h>
  #include <udjat/tools/logger.h>
  #include <udjat/tools/object.h>
  #include <udjat/tools/configuration.h>
- #include <udjat/tools/sql/statement.h>
- #include <private/session.h>
+ #include <udjat/tools/sql/script.h>
  #include <udjat/tools/abstract/response.h>
 
  using namespace std;
@@ -47,6 +45,20 @@
 
 			XML::Attribute attr;
 
+#ifdef HAVE_CPPDB
+			attr = parent.attribute("cppdb-connection");
+			if(attr) {
+				return String{attr.as_string()}.expand(node).strip();
+			}
+#endif // HAVE_CPPDB
+
+#ifdef HAVE_SQLITE3
+			attr = parent.attribute("sqlite-file");
+			if(attr) {
+				return String{attr.as_string()}.expand(node).strip();
+			}
+#endif // HAVE_SQLITE3
+
 			attr = parent.attribute("connection");
 			if(attr) {
 				return String{attr.as_string()}.expand(node).strip();
@@ -58,6 +70,18 @@
 			}
 
 			for(XML::Node child = parent.child("attribute");child;child = child.next_sibling("attribute")) {
+
+#ifdef HAVE_CPPDB
+				if(!strcasecmp(child.attribute("name").as_string(),"cppdb-connection")) {
+					return String{child.attribute("value").as_string()}.expand(node).strip();
+				}
+#endif // HAVE_CPPDB
+
+#ifdef HAVE_SQLITE3
+				if(!strcasecmp(child.attribute("name").as_string(),"sqlite-file")) {
+					return String{child.attribute("value").as_string()}.expand(node).strip();
+				}
+#endif // HAVE_SQLITE3
 
 				if(!strcasecmp(child.attribute("name").as_string(),"database-connection")) {
 					return String{child.attribute("value").as_string()}.expand(node).strip();
@@ -81,7 +105,13 @@
 
  	}
 
-	SQL::Statement::Statement(const XML::Node &node, const char *child_name, bool allow_empty, bool allow_text)
+ 	UDJAT_API void SQL::Script::init(const XML::Node &node) {
+		for(auto child = node.child("init"); child; child = child.next_sibling("init")) {
+			SQL::Script::exec(child);
+		}
+ 	}
+
+	SQL::Script::Script(const XML::Node &node, const char *child_name, bool allow_empty, bool allow_text)
 		: dburl{connection_from_xml(node).as_quark()} {
 
 		if(!(dburl && *dburl)) {
@@ -114,7 +144,7 @@
 
 	}
 
-	const char * SQL::Statement::parse(Udjat::String &query) {
+	const char * SQL::Script::parse(Udjat::String &query) {
 
 		query.strip();
 		if(query.empty()) {
@@ -144,7 +174,7 @@
 
 	}
 
-	void SQL::Statement::push_back(const XML::Node &node, bool allow_empty) {
+	void SQL::Script::push_back(const XML::Node &node, bool allow_empty) {
 
 		size_t lines = 0;
 		for(auto &line : String{node.child_value()}.strip().split(";")) {
@@ -166,137 +196,21 @@
 
 	}
 
-	SQL::Statement::~Statement() {
+	SQL::Script::~Script() {
 	}
 
-	void SQL::Statement::exec() const {
+	void SQL::Script::exec() const {
 	}
 
-	void SQL::Statement::exec(const XML::Node &node) {
+	void SQL::Script::exec(const XML::Node &node) {
 
 		String connection{connection_from_xml(node)};
 		if(connection.empty()) {
 			throw runtime_error("Required attribute 'database-connection' is invalid or missing");
 		}
 
-		String script{node.child_value()};
-		cppdb::session{connection.c_str()}.create_statement(parse(script)).exec();
+		SQL::Script{node}.exec(Udjat::Value::ObjectFactory());
 
-	}
-
-	void SQL::Statement::exec(const Udjat::Object &request) const {
-
-		cppdb::session session{dburl};
-		cppdb::transaction guard(session);
-
-		for(auto &script : scripts) {
-			script.exec(session,request);
-		}
-
-		guard.commit();
-
-	}
-
-	void SQL::Statement::exec(const Udjat::Object &request, Udjat::Value &response) const {
-
-		cppdb::session session{dburl};
-		cppdb::transaction guard(session);
-
-		for(auto &script : scripts) {
-			script.exec(session,request,response);
-		}
-
-		guard.commit();
-
-	}
-
-	void SQL::Statement::exec(const Request &request, Udjat::Value &response) const {
-
-		debug(__FUNCTION__,"::Value start");
-
-		cppdb::session session{dburl};
-		cppdb::transaction guard(session);
-
-		for(auto &script : scripts) {
-
-			auto result = script.create_statement(session,request,response).row();
-			debug("-----------------------> '",script.text,"'");
-			if(!result.empty() && strncasecmp(script.text,"select",6) == 0) {
-				// Transfer result to response.
-				for(int col = 0; col < result.cols();col++) {
-					string val;
-					result.fetch(col,val);
-					debug("----->",result.name(col).c_str(),"='",val.c_str(),"'");
-					response[result.name(col).c_str()] = val.c_str();
-				}
-			}
-		}
-
-		debug(__FUNCTION__,"::Value end");
-		guard.commit();
-	}
-
-	void SQL::Statement::exec(const Request &request, Udjat::Response::Table &response) const {
-
-		debug(__FUNCTION__,"::Table start");
-
-		cppdb::session session{dburl};
-		cppdb::transaction guard(session);
-
-		auto result = scripts[0].create_statement(session, request).row();
-
-		if(!result.empty()) {
-
-			// Get column names.
-			int numcols = result.cols();
-
-			{
-				// Get first line and column names.
-				std::vector<string> values;
-				std::vector<string> colnames;
-
-				for(int col = 0; col < numcols;col++) {
-					string val;
-					result.fetch(col,val);
-					values.push_back(val);
-					colnames.push_back(result.name(col));
-				}
-
-				// Start report...
-				response.start(colnames);
-
-				// ...and store first line
-				for(auto &value : values) {
-					response << value;
-				}
-
-			}
-
-			size_t rows = 1;
-
-			// Get other lines.
-			while(result.next()) {
-				rows++;
-				for(int col = 0; col < numcols;col++) {
-					string value;
-					result.fetch(col,value);
-					response << value;
-				}
-
-			}
-			response.count(rows);
-
-
-		} else {
-
-			debug("Empty response");
-			response.count(0);
-
-		}
-
-		guard.commit();
-
-		debug(__FUNCTION__,"::Table end");
 	}
 
  }

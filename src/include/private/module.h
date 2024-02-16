@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-3.0-or-later */
 
 /*
- * Copyright (C) 2023 Perry Werneck <perry.werneck@gmail.com>
+ * Copyright (C) 2024 Perry Werneck <perry.werneck@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -18,35 +18,21 @@
  */
 
  /**
-  * @brief Declares Session object.
+  * @brief Brief description of this source.
   */
 
  #pragma once
+
+ #include <config.h>
  #include <udjat/defs.h>
- #include <udjat/tools/xml.h>
- #include <cppdb/frontend.h>
+ #include <udjat/module/info.h>
 
- #include <vector>
- #include <memory>
- #include <thread>
-
- /*
  namespace Udjat {
 
 	namespace SQL {
 
-		class UDJAT_PRIVATE Session : public cppdb::session {
-		public:
-
-			/// @brief Get default session.
-			static std::shared_ptr<Session> getInstance();
-
-			/// @brief Get session from XML node.
-			static std::shared_ptr<Session> getInstance(const XML::Node &node);
-
-		};
+		extern const ModuleInfo module_info;
 
 	}
 
  }
- */

@@ -30,7 +30,6 @@
  #include <udjat/tools/request.h>
  #include <udjat/tools/response.h>
  #include <udjat/tools/report.h>
- #include <cppdb/frontend.h>
  #include <vector>
  #include <memory>
 
@@ -38,36 +37,27 @@
 
 	namespace SQL {
 
-		using Session = cppdb::session;
-
-		/// @brief An SQL statement.
+		/// @brief A single SQL statement.
 		class UDJAT_API Statement {
 		public:
+			const char *text;
+			std::vector<const char *> parameter_names;
+			Statement(const char *script);
 
-			/// @brief An SQL script.
-			struct Script {
+		};
 
-				const char *text;
-
-				std::vector<const char *> parameter_names;
-				Script(const char *script);
-
-				void exec(Session &session, const Abstract::Object &object) const;
-				void exec(Session &session, const Abstract::Object &request, Udjat::Value &response) const;
-
-				cppdb::statement create_statement(Session &session, const Abstract::Object &request, const Abstract::Object &response) const;
-				cppdb::statement create_statement(Session &session, const Abstract::Object &request) const;
-
-			};
+		/// @brief An SQL statement.
+		class UDJAT_API Script {
+		public:
 
 			/// @brief Create SQL statement from XML definition.
 			/// @param node the parent node.
 			/// @param child_name The XML tagname for the script nodes.
 			/// @param allow_empty Allow empty scripts.
 			/// @param allo_text Allow using node 'cdata' for script text.
-			Statement(const XML::Node &node, const char *child_name = "script", bool allow_empty = false, bool allow_text = true);
+			Script(const XML::Node &node, const char *child_name = "script", bool allow_empty = false, bool allow_text = true);
 
-			virtual ~Statement();
+			virtual ~Script();
 
 			/// @brief False if query is empty.
 			inline size_t size() const noexcept {
@@ -78,7 +68,7 @@
 			void exec() const;
 
 			/// @brief Execute SQL query
-			/// @param request The object with the parameter values.
+			/// @param request The object with the values.
 			void exec(const Udjat::Object &request) const;
 
 			/// @brief Execute SQL query, get response.
@@ -93,15 +83,21 @@
 			/// @brief Execute SQL query, get response.
 			void exec(const Request &request, Udjat::Response::Table &response) const;
 
+			void exec(std::shared_ptr<Udjat::Value> response) const;
+
 			/// @brief Execute SQL query.
 			static void exec(const XML::Node &node);
+
+			/// @brief Execute <init> children.
+			static void init(const XML::Node &node);
+
 
 		private:
 
 			/// @brief The database URL;
 			const char *dburl = nullptr;
 
-			std::vector<Script> scripts;
+			std::vector<Statement> scripts;
 
 			static const char * parse(Udjat::String &query);
 			void push_back(const XML::Node &node, bool allow_empty = false);

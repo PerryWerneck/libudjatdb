@@ -24,11 +24,13 @@
  #include <udjat/module/abstract.h>
  #include <udjat/tools/factory.h>
  #include <stdexcept>
- #include <udjat/tools/sql/statement.h>
+ #include <udjat/tools/sql/script.h>
  #include <udjat/tools/sql/apicall.h>
  #include <udjat/agent/sql.h>
  #include <udjat/tools/method.h>
  #include <udjat/alert/sql.h>
+ #include <private/urlqueue.h>
+ #include <private/module.h>
 
  using namespace Udjat;
  using namespace std;
@@ -36,15 +38,13 @@
  /// @brief Register udjat module.
  Udjat::Module * udjat_module_init() {
 
-	static const ModuleInfo module_info{"cppdb", "CPPDB SQL Module"};
-
 	class Module : public Udjat::Module, private Udjat::Worker, private Udjat::Factory {
 	private:
 
 		std::vector<SQL::ApiCall> queries;
 
 	public:
-		Module() : Udjat::Module("cppdb",module_info), Udjat::Worker("sql",module_info), Udjat::Factory("sql",module_info) {
+		Module() : Udjat::Module("cppdb",SQL::module_info), Udjat::Worker("sql",SQL::module_info), Udjat::Factory("sql",SQL::module_info) {
 		};
 
 		~Module() {
@@ -102,7 +102,7 @@
 			switch(String{node.name()}.select("init","url-scheme","api-call",nullptr)) {
 			case 0: // Init
 				debug("Init script");
-				SQL::Statement::exec(node);
+				SQL::Script::exec(node);
 				break;
 
 			case 1: // URL Scheme
@@ -126,12 +126,12 @@
 			switch(String{node,"type"}.select("initializer","url-scheme","query","api-call",nullptr)) {
 			case 0: // Initializer
 				debug("Initializer");
-				SQL::Statement::exec(node);
+				SQL::Script::exec(node);
 				break;
 
 			case 1: // URL Scheme
 				debug("URL-Scheme");
-				// SQL::Statement{node};
+				// SQL::Script{node};
 				break;
 
 			case 2: // Query
@@ -152,6 +152,14 @@
 		std::shared_ptr<Abstract::Agent> AgentFactory(const Abstract::Object &, const XML::Node &node) const override {
 
 			debug("--- Creating an SQL agent ---");
+
+			if(node.attribute("url-queue-name")) {
+				return make_shared<SQL::URLQueue>(node);
+			}
+
+			//
+			// Try standard agents.
+			//
 			std::shared_ptr<Abstract::Agent> agent;
 
 			switch(String{node,"value-type","string"}.select("integer","signed","unsigned","float","string",nullptr)) {

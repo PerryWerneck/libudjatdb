@@ -34,19 +34,27 @@
 		</Compiler>
 		<Unit filename="src/include/config.h" />
 		<Unit filename="src/include/private/controller.h" />
+		<Unit filename="src/include/private/cppdb.h" />
 		<Unit filename="src/include/private/module.h" />
-		<Unit filename="src/include/private/session.h" />
+		<Unit filename="src/include/private/sqlite.h" />
+		<Unit filename="src/include/private/urlqueue.h" />
 		<Unit filename="src/include/udjat/agent/sql.h" />
 		<Unit filename="src/include/udjat/alert/sql.h" />
-		<Unit filename="src/include/udjat/sql/statement.h" />
 		<Unit filename="src/include/udjat/tools/sql/apicall.h" />
-		<Unit filename="src/include/udjat/tools/sql/statement.h" />
-		<Unit filename="src/include/udjat/tools/sql/urlscheme.h" />
+		<Unit filename="src/include/udjat/tools/sql/script.h" />
 		<Unit filename="src/library/alert.cc" />
 		<Unit filename="src/library/apicall.cc" />
 		<Unit filename="src/library/controller.cc" />
+		<Unit filename="src/library/engines/cppdb/alert.cc" />
+		<Unit filename="src/library/engines/cppdb/exec.cc" />
+		<Unit filename="src/library/engines/cppdb/module.cc" />
+		<Unit filename="src/library/engines/sqlite/alert.cc" />
+		<Unit filename="src/library/engines/sqlite/exec.cc" />
+		<Unit filename="src/library/engines/sqlite/module.cc" />
+		<Unit filename="src/library/engines/sqlite/session.cc" />
 		<Unit filename="src/library/script.cc" />
 		<Unit filename="src/library/statement.cc" />
+		<Unit filename="src/library/urlqueue.cc" />
 		<Unit filename="src/module/init.cc" />
 		<Unit filename="src/testprogram/testprogram.cc" />
 		<Extensions />
