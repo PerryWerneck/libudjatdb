@@ -34,6 +34,7 @@
  #include <udjat/tools/configuration.h>
  #include <udjat/tools/sql/script.h>
  #include <udjat/tools/abstract/response.h>
+ #include <udjat/tools/application.h>
 
  using namespace std;
 
@@ -55,7 +56,20 @@
 #ifdef HAVE_SQLITE3
 			attr = parent.attribute("sqlite-file");
 			if(attr) {
-				return String{attr.as_string()}.expand(node).strip();
+
+				String filename{attr.as_string()};
+				filename.expand(node).strip();
+
+				if(filename[0] == '/') {
+					return filename;
+				}
+
+				Application::DataDir datadir{"db"};
+				datadir += '/';
+				datadir += filename.c_str();
+
+				return datadir.c_str();
+
 			}
 #endif // HAVE_SQLITE3
 
