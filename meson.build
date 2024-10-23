@@ -157,7 +157,6 @@ lib_src = [
 lib_src += [
   'src/library/engines/cppdb/alert.cc',
   'src/library/engines/cppdb/exec.cc',
-  'src/library/engines/cppdb/module.cc',
 ]
 
 # src/library/engines/sqlite/alert.cc
