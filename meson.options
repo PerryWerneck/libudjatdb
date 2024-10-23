@@ -1,0 +1,2 @@
+option('engine', type : 'string', value : 'cppdb')
+
