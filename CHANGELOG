@@ -1,4 +1,18 @@
 -------------------------------------------------------------------
+Wed Oct 23 22:13:48 UTC 2024 - perry.werneck@gmail.com
+
+- Update to version 2.0+git20240220:
+  * Using ${datadir}/db as default path for sqlite files.
+  * Create codeql.yml
+  * Removing old codeql workflow.
+  * Create codeql.yml
+  * Trying to fix codeql
+  * Update codeql.yml
+  * Adding codeql actions.
+  * Adding 'deb' control files.
+  * Update README.md
+
+-------------------------------------------------------------------
 Fri Jan 26 20:29:37 UTC 2024 - Perry Werneck <perry.werneck@gmail.com>
 
 - First build on OBS 

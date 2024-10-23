@@ -18,16 +18,18 @@
 
 %global flavor @BUILD_FLAVOR@%{nil}
 
-%if "%flavor" == ""
-ExclusiveArch:  do_not_build
-%endif
-
 %define product_name %(pkg-config --variable=product_name libudjat)
 %define module_path %(pkg-config --variable=module_path libudjat)
 
 Summary:		Database module for %{product_name}
+
+%if "%flavor" == ""
+Name:			udjat-module-database
+%else
 Name:			udjat-module-%{flavor}
-Version:		2.0
+%endif
+
+Version:		2.0+git20240220
 Release:		0
 License:		LGPL-3.0
 Source:			udjat-module-database-%{version}.tar.xz
@@ -48,18 +50,24 @@ BuildRequires:	binutils
 BuildRequires:	coreutils
 BuildRequires:	gcc-c++
 
-%if %{flavor} == cppdb
+%if "%{flavor}" == ""
 BuildRequires:	cppdb-devel
 %endif
 
-%if %{flavor} == sqlite
+%if "%{flavor}" == "sqlite"
 BuildRequires:  pkgconfig(sqlite3)
 %endif
 
 BuildRequires:	pkgconfig(libudjat)
 
 %description
+
+%if "%{flavor}" == ""
+Database module for %{product_name} using cppdb backend.
+%else
 Database module for %{product_name} using %{flavor} backend.
+%endif
+
 
 #---[ Build & Install ]-----------------------------------------------------------------------------------------------
 
@@ -69,7 +77,11 @@ Database module for %{product_name} using %{flavor} backend.
 NOCONFIGURE=1 \
 	./autogen.sh
 
-%configure --with-engine=%{flavor}
+%if "%{flavor}" == ""
+	%configure --with-engine=cppdb
+%else
+	%configure --with-engine=%{flavor}
+%endif
 
 %build
 make all
