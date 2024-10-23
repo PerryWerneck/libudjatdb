@@ -11,7 +11,8 @@ project_description = 'Database module and library for udjat'
 #
 # options
 #
-database_engine = get_option('engine')
+build_cppdb = get_option('build_cppdb')
+build_sqlite = get_option('build_sqlite')
 
 #
 # Versioning
@@ -85,7 +86,6 @@ app_conf.set_quoted('PACKAGE_DESCRIPTION', project_description)
 app_conf.set('PACKAGE_VERSION_MAJOR', pkg_major_version)
 app_conf.set('PACKAGE_VERSION_MINOR', pkg_minor_version)
 app_conf.set('PACKAGE_VERSION_MICRO', pkg_micro_version)
-app_conf.set_quoted('DATABASE_ENGINE', database_engine)
 
 if cxx.compiles('#include <unistd.h>', name : 'unistd.h')
   app_conf.set('HAVE_UNISTD_H', 1)
@@ -176,49 +176,96 @@ test_src = [
 ]
 
 #
-# Targets
+# CPPDB Targets
 #
-dynamic = shared_library(
-  'udjatcppdb', 
-  config_src + lib_src + cppdb_src,
-	install: true,
-	version : libversion,
-	soversion : libversion,
-	gnu_symbol_visibility: 'hidden',
-	link_args : ['-lcppdb'],
-	dependencies: lib_deps,
-	include_directories: includes_dir
-)
+if build_cppdb
+  cppdblib = shared_library(
+    'udjatcppdb', 
+    config_src + lib_src + cppdb_src,
+	  install: true,
+	  version : libversion,
+	  soversion : libversion,
+	  gnu_symbol_visibility: 'hidden',
+	  link_args : ['-lcppdb'],
+	  dependencies: lib_deps,
+	  include_directories: includes_dir
+  )
 
-static = static_library(
-  'udjatcppdb', 
-  config_src + lib_src + cppdb_src,
-	install: true,
-	dependencies: lib_deps,
-	include_directories: includes_dir
-)
+  static = static_library(
+    'udjatcppdb', 
+    config_src + lib_src + cppdb_src,
+	  install: true,
+	  dependencies: lib_deps,
+	  include_directories: includes_dir
+  )
 
-# https://mesonbuild.com/Reference-manual_functions.html#shared_library
-module = shared_library(
-  'database', 
-  config_src + module_src,
-  name_prefix: 'udjat-module-',
-	install: true,
-	link_with: dynamic,
-	install_dir: libudjat.get_variable('module_path'),
-	gnu_symbol_visibility: 'hidden',
-	dependencies: lib_deps,
-	include_directories: includes_dir
-)
+  # https://mesonbuild.com/Reference-manual_functions.html#shared_library
+  cppdbmodule = shared_library(
+    'cppdb', 
+    config_src + module_src,
+    name_prefix: 'udjat-module-',
+	  install: true,
+	  link_with: cppdblib,
+	  install_dir: libudjat.get_variable('module_path'),
+	  gnu_symbol_visibility: 'hidden',
+	  dependencies: lib_deps,
+	  include_directories: includes_dir
+  )
 
-executable(
-	'dbtest',
-	config_src + test_src,
-  install: false,
-	link_with : [ dynamic, module ],
-	dependencies: lib_deps,
-	include_directories: includes_dir
-)
+  executable(
+	  'cppdbtest',
+	  config_src + test_src,
+    install: false,
+	  link_with : [ cppdblib, cppdbmodule ],
+	  dependencies: lib_deps,
+	  include_directories: includes_dir
+  )
+endif
 
+#
+# SQLITE Targets
+#
+if build_sqlite
+  sqllib = shared_library(
+    'udjatsqlite', 
+    config_src + lib_src + cppdb_src,
+	  install: true,
+	  version : libversion,
+	  soversion : libversion,
+	  gnu_symbol_visibility: 'hidden',
+	  link_args : ['-lcppdb'],
+	  dependencies: lib_deps + [ dependency('sqlite3') ],
+	  include_directories: includes_dir
+  )
 
+  static = static_library(
+    'udjatsqlite', 
+    config_src + lib_src + cppdb_src,
+	  install: true,
+	  dependencies: lib_deps,
+	  include_directories: includes_dir
+  )
+
+  # https://mesonbuild.com/Reference-manual_functions.html#shared_library
+  sqlmodule = shared_library(
+    'sqlite', 
+    config_src + module_src,
+    name_prefix: 'udjat-module-',
+	  install: true,
+	  link_with: cppdblib,
+	  install_dir: libudjat.get_variable('module_path'),
+	  gnu_symbol_visibility: 'hidden',
+	  dependencies: lib_deps,
+	  include_directories: includes_dir
+  )
+
+  executable(
+	  'sqlitetest',
+	  config_src + test_src,
+    install: false,
+	  link_with : [ sqllib, sqlmodule ],
+	  dependencies: lib_deps,
+	  include_directories: includes_dir
+  )
+endif
 
