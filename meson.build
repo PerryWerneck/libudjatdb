@@ -25,11 +25,17 @@ pkg_micro_version = version_array[2].to_int()
 libversion = '@0@.@1@'.format(pkg_major_version,pkg_minor_version)
 
 #
-# Library build
+# LibUdjat
 #
+libudjat = dependency('libudjat') 
+
+module_path= libudjat.get_variable('module_path')
+
 lib_deps = [
-  dependency('libudjat'),
+  libudjat,
 ]
+
+
 
 lib_link_args = [ ]
 
@@ -157,6 +163,7 @@ lib_src = [
 lib_src += [
   'src/library/engines/cppdb/alert.cc',
   'src/library/engines/cppdb/exec.cc',
+  'src/library/engines/cppdb/module.cc',
 ]
 
 # src/library/engines/sqlite/alert.cc
@@ -166,6 +173,8 @@ lib_src += [
 
 module_src = [
   'src/module/init.cc',
+  'src/library/engines/cppdb/module.cc',
+  'src/library/urlqueue.cc',
 ]
 
 test_src = [
@@ -180,6 +189,7 @@ dynamic = shared_library(
   config_src + lib_src,
 	install: true,
 	version : libversion,
+	soversion : libversion,
 	gnu_symbol_visibility: 'hidden',
 	link_args : lib_link_args,
 	dependencies: lib_deps,
@@ -194,9 +204,11 @@ static = static_library(
 	include_directories: includes_dir
 )
 
+# https://mesonbuild.com/Reference-manual_functions.html#shared_library
 module = shared_library(
-  'udjat-module-database', 
+  'database', 
   config_src + module_src,
+  name_prefix: 'udjat-module-',
 	install: true,
 	link_with : dynamic,
 	gnu_symbol_visibility: 'hidden',

@@ -33,7 +33,7 @@
 	namespace SQL {
 
 		/// @brief Map an Udjat::Worker path to SQL Query.
-		class UDJAT_PRIVATE ApiCall : public RequestPath, private SQL::Script {
+		class UDJAT_API ApiCall : public RequestPath, private SQL::Script {
 		private:
 			Worker::ResponseType type = Worker::None;	///< @brief Response type for this query.
 
