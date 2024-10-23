@@ -29,15 +29,9 @@ libversion = '@0@.@1@'.format(pkg_major_version,pkg_minor_version)
 #
 libudjat = dependency('libudjat') 
 
-module_path= libudjat.get_variable('module_path')
-
 lib_deps = [
   libudjat,
 ]
-
-
-
-lib_link_args = [ ]
 
 #
 # Compiler flags
@@ -74,7 +68,8 @@ add_project_arguments(
                     '-ggdb3',
                     '-ffat-lto-objects',
                     '-fvisibility=hidden',
-                    '-fPIC'
+                    '-fPIC',
+                    '-DBUILD_DATE='+run_command('date','+%Y%m%d').stdout().strip(),
                 ],
             ),
             language: 'cpp',
@@ -91,11 +86,6 @@ app_conf.set('PACKAGE_VERSION_MAJOR', pkg_major_version)
 app_conf.set('PACKAGE_VERSION_MINOR', pkg_minor_version)
 app_conf.set('PACKAGE_VERSION_MICRO', pkg_micro_version)
 app_conf.set_quoted('DATABASE_ENGINE', database_engine)
-
-if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
-  app_conf.set('HAVE_CPPDB', 1)
-  lib_link_args += ['-lcppdb']
-endif
 
 if cxx.compiles('#include <unistd.h>', name : 'unistd.h')
   app_conf.set('HAVE_UNISTD_H', 1)
@@ -157,19 +147,23 @@ lib_src = [
   'src/library/controller.cc',
   'src/library/script.cc',
   'src/library/urlqueue.cc',
-  'src/library/statement.cc',
 ]
 
-lib_src += [
+cppdb_src = [
   'src/library/engines/cppdb/alert.cc',
   'src/library/engines/cppdb/exec.cc',
+  'src/library/engines/cppdb/statement.cc',
   'src/library/engines/cppdb/module.cc',
 ]
 
-# src/library/engines/sqlite/alert.cc
-# src/library/engines/sqlite/exec.cc
-# src/library/engines/sqlite/module.cc
-# src/library/engines/sqlite/session.cc
+sqlite_src = [
+  'src/library/engines/sqlite/alert.cc',
+  'src/library/engines/sqlite/exec.cc',
+  'src/library/engines/sqlite/module.cc',
+  'src/library/engines/sqlite/session.cc',
+  'src/library/engines/sqlite/statement.cc',
+  'src/library/engines/sqlite/module.cc',
+]
 
 module_src = [
   'src/module/init.cc',
@@ -185,20 +179,20 @@ test_src = [
 # Targets
 #
 dynamic = shared_library(
-  'udjat' + database_engine, 
-  config_src + lib_src,
+  'udjatcppdb', 
+  config_src + lib_src + cppdb_src,
 	install: true,
 	version : libversion,
 	soversion : libversion,
 	gnu_symbol_visibility: 'hidden',
-	link_args : lib_link_args,
+	link_args : ['-lcppdb'],
 	dependencies: lib_deps,
 	include_directories: includes_dir
 )
 
 static = static_library(
-  'udjat' + database_engine, 
-  config_src + lib_src,
+  'udjatcppdb', 
+  config_src + lib_src + cppdb_src,
 	install: true,
 	dependencies: lib_deps,
 	include_directories: includes_dir
@@ -210,7 +204,8 @@ module = shared_library(
   config_src + module_src,
   name_prefix: 'udjat-module-',
 	install: true,
-	link_with : dynamic,
+	link_with: dynamic,
+	install_dir: libudjat.get_variable('module_path'),
 	gnu_symbol_visibility: 'hidden',
 	dependencies: lib_deps,
 	include_directories: includes_dir
