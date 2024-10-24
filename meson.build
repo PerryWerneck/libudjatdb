@@ -130,6 +130,7 @@ lib_src = [
   'src/library/controller.cc',
   'src/library/script.cc',
   'src/library/urlqueue.cc',
+  'src/library/module.cc',
 ]
 
 cppdb_src = [
@@ -170,7 +171,7 @@ if build_cppdb
 	  include_directories: includes_dir
   )
 
-  static = static_library(
+  static_library(
     'udjatcppdb', 
     config_src + lib_src + cppdb_src,
 	  install: true,
@@ -243,7 +244,7 @@ if build_sqlite
 	  include_directories: includes_dir
   )
 
-  static = static_library(
+  static_library(
     'udjatsqlite', 
     config_src + lib_src + sqlite_src,
 	  install: true,

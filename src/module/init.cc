@@ -32,12 +32,17 @@
  #include <private/urlqueue.h>
  #include <private/module.h>
 
+ #include <udjat/tools/sql/module.h>
+
  using namespace Udjat;
  using namespace std;
 
  /// @brief Register udjat module.
  Udjat::Module * udjat_module_init() {
 
+	return SQL::Module::Factory("sql",SQL::module_info);
+
+	/*
 	class Module : public Udjat::Module, private Udjat::Worker, private Udjat::Factory {
 	private:
 
@@ -197,5 +202,6 @@
 	};
 
 	return new Module();
+	*/
 
  }
