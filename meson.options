@@ -1,0 +1,3 @@
+option('build_cppdb', type : 'boolean', value : 'true')
+option('build_sqlite', type : 'boolean', value : 'true')
+
