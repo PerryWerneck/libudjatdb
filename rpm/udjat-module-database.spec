@@ -29,7 +29,7 @@ Name:			udjat-module-database
 Name:			udjat-module-%{flavor}
 %endif
 
-Version:		2.0+git20240220
+Version:		2.0+git20241023
 Release:		0
 License:		LGPL-3.0
 Source:			udjat-module-database-%{version}.tar.xz
