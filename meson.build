@@ -303,4 +303,4 @@ endif
 #
 # Common targets
 #
-install_subdir('src/include/udjat', install_dir : get_option('includedir') + '/udjat')
+install_subdir('src/include/udjat', install_dir : get_option('includedir'))
