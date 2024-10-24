@@ -101,40 +101,23 @@ config_src = [
 #
 # SDK
 #
-sdk_conf = configuration_data()
-sdk_conf.set('PACKAGE_NAME', meson.project_name())
-sdk_conf.set('PACKAGE_VERSION', meson.project_version())
-sdk_conf.set('PACKAGE_DESCRIPTION', project_description)
-sdk_conf.set('prefix',get_option('prefix'))
-sdk_conf.set('exec_prefix',get_option('prefix'))
-sdk_conf.set('includedir',get_option('includedir'))
-sdk_conf.set('libdir',get_option('libdir'))
+cppdb_conf = configuration_data()
+cppdb_conf.set('PACKAGE_NAME', 'udjatcppdb')
+cppdb_conf.set('PACKAGE_VERSION', meson.project_version())
+cppdb_conf.set('PACKAGE_DESCRIPTION','Database module and library for udjat with cppdb backend')
+cppdb_conf.set('prefix',get_option('prefix'))
+cppdb_conf.set('exec_prefix',get_option('prefix'))
+cppdb_conf.set('includedir',get_option('includedir'))
+cppdb_conf.set('libdir',get_option('libdir'))
 
-if host_machine.system() == 'windows'
-  sdk_conf.set('REQUIRES','')
-  sdk_conf.set('DYNLIBS','-ludjatdb.dll')
-  sdk_conf.set('STATICLIBS','-ludjatdb')
-else
-  sdk_conf.set('REQUIRES','')
-  sdk_conf.set('DYNLIBS','-ludjatdb')
-  sdk_conf.set('STATICLIBS','-l:libudjatdb.a')
-endif
-
-configure_file(
-  input : 'sdk/dynamic.pc.in',
-  output : meson.project_name() + '.pc',
-  install: true,
-  install_dir: get_option('libdir') + '/pkgconfig',
-  configuration : sdk_conf
-)
-
-configure_file(
-  input : 'sdk/static.pc.in',
-  output : meson.project_name() + '-static.pc',
-  install: true,
-  install_dir: get_option('libdir') + '/pkgconfig',
-  configuration : sdk_conf
-)
+sqlite_conf = configuration_data()
+sqlite_conf.set('PACKAGE_NAME', 'udjatsqlite')
+sqlite_conf.set('PACKAGE_VERSION', meson.project_version())
+sqlite_conf.set('PACKAGE_DESCRIPTION', 'Database module and library for udjat with SQLite backend')
+sqlite_conf.set('prefix',get_option('prefix'))
+sqlite_conf.set('exec_prefix',get_option('prefix'))
+sqlite_conf.set('includedir',get_option('includedir'))
+sqlite_conf.set('libdir',get_option('libdir'))
 
 includes_dir = include_directories('../src/include')
 
@@ -169,10 +152,6 @@ module_src = [
   'src/module/init.cc',
   'src/library/engines/cppdb/module.cc',
   'src/library/urlqueue.cc',
-]
-
-test_src = [
-  'src/testprogram/testprogram.cc',
 ]
 
 #
@@ -214,12 +193,38 @@ if build_cppdb
 
   executable(
 	  'cppdbtest',
-	  config_src + test_src,
+	  config_src + [ 'src/testprogram/cppdb.cc' ],
     install: false,
 	  link_with : [ cppdblib, cppdbmodule ],
 	  dependencies: lib_deps,
 	  include_directories: includes_dir
   )
+
+  cppdb_conf.set('REQUIRES','')
+  if host_machine.system() == 'windows'
+    cppdb_conf.set('DYNLIBS','-ludjatcppdb.dll')
+    cppdb_conf.set('STATICLIBS','-ludjatcppdb -lcppdb')
+  else
+    cppdb_conf.set('DYNLIBS','-ludjatcppdb')
+    cppdb_conf.set('STATICLIBS','-l:libudjatcppdb.a -lcppdb')
+  endif
+
+  configure_file(
+    input : 'sdk/dynamic.pc.in',
+    output : 'udjatcppdb.pc',
+    install: true,
+    install_dir: get_option('libdir') + '/pkgconfig',
+    configuration : cppdb_conf
+  )
+
+  configure_file(
+    input : 'sdk/static.pc.in',
+    output : 'udjatcppdb-static.pc',
+    install: true,
+    install_dir: get_option('libdir') + '/pkgconfig',
+    configuration : cppdb_conf
+  )
+
 endif
 
 #
@@ -228,7 +233,7 @@ endif
 if build_sqlite
   sqllib = shared_library(
     'udjatsqlite', 
-    config_src + lib_src + cppdb_src,
+    config_src + lib_src + sqlite_src,
 	  install: true,
 	  version : libversion,
 	  soversion : libversion,
@@ -240,7 +245,7 @@ if build_sqlite
 
   static = static_library(
     'udjatsqlite', 
-    config_src + lib_src + cppdb_src,
+    config_src + lib_src + sqlite_src,
 	  install: true,
 	  dependencies: lib_deps,
 	  include_directories: includes_dir
@@ -261,11 +266,41 @@ if build_sqlite
 
   executable(
 	  'sqlitetest',
-	  config_src + test_src,
+	  config_src + [ 'src/testprogram/sqlite.cc' ],
     install: false,
 	  link_with : [ sqllib, sqlmodule ],
 	  dependencies: lib_deps,
 	  include_directories: includes_dir
   )
+
+  sqlite_conf.set('REQUIRES','sqlite3')
+  if host_machine.system() == 'windows'
+    sqlite_conf.set('DYNLIBS','-ludjatsqlite.dll')
+    sqlite_conf.set('STATICLIBS','-ludjatsqlite')
+  else
+    sqlite_conf.set('DYNLIBS','-ludjatsqlite')
+    sqlite_conf.set('STATICLIBS','-l:libudjatsqlite.a')
+  endif
+  
+  configure_file(
+    input : 'sdk/dynamic.pc.in',
+    output : 'udjatsqlite.pc',
+    install: true,
+    install_dir: get_option('libdir') + '/pkgconfig',
+    configuration : sqlite_conf
+  )
+
+  configure_file(
+    input : 'sdk/static.pc.in',
+    output : 'udjatsqlite-static.pc',
+    install: true,
+    install_dir: get_option('libdir') + '/pkgconfig',
+    configuration : sqlite_conf
+  )
+
 endif
 
+#
+# Common targets
+#
+install_subdir('src/include/udjat', install_dir : get_option('includedir') + '/udjat')
