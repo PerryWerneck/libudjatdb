@@ -192,11 +192,20 @@ if sqlite.found()
   sqlite_conf.set('PACKAGE_NAME', 'libudjatsqlite')
   sqlite_conf.set('PACKAGE_VERSION', meson.project_version())
   sqlite_conf.set('PACKAGE_DESCRIPTION','SQLite based database library for udjat')
+  sqlite_conf.set('REQUIRES','sqlite3')
   sqlite_conf.set('prefix',get_option('prefix'))
   sqlite_conf.set('exec_prefix',get_option('prefix'))
   sqlite_conf.set('includedir',get_option('includedir'))
   sqlite_conf.set('libdir',get_option('libdir'))
 
+  if host_machine.system() == 'windows'
+    sqlite_conf.set('DYNLIBS','-ludjatsqlite.dll')
+    sqlite_conf.set('STATICLIBS','-ludjatsqlite')
+  else
+    sqlite_conf.set('DYNLIBS','-ludjatsqlite')
+    sqlite_conf.set('STATICLIBS','-l:libudjatsqlite.a')
+  endif
+  
   configure_file(
     input : 'sdk/dynamic.pc.in',
     output : 'libudjatsqlite.pc',
@@ -247,6 +256,40 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     gnu_symbol_visibility: 'hidden',
     dependencies: sqlite_deps,
     include_directories: includes_dir
+  )
+
+  cppdb_conf = configuration_data()
+  cppdb_conf.set('PACKAGE_NAME', 'libudjatcppdb')
+  cppdb_conf.set('PACKAGE_VERSION', meson.project_version())
+  cppdb_conf.set('PACKAGE_DESCRIPTION','CppDB based database library for udjat')
+  cppdb_conf.set('REQUIRES','cppdb')
+  cppdb_conf.set('prefix',get_option('prefix'))
+  cppdb_conf.set('exec_prefix',get_option('prefix'))
+  cppdb_conf.set('includedir',get_option('includedir'))
+  cppdb_conf.set('libdir',get_option('libdir'))
+
+  if host_machine.system() == 'windows'
+    cppdb_conf.set('DYNLIBS','-ludjatcppdb.dll')
+    cppdb_conf.set('STATICLIBS','-ludjatcppdb')
+  else
+    cppdb_conf.set('DYNLIBS','-ludjatcppdb')
+    cppdb_conf.set('STATICLIBS','-l:libudjatcppdb.a')
+  endif
+  
+  configure_file(
+    input : 'sdk/dynamic.pc.in',
+    output : 'libudjatcppdb.pc',
+    install: true,
+    install_dir: get_option('libdir') + '/pkgconfig',
+    configuration : cppdb_conf
+  )
+
+  configure_file(
+    input : 'sdk/static.pc.in',
+    output : 'libudjatcppdb-static.pc',
+    install: true,
+    install_dir: get_option('libdir') + '/pkgconfig',
+    configuration : cppdb_conf
   )
 
 endif
