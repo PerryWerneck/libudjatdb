@@ -294,3 +294,19 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
 
 endif
 
+install_headers(
+  'src/include/udjat/agent/sql.h',
+  subdir: 'udjat/agent/sql'  
+)
+
+install_headers(
+  'src/include/udjat/alert/sql.h',
+  subdir: 'udjat/alert/sql'  
+)
+
+install_headers(
+  'src/include/udjat/tools/sql/script.h',
+  'src/include/udjat/tools/sql/apicall.h',
+  'src/include/udjat/tools/sql/module.h',
+  subdir: 'udjat/tools/sql'  
+)
