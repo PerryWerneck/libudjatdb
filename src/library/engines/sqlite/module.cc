@@ -18,7 +18,7 @@
  */
 
  /**
-  * @brief CPPDB module infos.
+  * @brief SQLite module info.
   */
 
  #include <config.h>
