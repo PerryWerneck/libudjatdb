@@ -63,7 +63,6 @@ compiler_flags = [
   '-fvisibility=hidden',
   '-fPIC',
   '-DHAVE_CONFIG_H=1',
-  '-DBUILD_DATE='+run_command('date','+%Y%m%d').stdout().strip(),
 ]
 
 if enable_debug
@@ -96,19 +95,20 @@ endif
 #
 # SDK
 #
+pkg = import('pkgconfig')
 
-includes_dir = include_directories('../src/include')
+includes_dir = include_directories('src/include')
 
 #
 # Sources
 #
 lib_src = [
-'src/library/alert.cc',
-'src/library/apicall.cc',
-'src/library/controller.cc',
-'src/library/script.cc',
-'src/library/urlqueue.cc',
-'src/library/module.cc',
+  'src/library/alert.cc',
+  'src/library/apicall.cc',
+  'src/library/controller.cc',
+  'src/library/script.cc',
+  'src/library/urlqueue.cc',
+  'src/library/module.cc',
 ]
 
 cppdb_src = [
@@ -188,38 +188,29 @@ if sqlite.found()
     include_directories: includes_dir
   )
 
-  sqlite_conf = configuration_data()
-  sqlite_conf.set('PACKAGE_NAME', 'libudjatsqlite')
-  sqlite_conf.set('PACKAGE_VERSION', meson.project_version())
-  sqlite_conf.set('PACKAGE_DESCRIPTION','SQLite based database library for udjat')
-  sqlite_conf.set('REQUIRES','sqlite3')
-  sqlite_conf.set('prefix',get_option('prefix'))
-  sqlite_conf.set('exec_prefix',get_option('prefix'))
-  sqlite_conf.set('includedir',get_option('includedir'))
-  sqlite_conf.set('libdir',get_option('libdir'))
-
   if host_machine.system() == 'windows'
-    sqlite_conf.set('DYNLIBS','-ludjatsqlite.dll')
-    sqlite_conf.set('STATICLIBS','-ludjatsqlite')
+
+    pkg.generate(
+      name: 'libudjatsqlite',
+      description: project_description,
+      libraries: [ '-ludjatsqlite.dll' ]
+    )
+
   else
-    sqlite_conf.set('DYNLIBS','-ludjatsqlite')
-    sqlite_conf.set('STATICLIBS','-l:libudjatsqlite.a')
+
+    pkg.generate(
+      name: 'libudjatsqlite',
+      description: project_description,
+      libraries: [ '-ludjatsqlite' ]
+    )
+
   endif
   
-  configure_file(
-    input : 'sdk/dynamic.pc.in',
-    output : 'libudjatsqlite.pc',
-    install: true,
-    install_dir: get_option('libdir') + '/pkgconfig',
-    configuration : sqlite_conf
-  )
-
-  configure_file(
-    input : 'sdk/static.pc.in',
-    output : 'libudjatsqlite-static.pc',
-    install: true,
-    install_dir: get_option('libdir') + '/pkgconfig',
-    configuration : sqlite_conf
+  pkg.generate(
+    name: 'libudjatsqlite-static',
+    description: project_description,
+    requires: sqlite_deps,
+    libraries: [ '-l:libudjatsqlite.a' ],
   )
 
 endif
@@ -254,42 +245,31 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     link_with: cppdb_dynamic,
     install_dir: libudjat.get_variable('module_path'),
     gnu_symbol_visibility: 'hidden',
-    dependencies: sqlite_deps,
     include_directories: includes_dir
   )
 
-  cppdb_conf = configuration_data()
-  cppdb_conf.set('PACKAGE_NAME', 'libudjatcppdb')
-  cppdb_conf.set('PACKAGE_VERSION', meson.project_version())
-  cppdb_conf.set('PACKAGE_DESCRIPTION','CppDB based database library for udjat')
-  cppdb_conf.set('REQUIRES','cppdb')
-  cppdb_conf.set('prefix',get_option('prefix'))
-  cppdb_conf.set('exec_prefix',get_option('prefix'))
-  cppdb_conf.set('includedir',get_option('includedir'))
-  cppdb_conf.set('libdir',get_option('libdir'))
-
   if host_machine.system() == 'windows'
-    cppdb_conf.set('DYNLIBS','-ludjatcppdb.dll')
-    cppdb_conf.set('STATICLIBS','-ludjatcppdb')
+
+    pkg.generate(
+      name: 'libudjatcppdb',
+      description: project_description,
+      libraries: [ '-ludjatcppdb.dll' ]
+    )
+
   else
-    cppdb_conf.set('DYNLIBS','-ludjatcppdb')
-    cppdb_conf.set('STATICLIBS','-l:libudjatcppdb.a')
+
+    pkg.generate(
+      name: 'libudjatcppdb',
+      description: project_description,
+      libraries: [ '-ludjatcppdb' ]
+    )
+
   endif
   
-  configure_file(
-    input : 'sdk/dynamic.pc.in',
-    output : 'libudjatcppdb.pc',
-    install: true,
-    install_dir: get_option('libdir') + '/pkgconfig',
-    configuration : cppdb_conf
-  )
-
-  configure_file(
-    input : 'sdk/static.pc.in',
-    output : 'libudjatcppdb-static.pc',
-    install: true,
-    install_dir: get_option('libdir') + '/pkgconfig',
-    configuration : cppdb_conf
+  pkg.generate(
+    name: 'libudjatcppdb-static',
+    description: project_description,
+    libraries: [ '-l:libudjatcppdb.a', '-lcppdb' ],
   )
 
 endif
