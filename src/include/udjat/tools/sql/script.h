@@ -37,6 +37,10 @@
 
 	namespace SQL {
 
+		/// @brief Get engine name
+		/// @return The engine name ("sqlite", "cppdb", ...)
+		UDJAT_API const char * engine() noexcept;
+
 		/// @brief A single SQL statement.
 		class UDJAT_API Statement {
 		public:

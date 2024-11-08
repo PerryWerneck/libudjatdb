@@ -33,65 +33,9 @@
 
  namespace Udjat {
 
-	/*
-	void SQL::bind(const SQL::Statement &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response) {
-
-		for(const char *name : script.parameter_names) {
-
-			string value;
-
-			if(request.getProperty(name,value)) {
-
-				debug("value(",name,")='",value,"' (from request)");
-				stmt.bind(value);
-
-			} else if(response.getProperty(name,value)) {
-
-				debug("value(",name,")='",value,"' (from response)");
-				stmt.bind(value);
-
-			} else {
-
-				throw runtime_error(Logger::String{"Required property '",name,"' is missing"});
-
-			}
-
-		}
-
+	UDJAT_API const char * SQL::engine() noexcept {
+		return "sqlite";
 	}
-
-	void SQL::parse_result(cppdb::result &res, Udjat::Value &response) {
-		if(!res.empty()) {
-			// Got result update response;
-			debug("Got response from SQL query");
-			for(int col = 0; col < res.cols();col++) {
-				string val;
-				res.fetch(col,val);
-				debug(res.name(col).c_str(),"='",val.c_str(),"'");
-				response[res.name(col).c_str()] = val.c_str();
-			}
-		}
-	}
-
-	void SQL::exec(cppdb::session &session, const std::vector<SQL::Statement> &scripts, const Abstract::Object &request, Udjat::Value &response) {
-
-		debug(__FUNCTION__);
-
-		for(auto &script : scripts) {
-			if(script.text && *script.text) {
-				auto stmt = session.create_statement(script.text);
-				bind(script,stmt,request,response);
-
-				if(strcasestr(script.text,"select")) {
-					auto res = stmt.row();
-					parse_result(res,response);
-				} else {
-					stmt.exec();
-				}
-			}
-		}
-	}
-	*/
 
 	void SQL::Script::exec(const Udjat::Object &request) const {
 

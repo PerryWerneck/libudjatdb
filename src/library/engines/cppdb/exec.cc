@@ -33,6 +33,10 @@
 
  namespace Udjat {
 
+	UDJAT_API const char * SQL::engine() noexcept {
+		return "cppdb";
+	}
+
 	void SQL::bind(const SQL::Statement &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response) {
 
 		for(const char *name : script.parameter_names) {
