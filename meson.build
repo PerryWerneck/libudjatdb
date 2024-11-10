@@ -57,12 +57,18 @@ lib_deps = [
 cxx = meson.get_compiler('cpp')
 enable_debug = get_option('debug') or get_option('buildtype').contains('debug')
 
+time_epoch = run_command('sh', '-c', 'echo "$SOURCE_DATE_EPOCH"', check : true).stdout().strip()
+if time_epoch == ''
+  time_epoch = run_command('date','+%Y%m%d', check: true).stdout().strip()
+endif
+
 compiler_flags = [
   '-ggdb3',
   '-ffat-lto-objects',
   '-fvisibility=hidden',
   '-fPIC',
   '-DHAVE_CONFIG_H=1',
+  '-DBUILD_DATE='+time_epoch,
 ]
 
 if enable_debug
@@ -130,12 +136,8 @@ module_src = [
   'src/module/init.cc',
 ]
 
-cppdb_test_src = [
-'src/testprogram/cppdb.cc',
-]
-
-sqlite_test_src = [
-'src/testprogram/sqlite.cc'
+test_src = [
+'src/testprogram/testprogram.cc',
 ]
 
 #
@@ -176,7 +178,7 @@ if sqlite.found()
     include_directories: includes_dir
   )
 
-  shared_library(
+  sqlite_module = shared_library(
     'sqlite', 
     config_src + module_src + [ 'src/library/engines/sqlite/module.cc' ],
     name_prefix: 'udjat-module-',
@@ -185,6 +187,16 @@ if sqlite.found()
     install_dir: libudjat.get_variable('module_path'),
     gnu_symbol_visibility: 'hidden',
     dependencies: sqlite_deps,
+    include_directories: includes_dir
+  )
+
+  executable(
+    'sqlite-test',
+    config_src + test_src,
+    install: false,
+    link_with : [ sqlite_dynamic, sqlite_module ],
+    dependencies: [ libudjat ],
+    link_args: [ '-l:libudjat-testing.a' ],
     include_directories: includes_dir
   )
 
@@ -237,7 +249,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     include_directories: includes_dir
   )
 
-  shared_library(
+  cppdb_module = shared_library(
     'cppdb', 
     config_src + module_src + [ 'src/library/engines/cppdb/module.cc' ],
     name_prefix: 'udjat-module-',
@@ -270,6 +282,16 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     name: 'libudjatcppdb-static',
     description: project_description,
     libraries: [ '-l:libudjatcppdb.a', '-lcppdb' ],
+  )
+
+  executable(
+    'cppdb-test',
+    config_src + test_src,
+    install: false,
+    link_with : [ cppdb_dynamic, cppdb_module ],
+    dependencies: [ libudjat ],
+    link_args: [ '-l:libudjat-testing.a' ],
+    include_directories: includes_dir
   )
 
 endif

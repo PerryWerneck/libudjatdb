@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/*
  #include <config.h>
  #include <udjat/tools/application.h>
  #include <udjat/module.h>
@@ -39,3 +40,4 @@
 
 	return rc;
 }
+*/

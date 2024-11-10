@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-3.0-or-later */
 
 /*
- * Copyright (C) 2023 Perry Werneck <perry.werneck@gmail.com>
+ * Copyright (C) 2021 Perry Werneck <perry.werneck@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -17,27 +17,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/*
  #include <config.h>
- #include <udjat/tools/application.h>
+ #include <udjat/defs.h>
+ #include <udjat/tests.h>
+ #include <udjat/moduleinfo.h>
  #include <udjat/module.h>
- #include <unistd.h>
- #include <udjat/tools/logger.h>
+ #include <udjat/tools/sql/script.h>
+ #include <udjat/tools/string.h>
+ #include <udjat/tests.h>
+ #include <udjat/tools/application.h>
 
  using namespace std;
  using namespace Udjat;
 
  int main(int argc, char **argv) {
 
-	Logger::verbosity(9);
-	Logger::redirect();
+	static const ModuleInfo info{"civetweb-tester"};
+	
+	return Testing::run(argc,argv,info,[](Application &){
 
-	udjat_module_init();
+	 	udjat_module_init();
 
-	auto rc = Application{}.run(argc,argv,"./sqlite.xml");
+	}, String{SQL::engine(),".xml"}.c_str());
 
-	debug("Application exits with rc=",rc);
-
-	return rc;
-}
-*/
+ }
+ 
