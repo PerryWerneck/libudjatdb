@@ -94,6 +94,9 @@ app_conf.set('PACKAGE_VERSION_MAJOR', pkg_major_version)
 app_conf.set('PACKAGE_VERSION_MINOR', pkg_minor_version)
 app_conf.set('PACKAGE_VERSION_MICRO', pkg_micro_version)
 
+app_conf.set('PRODUCT_NAME', libudjat.get_variable('product_name'))
+app_conf.set('PRODUCT_VERSION', libudjat.version())
+
 if cxx.compiles('#include <unistd.h>', name : 'unistd.h')
   app_conf.set('HAVE_UNISTD_H', 1)
 endif
@@ -102,7 +105,6 @@ endif
 # SDK
 #
 pkg = import('pkgconfig')
-
 includes_dir = include_directories('src/include')
 
 #
@@ -149,6 +151,26 @@ config_src = [
       configuration : app_conf
   )
 ]
+
+#
+# OS stuff
+#
+if host_machine.system() == 'windows'
+
+  # https://mesonbuild.com/Windows-module.html
+  windows = import('windows')
+  resources = windows.compile_resources(
+    configure_file(
+      input : 'src/library/resources.rc.in',
+      output : 'resources.rc',
+      configuration : app_conf
+    )
+  )
+
+  lib_src += resources
+  module_src += resources
+
+endif
 
 #
 # SQLite Engine
