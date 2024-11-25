@@ -111,6 +111,7 @@ includes_dir = include_directories('src/include')
 # Sources
 #
 lib_src = [
+  'src/library/action.cc',
   'src/library/alert.cc',
   'src/library/apicall.cc',
   'src/library/controller.cc',
@@ -336,6 +337,7 @@ install_headers(
 
 install_headers(
   'src/include/udjat/tools/sql/script.h',
+  'src/include/udjat/tools/sql/action.h',
   'src/include/udjat/tools/sql/apicall.h',
   'src/include/udjat/tools/sql/module.h',
   subdir: 'udjat/tools/sql'  

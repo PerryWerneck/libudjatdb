@@ -32,7 +32,9 @@
 
  namespace Udjat {
 
-	SQL::Script::Script(const char *text) {
+	void SQL::Script::set(const char *text) {
+
+		sql.clear();
 
 		for(String &line : String{text}.split("\n")) {
 			line.strip();
@@ -48,12 +50,18 @@
 		if(sql[sql.size()-1] == ';') {
 			sql.resize(sql.size()-1);
 		}
-
 		debug("SQL Query:",sql.c_str());
 
+	} 
+
+	SQL::Script::Script(const XML::Node &node) {
+		set(node.child_value());
 	}
 
-	
+	SQL::Script::Script(const char *text) {
+		set(text);
+	}
+
  }
 
 

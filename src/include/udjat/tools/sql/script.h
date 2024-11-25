@@ -42,6 +42,8 @@
 		private:
 			String sql;	///< @brief The string with SQL Queries.
 
+		protected:
+
 		public:
 
 			/// @brief Create SQL statement from XML definition.
@@ -50,11 +52,11 @@
 
 			/// @brief Create SQL statement from XML definition.
 			/// @param node the script definition.
-			/// @param child_name The XML tagname for the script nodes.
-			/// @param allow_empty Allow empty scripts.
-			/// @param allow_text Allow using node 'cdata' for script text.
-			// Script(const XML::Node &node, const char *child_name = "script", bool allow_empty = false, bool allow_text = true);
-			// ~Script();
+			Script(const XML::Node &node);
+
+			/// @brief Set SQL statements to execute.
+			/// @param sql The SQL statements.
+			void set(const char *text);
 
 			/// @brief Execute SQL query, get response.
 			void exec(const char *dbname, Udjat::Value &values) const;
