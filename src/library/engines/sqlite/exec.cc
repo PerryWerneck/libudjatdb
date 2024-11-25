@@ -45,50 +45,64 @@
 
 	void SQL::Session::exec(Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *name) {
 
+		lock_guard<std::mutex> lock(guard);
+
 		for(String &line : statement.split(";")) {
 
 			sqlite3_stmt *stmt = prepare(line,request,response);
 
-			switch(sqlite3_step(stmt)) {
-			case SQLITE_DONE:
-				debug("Empty response");
-				continue;
+			try {
 
-			case SQLITE_ROW:
-				{
-					// Parse first line.
-					Value row;
-					get(stmt,row);
+				switch(sqlite3_step(stmt)) {
+				case SQLITE_DONE:
+					debug("Empty response");
+					break;
 
-					// Check if have more lines.
-					if(sqlite3_step(stmt) == SQLITE_ROW) {
+				case SQLITE_ROW:
+					{
+						// Parse first line.
+						Value row;
+						get(stmt,row);
 
-						Value &repoval = response;
-						if(name) {
-							repoval = response[name];
+						// Check if have more lines.
+						if(sqlite3_step(stmt) == SQLITE_ROW) {
+
+							Value &repoval = response;
+							if(name) {
+								repoval = response[name];
+							} else {
+								repoval.clear();
+							}
+							
+							auto &report = repoval.ReportFactory(row);
+
+							do {
+								get(stmt,report);
+							} while(sqlite3_step(stmt) == SQLITE_ROW);
+
 						} else {
-							repoval.clear();
+
+							response.merge(row);
+
 						}
-						
-						auto &report = repoval.ReportFactory(row);
-
-						do {
-							get(stmt,report);
-						} while(sqlite3_step(stmt) == SQLITE_ROW);
-
-					} else {
-
-						response.merge(row);
-
 					}
-				}
-				break;
+					break;
 
-			default:
-				throw runtime_error(sqlite3_errmsg(db));
+				default:
+					throw runtime_error(sqlite3_errmsg(db));
+
+				}
+
+			} catch(...) {
+
+				debug("Finalizing stmt, failed");
+				sqlite3_finalize(stmt);
+				throw;
 
 			}
 
+			debug("Finalizing stmt, success");
+			sqlite3_finalize(stmt);
 
 		}
 
