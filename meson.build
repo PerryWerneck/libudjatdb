@@ -121,6 +121,7 @@ lib_src = [
 
 cppdb_src = [
   'src/library/engines/cppdb/alert.cc',
+  'src/library/engines/cppdb/session.cc',
   'src/library/engines/cppdb/module.cc',
   'src/library/engines/cppdb/exec.cc',
   'src/library/engines/cppdb/statement.cc',
@@ -175,7 +176,7 @@ endif
 #
 # SQLite Engine
 #
-sqlite = dependency('sqlite3') 
+sqlite = dependency('sqlite3', required: false) 
 
 if sqlite.found()
 

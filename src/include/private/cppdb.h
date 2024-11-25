@@ -34,6 +34,8 @@
 
 		class UDJAT_API Session : public cppdb::session {
 		private:
+			void get(cppdb::result &rc, Udjat::Value &value);
+			void get(cppdb::result &rc, Udjat::Report &report);
 
 		public:
 

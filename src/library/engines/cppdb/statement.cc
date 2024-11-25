@@ -21,6 +21,7 @@
   * @brief Implements SQL statement for cppdb.
   */
 
+/*
  #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/version.h>
@@ -198,3 +199,5 @@
 	}
 
  }
+
+*/

@@ -21,6 +21,7 @@
   * @brief CPPDB module infos.
   */
 
+/*
  #include <config.h>
  #include <udjat/tools/intl.h>
  #include <private/module.h>
@@ -32,3 +33,4 @@
 
  }
 
+*/
