@@ -21,6 +21,33 @@
   * @brief Internal definitions for CPPDB module.
   */
 
+ #pragma once
+ #include <config.h>
+ #include <udjat/defs.h>
+ #include <udjat/tools/value.h>
+ #include <cppdb/frontend.h>
+ #include <mutex>
+
+ namespace Udjat {
+
+	namespace SQL {
+
+		class UDJAT_API Session : public cppdb::session {
+		private:
+
+		public:
+
+			Session(const char *dbname);
+			~Session();
+
+			void exec(Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *child_name = nullptr);
+
+		};
+
+	}
+
+ }
+
 /*
  #pragma once
 

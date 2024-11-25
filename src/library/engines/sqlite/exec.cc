@@ -26,6 +26,7 @@
  #include <udjat/tools/string.h>
  #include <udjat/tools/sql/script.h>
  #include <udjat/tools/value.h>
+ #include <udjat/tools/report.h>
  #include <string>
  #include <private/sqlite.h>
  #include <sqlite3.h>
@@ -49,6 +50,10 @@
 
 		for(String &line : statement.split(";")) {
 
+			if(Logger::enabled(Logger::Trace)) {
+				Logger::String{line.c_str()}.trace("sql");
+			}
+
 			sqlite3_stmt *stmt = prepare(line,request,response);
 
 			try {
@@ -67,14 +72,26 @@
 						// Check if have more lines.
 						if(sqlite3_step(stmt) == SQLITE_ROW) {
 
+							// Got second row, change behavior.
+
 							Value &repoval = response;
 							if(name) {
 								repoval = response[name];
 							} else {
 								repoval.clear();
 							}
-							
-							auto &report = repoval.ReportFactory(row);
+
+							std::vector<string> names;
+
+							{
+								int colnum = sqlite3_data_count(stmt);
+								for(int col = 0; col < colnum;col++) {
+									names.push_back(sqlite3_column_name(stmt,col));
+								}
+							}
+
+							auto &report = repoval.ReportFactory(names);
+							report.push_back(row);
 
 							do {
 								get(stmt,report);
@@ -82,6 +99,7 @@
 
 						} else {
 
+							// No second row, add results do response.
 							response.merge(row);
 
 						}

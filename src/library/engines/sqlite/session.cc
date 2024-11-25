@@ -27,6 +27,7 @@
  #include <udjat/tools/value.h>
  #include <udjat/tools/report.h>
  #include <udjat/tools/logger.h>
+ #include <udjat/tools/sql.h>
  #include <private/sqlite.h>
  #include <sqlite3.h>
  #include <mutex>
@@ -37,6 +38,10 @@
  namespace Udjat {
 
 	std::mutex SQL::Session::guard;
+
+	UDJAT_API const char * SQL::engine() noexcept {
+		return "sqlite";
+	}
 
 	SQL::Session::Session(const char *dbname) {
 
@@ -86,7 +91,7 @@
 		for(int col = 0; col < colnum;col++) {
 
 			const char *name = sqlite3_column_name(stmt,col);
-			debug(name,"='",(const char *) sqlite3_column_text(stmt,col));
+			debug(name,"='",(const char *) sqlite3_column_text(stmt,col),"'");
 
 			switch(sqlite3_column_type(stmt,col)) {
 			case SQLITE_INTEGER:

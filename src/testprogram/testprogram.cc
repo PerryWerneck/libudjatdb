@@ -19,11 +19,37 @@
 
  #include <config.h>
  #include <udjat/tools/sql/script.h>
+ #include <udjat/tools/sql.h>
  #include <udjat/tools/value.h>
  #include <udjat/tools/logger.h>
+ #include <udjat/tools/http/mimetype.h>
+ #include <iostream>
 
  using namespace std;
  using namespace Udjat;
+
+ static void test_sqlite() {
+
+	SQL::Script script{
+
+		"create table if not exists alerts (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text);\n" \
+		"insert into alerts (url,action,payload) values (${url},${action},${payload});" 
+	};
+
+	Value request, response;
+	request["url"] = "http://localhost";
+	request["action"] = "+";
+	request["payload"] = "";
+	script.exec("/tmp/test.sqlite",request,response);
+
+	SQL::Script{
+		"select * from alerts" 
+	}.exec("/tmp/test.sqlite",request,response);
+
+	cout << endl;
+	response.serialize(cout,MimeType::xml);
+	cout << endl;
+ }
 
  int main(int argc, char **argv) {
 
@@ -31,17 +57,7 @@
 	Logger::console(true);
 	Logger::redirect();
 	
-	SQL::Script script{
-
-		"create table if not exists alerts (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text);\n" \
-		"insert into alerts (url,action,payload) values (${url},${action},${payload});" 
-	};
-
-	Value vars;
-	vars["url"] = "http://localhost";
-	vars["action"] = "+";
-	vars["payload"] = "";
-	script.exec("/tmp/test.sqlite",vars);
+	test_sqlite();
 
 	return 0;
  }
