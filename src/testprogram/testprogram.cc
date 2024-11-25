@@ -30,6 +30,8 @@
 
  static void test_sqlite() {
 
+	debug("Testing SQLite...");
+
 	SQL::Script script{
 
 		"create table if not exists alerts (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text);\n" \
@@ -51,13 +53,38 @@
 	cout << endl;
  }
 
+ static void test_cppdb() {
+
+	debug("Testing CPPDB...");
+
+	SQL::Script script{
+
+		"create table if not exists alerts (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text);\n" \
+		"insert into alerts (url,action,payload) values (${url},${action},${payload});" 
+	};
+
+	Value request, response;
+	request["url"] = "http://localhost";
+	request["action"] = "+";
+	request["payload"] = "";
+	script.exec("sqlite3:db=/tmp/test.sqlite",request,response);
+
+	SQL::Script{
+		"select * from alerts" 
+	}.exec("sqlite3:db=/tmp/test.sqlite",request,response);
+
+	cout << endl;
+	response.serialize(cout,MimeType::xml);
+	cout << endl;
+ }
+
  int main(int argc, char **argv) {
 
 	Logger::verbosity(9);
 	Logger::console(true);
 	Logger::redirect();
 	
-	test_sqlite();
+	test_cppdb();
 
 	return 0;
  }
