@@ -25,11 +25,8 @@
 
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
- #include <udjat/tools/object.h>
- #include <udjat/tools/value.h>
- #include <udjat/tools/request.h>
- #include <udjat/tools/response.h>
- #include <udjat/tools/report.h>
+ #include <udjat/tools/string.h>
+ #include <udjat/tools/script.h>
  #include <vector>
  #include <memory>
 
@@ -37,6 +34,35 @@
 
 	namespace SQL {
 
+		class UDJAT_API Script {
+		private:
+			String sql;	///< @brief The string with SQL Queries.
+
+		public:
+
+			/// @brief Create SQL statement from XML definition.
+			/// @param sql the script definition.
+			Script(const char *sql);
+
+			/// @brief Create SQL statement from XML definition.
+			/// @param node the script definition.
+			/// @param child_name The XML tagname for the script nodes.
+			/// @param allow_empty Allow empty scripts.
+			/// @param allow_text Allow using node 'cdata' for script text.
+			// Script(const XML::Node &node, const char *child_name = "script", bool allow_empty = false, bool allow_text = true);
+			// ~Script();
+
+			/// @brief Execute SQL query, get response.
+			void exec(const char *dbname, Udjat::Value &values) const;
+
+			void exec(const char *dbname, const Udjat::Value &request, Udjat::Value &response) const;
+
+		};
+
+	}
+ }
+
+/*
 		/// @brief Get engine name
 		/// @return The engine name ("sqlite", "cppdb", ...)
 		UDJAT_API const char * engine() noexcept;
@@ -125,4 +151,5 @@
 	}
 
  }
+*/
 

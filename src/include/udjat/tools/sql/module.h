@@ -21,6 +21,7 @@
   * @brief Declare SQL module.
   */
 
+/*
  #pragma once
 
  #include <udjat/defs.h>
@@ -60,3 +61,4 @@
  }
 
 
+*/

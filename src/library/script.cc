@@ -19,8 +19,45 @@
 
  /**
   * @brief Implements SQL script.
+
   */
 
+ #include <config.h>
+ #include <udjat/defs.h>
+ #include <udjat/tools/string.h>
+ #include <udjat/tools/sql/script.h>
+ #include <udjat/tools/xml.h>
+
+ using namespace std;
+
+ namespace Udjat {
+
+	SQL::Script::Script(const char *text) {
+
+		for(String &line : String{text}.split("\n")) {
+			line.strip();
+			if(line.empty()) {
+				continue;
+			}
+			sql += line;
+			if(line[line.size()-1] != ';') {
+				sql += " ";
+			}
+		}
+		sql.strip();
+		if(sql[sql.size()-1] == ';') {
+			sql.resize(sql.size()-1);
+		}
+
+		debug("SQL Query:",sql.c_str());
+
+	}
+
+	
+ }
+
+
+/*
  #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
@@ -65,3 +102,4 @@
 	}
 
  }
+*/

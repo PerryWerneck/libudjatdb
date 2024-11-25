@@ -21,6 +21,8 @@
   * @brief Declares the URL Queue Agent.
   */
 
+ /*
+ 
  #pragma once
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
@@ -65,4 +67,5 @@
 	}
 
  }
+*/
 

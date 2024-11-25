@@ -21,6 +21,7 @@
   * @brief Declare SQL Agent for udjat.
   */
 
+/*
  #pragma once
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
@@ -83,4 +84,4 @@
 
 
  }
-
+*/

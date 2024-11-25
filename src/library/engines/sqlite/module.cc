@@ -21,6 +21,7 @@
   * @brief SQLite module info.
   */
 
+/*
  #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/tools/intl.h>
@@ -34,3 +35,4 @@
 
  }
 
+*/

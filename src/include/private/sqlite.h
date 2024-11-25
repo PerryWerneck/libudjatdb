@@ -24,8 +24,39 @@
  #pragma once
  #include <config.h>
  #include <udjat/defs.h>
+ #include <udjat/tools/value.h>
  #include <mutex>
  #include <sqlite3.h>
+
+ namespace Udjat {
+
+	namespace SQL {
+
+		class UDJAT_API Session {
+		private:
+			sqlite3 *db = NULL;
+			static std::mutex guard;
+
+			void get(sqlite3_stmt *stmt, Udjat::Value &value);
+			void get(sqlite3_stmt *stmt, Udjat::Report &report);
+
+			void check(int rc) const;
+			sqlite3_stmt * prepare(Udjat::String &line, const Udjat::Value &request, const Udjat::Value &response);
+
+		public:
+
+			Session(const char *dbname);
+			virtual ~Session();
+
+			void exec(Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *child_name = nullptr);
+
+		};
+
+	}
+
+ }
+
+/*
  #include <udjat/tools/sql/script.h>
  #include <udjat/tools/report.h>
  #include <udjat/tools/request.h>
@@ -68,3 +99,4 @@
 
  }
 
+*/

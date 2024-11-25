@@ -21,6 +21,7 @@
   * @brief Internal definitions for CPPDB module.
   */
 
+/*
  #pragma once
 
  #include <config.h>
@@ -42,3 +43,4 @@
 	}
 
  }
+*/

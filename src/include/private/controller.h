@@ -21,6 +21,7 @@
   * @brief Declares SQL Query controller.
   */
 
+/*
  #pragma once
  #include <udjat/defs.h>
 
@@ -37,3 +38,4 @@
 
 	}
  }
+*/

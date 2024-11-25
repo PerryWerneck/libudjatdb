@@ -21,6 +21,7 @@
   * @brief Implements SQL statement.
   */
 
+/*
  #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/version.h>
@@ -211,3 +212,4 @@
 	}
 
  }
+*/

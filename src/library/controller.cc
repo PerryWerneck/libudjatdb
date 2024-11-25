@@ -21,6 +21,7 @@
   * @brief SQL Controller.
   */
 
+/*
  #include <config.h>
  #include <udjat/defs.h>
 
@@ -37,3 +38,4 @@
 	}
 
  }
+*/

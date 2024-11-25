@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/*
  #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/module/abstract.h>
@@ -47,11 +48,6 @@
 	SQL::Module::Module(const char *name, const ModuleInfo &info) 
 		: Udjat::Module{name,info}, Udjat::Worker{name,info}, Udjat::Factory{name,info} {
 	}
-
-	/*
-		: Udjat::Module(name,info), Udjat::Worker(name,info), Udjat::Factory(name,info) {
-	};
-	*/
 
 	SQL::Module::~Module() {
 	}
@@ -202,3 +198,4 @@
 
 }
 
+*/

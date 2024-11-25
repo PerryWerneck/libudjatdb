@@ -21,6 +21,7 @@
   * @brief Brief description of this source.
   */
 
+/*
  #pragma once
 
  #include <config.h>
@@ -36,3 +37,4 @@
 	}
 
  }
+*/

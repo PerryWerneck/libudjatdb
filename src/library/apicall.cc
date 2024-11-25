@@ -21,6 +21,7 @@
   * @brief Implement APICALL methods.
   */
 
+/*
  #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
@@ -34,4 +35,5 @@
 	}
 
  }
+*/
 

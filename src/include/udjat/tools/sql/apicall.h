@@ -21,6 +21,7 @@
   * @brief Implements SQL API Calls.
   */
 
+/*
  #pragma once
  #include <udjat/defs.h>
  #include <udjat/worker.h>
@@ -57,3 +58,4 @@
 	}
 
  }
+*/

@@ -18,6 +18,36 @@
  */
 
  #include <config.h>
+ #include <udjat/tools/sql/script.h>
+ #include <udjat/tools/value.h>
+ #include <udjat/tools/logger.h>
+
+ using namespace std;
+ using namespace Udjat;
+
+ int main(int argc, char **argv) {
+
+	Logger::verbosity(9);
+	Logger::console(true);
+	Logger::redirect();
+	
+	SQL::Script script{
+
+		"create table if not exists alerts (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text);\n" \
+		"insert into alerts (url,action,payload) values (${url},${action},${payload});" 
+	};
+
+	Value vars;
+	vars["url"] = "http://localhost";
+	vars["action"] = "+";
+	vars["payload"] = "";
+	script.exec("/tmp/test.sqlite",vars);
+
+	return 0;
+ }
+
+/*
+ #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/tests.h>
  #include <udjat/moduleinfo.h>
@@ -42,3 +72,4 @@
 
  }
  
+*/

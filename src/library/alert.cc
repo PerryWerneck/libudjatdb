@@ -21,6 +21,7 @@
   * @brief Brief description of this source.
   */
 
+/*
  #include <config.h>
  #include <udjat/tools/sql/script.h>
  #include <udjat/tools/abstract/object.h>
@@ -38,4 +39,5 @@
 
 
  }
+*/
 
