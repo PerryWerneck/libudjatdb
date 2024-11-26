@@ -69,6 +69,12 @@
 		return true;
 	}
 
+	String SQL::Script::parse(const XML::Node &node, bool except) {
+		String sql;
+		parse(sql,node.child_value());
+		return sql;
+	}
+
 	void SQL::Script::set(const char *text) {
 		parse(sql,text);
 	} 

@@ -21,13 +21,12 @@
   * @brief Declare SQL Agent for udjat.
   */
 
-/*
  #pragma once
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
  #include <udjat/agent/abstract.h>
  #include <udjat/tools/sql/script.h>
- #include <udjat/agent.h>
+ #include <udjat/tools/value.h>
 
  namespace Udjat {
 
@@ -37,11 +36,46 @@
 		class UDJAT_API Agent : public Udjat::Agent<T> {
 		private:
 
-			/// @brief SQL Script to update agent value.
-			const SQL::Script update;
+			/// @brief The name of agent value got by SQL query.
+			const char *valuename;
 
-			/// @brief SQL Script to get properties
-			const SQL::Script properties;
+			/// @brief URL for database connection.
+			const char *dbname;
+
+			/// @brief SQL Script to update agent value.
+			String update;
+
+		public:
+
+			Agent(const XML::Node &node) :
+				Udjat::Agent<T>{node},
+				valuename{String{node,"value-from","value"}.as_quark()},
+				dbname{String{node,"database-connection"}.as_quark()},
+				update{SQL::Script::parse(node,"refresh")} {
+			}
+
+			bool refresh(bool) override {
+				Value values;
+				T val = this->get();
+				values[valuename] = val;
+				SQL::Script{update}.exec(dbname,values);
+				values[valuename].get(val);
+				return this->set(val);
+			}
+
+		};
+
+	}
+
+ }
+
+/*
+ #include <udjat/tools/sql/script.h>
+ #include <udjat/agent.h>
+
+ namespace Udjat {
+
+	namespace SQL {
 
 			/// @brief The name of agent value got by SQL query.
 			const char *value_name;

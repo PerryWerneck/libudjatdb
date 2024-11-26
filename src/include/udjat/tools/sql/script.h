@@ -27,6 +27,7 @@
  #include <udjat/tools/xml.h>
  #include <udjat/tools/string.h>
  #include <udjat/tools/script.h>
+ #include <string>
  #include <vector>
  #include <memory>
 
@@ -50,12 +51,21 @@
 			/// @param sql the script definition.
 			Script(const char *sql);
 
+			Script(const std::string &str) : Script{str.c_str()} {
+			}
+
 			/// @brief Create SQL statement from XML definition.
 			/// @param node the script definition.
 			Script(const XML::Node &node);
 
-			/// @brief Pre-process SQL Statement
+			/// @brief Pre-process SQL Statement.
 			static bool parse(String &statement, const char *text, bool except = true);
+
+			/// @brief Pre-process SQL Statement.
+			/// @param node XML node with statement
+			/// @param except 
+			/// @return 
+			static String parse(const XML::Node &node, bool except = true);
 
 			/// @brief Set SQL statements to execute.
 			/// @param sql The SQL statements.

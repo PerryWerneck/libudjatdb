@@ -27,58 +27,21 @@
  #include <udjat/module/abstract.h>
  #include <udjat/tools/action.h>
  #include <udjat/tools/sql/action.h>
+ #include <udjat/agent/abstract.h>
 
  namespace Udjat {
 
 	namespace SQL {
 
-		class UDJAT_API Module : public Udjat::Module, private SQL::Action::Factory {
+		class UDJAT_API Module : public Udjat::Module, private SQL::Action::Factory, private Abstract::Agent::Factory {
 		public:
 
 			Module(const char *name);
 			virtual ~Module();
 
+			virtual std::shared_ptr<Abstract::Agent> AgentFactory(const Abstract::Object &parent, const XML::Node &node) const override;
+
 		};
 	}
 
  }
-
-/*
- #pragma once
-
- #include <udjat/module/info.h>
- #include <udjat/tools/worker.h>
- #include <udjat/factory.h>
- #include <udjat/tools/sql/apicall.h>
- 
- namespace Udjat {
-
-	namespace SQL {
-
-		class UDJAT_API Module : public Udjat::Module, protected Udjat::Worker, protected Udjat::Factory {
-		private:
-			std::vector<SQL::ApiCall> queries;
-
-		public:
-			static Module * Factory(const char *name, const ModuleInfo &info);
-
-			Module(const char *name, const ModuleInfo &info);
-			virtual ~Module();
-
-			Worker::ResponseType probe(const Request &request) const noexcept override;
-			bool work(Request &request, Response::Table &response) const override;
-			bool work(Request &request, Response::Value &response) const override;
-			bool CustomFactory(Abstract::Object &, const XML::Node &node) override;
-			bool generic(const pugi::xml_node &node) override;
-			std::shared_ptr<Abstract::Agent> AgentFactory(const Abstract::Object &, const XML::Node &node) const override;
-			std::shared_ptr<Abstract::Alert> AlertFactory(const Abstract::Object &, const XML::Node &node) const override;
-			void trace_paths(const char *url_prefix) const noexcept override;
-
-		};
-
-	}
-
- }
-
-
-*/
