@@ -17,10 +17,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/*
  #include <config.h>
- #include <udjat/defs.h>
  #include <udjat/module/abstract.h>
+ #include <udjat/tools/sql/module.h>
+
+ using namespace Udjat;
+
+ Udjat::Module * udjat_module_init() {
+
+	return new SQL::Module("sql");
+
+ }
+
+/*
+ #include <udjat/defs.h>
  #include <udjat/tools/worker.h>
  #include <udjat/module/abstract.h>
  #include <udjat/tools/factory.h>
@@ -33,16 +43,8 @@
  #include <private/urlqueue.h>
  #include <private/module.h>
 
- #include <udjat/tools/sql/module.h>
 
- using namespace Udjat;
  using namespace std;
 
  /// @brief Register udjat module.
- Udjat::Module * udjat_module_init() {
-
-	return SQL::Module::Factory("sql",SQL::module_info);
-
-
- }
 */

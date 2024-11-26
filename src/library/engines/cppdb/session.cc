@@ -37,10 +37,6 @@
 
  namespace Udjat {
 
-	UDJAT_API const char * SQL::engine() noexcept {
-		return "cppdb";
-	}
-
 	SQL::Session::Session(const char *dbname) : cppdb::session{dbname} {
 	}
 

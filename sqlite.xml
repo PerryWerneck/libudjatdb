@@ -34,7 +34,7 @@
 	</agent>
 	
 	<!-- Special type of SQL Agent keeping a queue of URLs -->
-	<agent type='sql' name='alerts' url-queue-name='sql' update-timer='60'>
+	<agent type='disabled' name='alerts' url-queue-name='sql' update-timer='60'>
 	
 		<attribute name='summary' value='Alerts on queue' />
 		<attribute name='label' value='Alert queue' />
@@ -66,6 +66,7 @@
 	
 	</agent>
 	
+	<!--
 	<api-call type='sql' name='insert' action='get' response-type='value'>
 		insert into sample (name,value) values (${1},${2});
 		select last_insert_rowid() as id;
@@ -82,11 +83,14 @@
 	<alert type='sql' name='orphaned'>
 		insert into sample (name,value) values ("alert","orphaned");
 	</alert>
+	-->
 
 	<!-- queued alert -->	
+	<!--
 	<alert name='hello' url='sql+http://127.0.0.1/cgi-bin/post_receiver' action='post'>
 		{"Message":"I'm Alive","timestamp":"${timestamp(%Y/%m/%d %H:%M:%S)}"}
 	</alert>
+	-->
 	
 </config>
 

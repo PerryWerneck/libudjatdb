@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-3.0-or-later */
 
 /*
- * Copyright (C) 2023 Perry Werneck <perry.werneck@gmail.com>
+ * Copyright (C) 2024 Perry Werneck <perry.werneck@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -17,9 +17,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/*
  #include <config.h>
  #include <udjat/defs.h>
+
+ #include <private/module.h>
+ #include <udjat/tools/sql/module.h>
+ #include <udjat/tools/action.h>
+
+ namespace Udjat {
+
+	SQL::Module::Module(const char *name) : Udjat::Module{name,SQL::module_info} {
+	}
+
+	SQL::Module::~Module() {
+	}
+
+ }
+
+/*
  #include <udjat/module/abstract.h>
  #include <udjat/tools/worker.h>
  #include <udjat/module/abstract.h>

@@ -8,13 +8,7 @@
 	<!--
 		Use attribute for database URL to avoid repetitions.
 	-->
-	<!-- attribute name='database-connection' value='sqlite3:db=/tmp/test.sqlite;@pool_size=10' / -->
-
-	<!-- Alternative connection attribute for SQLite module -->
-	<attribute name='sqlite-file' value='/tmp/test.sqlite' />
-
-	<!-- Alternative connection attribute for CPPDb module -->
-	<attribute name='cppdb-connection' value='sqlite3:db=/tmp/test.sqlite' />
+	<attribute name='database-connection' value='sqlite3:db=/tmp/test.sqlite' />
 
 	<!--
 	
@@ -26,7 +20,7 @@
 	</init>
 	
 	<!-- Internal agent, just for testing factory conflicts -->
-	<agent name='intvalue' type='integer' value='0' />
+	<agent type='integer' name='intvalue' value='0' />
 	
 	<!-- Build an SQL Based agent -->
 	<agent type='sql' name='count' value-type='integer' retry-interval='14400' update-timer='14400'>

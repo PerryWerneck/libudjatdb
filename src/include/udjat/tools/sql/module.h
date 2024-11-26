@@ -21,11 +21,31 @@
   * @brief Declare SQL module.
   */
 
-/*
  #pragma once
 
  #include <udjat/defs.h>
  #include <udjat/module/abstract.h>
+ #include <udjat/tools/action.h>
+ #include <udjat/tools/sql/action.h>
+
+ namespace Udjat {
+
+	namespace SQL {
+
+		class UDJAT_API Module : public Udjat::Module, private SQL::Action::Factory {
+		public:
+
+			Module(const char *name);
+			virtual ~Module();
+
+		};
+	}
+
+ }
+
+/*
+ #pragma once
+
  #include <udjat/module/info.h>
  #include <udjat/tools/worker.h>
  #include <udjat/factory.h>

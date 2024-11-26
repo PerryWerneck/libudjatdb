@@ -26,6 +26,7 @@
  #include <udjat/tools/action.h>
  #include <udjat/tools/sql/script.h>
  #include <udjat/tools/sql/action.h>
+ #include <udjat/tools/sql/module.h>
  #include <memory>
 
  using namespace std;

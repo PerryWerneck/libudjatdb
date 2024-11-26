@@ -32,7 +32,7 @@
 
  namespace Udjat {
 
-	void SQL::Script::set(const char *text) {
+	bool SQL::Script::parse(String &sql, const char *text, bool except) {
 
 		sql.clear();
 
@@ -46,12 +46,31 @@
 				sql += " ";
 			}
 		}
+
 		sql.strip();
-		if(sql[sql.size()-1] == ';') {
-			sql.resize(sql.size()-1);
+
+		{
+			size_t length = sql.size();
+			if(length > 1 && sql[length-1] == ';') {
+				sql.resize(length-1);
+				sql.strip();
+			}
 		}
+
 		debug("SQL Query:",sql.c_str());
 
+		if(sql.empty()) {
+			if(!except) {
+				return false;
+			}
+			throw runtime_error("SQL Script is empty");
+		}
+
+		return true;
+	}
+
+	void SQL::Script::set(const char *text) {
+		parse(sql,text);
 	} 
 
 	SQL::Script::Script(const XML::Node &node) {

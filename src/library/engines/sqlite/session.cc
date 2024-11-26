@@ -39,10 +39,6 @@
 
 	std::mutex SQL::Session::guard;
 
-	UDJAT_API const char * SQL::engine() noexcept {
-		return "sqlite";
-	}
-
 	SQL::Session::Session(const char *dbname) {
 
 		lock_guard<mutex> lock(guard);

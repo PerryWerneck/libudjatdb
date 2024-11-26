@@ -54,6 +54,9 @@
 			/// @param node the script definition.
 			Script(const XML::Node &node);
 
+			/// @brief Pre-process SQL Statement
+			static bool parse(String &statement, const char *text, bool except = true);
+
 			/// @brief Set SQL statements to execute.
 			/// @param sql The SQL statements.
 			void set(const char *text);
