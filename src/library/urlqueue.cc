@@ -21,220 +21,100 @@
   * @brief Implements URL Queue agent.
   */
 
-/*
  #include <config.h>
+ #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
- #include <udjat/tools/quark.h>
+ #include <udjat/agent.h>
  #include <udjat/agent/sql.h>
- #include <udjat/module/info.h>
  #include <udjat/tools/protocol.h>
- #include <udjat/tools/sql/script.h>
- #include <udjat/tools/http/client.h>
- #include <udjat/agent/state.h>
- #include <private/urlqueue.h>
- #include <udjat/tools/value.h>
- #include <udjat/tools/intl.h>
+
+ #include <iostream>
  #include <private/module.h>
- #include <memory>
+ #include <private/urlqueue.h>
 
  using namespace std;
 
  namespace Udjat {
 
-	SQL::URLQueue::URLQueue(const XML::Node &node)
-		:	SQL::Agent<size_t>(node),
-			Udjat::Protocol{Quark(node,"url-queue-name","sql").c_str(),SQL::module_info},
-			ins{node,"insert",true,false},
-			send{node,"send",true,false},
-			after_send{node,"after-send",true,false},
-			send_interval{Object::getAttribute(node, "urlqueue", "send-interval", (unsigned int) 60)},
-			send_delay{Object::getAttribute(node, "urlqueue", "send-delay", (unsigned int) 2)} {
-	}
+	namespace SQL {
 
-	SQL::URLQueue::~URLQueue() {
-	}
+		URLQueue::URLQueue(const XML::Node &node)
+			:	SQL::Agent<size_t>(node),
+				Udjat::Protocol{String(node,"url-queue-name","sql").as_quark(),SQL::module_info},
+				ins{SQL::Script::parse(node.child("insert"))},
+				get_values{SQL::Script::parse(node.child("get"))},
+				after_send{SQL::Script::parse(node.child("after-send"))},
+				send_interval{Object::getAttribute(node, "urlqueue", "send-interval", (unsigned int) 60)},
+				send_delay{Object::getAttribute(node, "urlqueue", "send-delay", (unsigned int) 2)} {
+		}
 
-	bool SQL::URLQueue::refresh(bool b) {
+		URLQueue::~URLQueue() {
+		}
 
-		debug("----------------- Refreshing url queue");
+		bool URLQueue::refresh(bool b) {
 
-		// First refresh queue size.
-		bool rc = SQL::Agent<size_t>::refresh(b);
-		size_t qrecs = SQL::Agent<size_t>::get();
+			bool changed = SQL::Agent<size_t>::refresh(b);
+			size_t count = Udjat::Agent<size_t>::get();
+			if(!count) {
+				return changed;
+			}
 
-		if(qrecs) {
+			if(count) {
 
-			string url;
+				try {
 
-			try {
+					send();
 
-				bool success = false;
+				} catch(std::exception &e) {
 
-				auto response = Udjat::Value::ObjectFactory();
-				send.exec(*this,*response);
-				rc = true;
+					SQL::Agent<size_t>::error() << e.what() << endl;
 
-				url = (*response)["url"].to_string();
-				HTTP::Client client(url.c_str());
+				}
+			}
 
-				switch(HTTP::MethodFactory((*response)["action"].to_string().c_str())) {
-				case HTTP::Get:
-					{
-						auto response = client.get();
-						SQL::Agent<size_t>::info() << url << endl;
-						Logger::write(Logger::Trace,response);
-						success = true;
-					}
-					break;
+			return true;
+		}
 
-				case HTTP::Post:
-					{
-						auto result = client.post((*response)["payload"].to_string().c_str());
-						Logger::write(Logger::Trace,result);
-						success = true;
-					}
-					break;
+		std::shared_ptr<Protocol::Worker> URLQueue::WorkerFactory() const {
 
-				default:
-					SQL::Agent<size_t>::error() << "Unexpected verb '" << (*response)["action"].to_string() << "' sending queued request, ignoring" << endl;
-					success = false;
+			class Worker : public Udjat::Protocol::Worker {
+			private:
+				URLQueue &agent;
+
+			public:
+				Worker(SQL::URLQueue *a) : agent{*a} {
 				}
 
-				if(success) {
-					after_send.exec(*this,*response);
-					SQL::Agent<size_t>::set(--qrecs);
-					if(send_interval) {
-						debug("Will send next in ",send_interval," second(s)");
-						sched_update(send_interval);
-					}
+				virtual ~Worker() {
 				}
 
-			} catch(const std::exception &e) {
+				String get(const std::function<bool(double current, double total)> &progress) override {
 
-				SQL::Agent<size_t>::error() << url << ": " << e.what() << endl;
+					progress(0,0);
 
-			}
+					Udjat::Value value;
+					value["url"] = url().c_str();
+					value["action"] = std::to_string(method());
+					value["payload"] = payload();
 
-		}
+					SQL::Script{agent.ins}.exec(agent.dbname,value);
 
-		return rc;
-	}
+					agent.set(agent.Udjat::Agent<size_t>::get()+1);
+					agent.sched_update(1);
 
-	std::shared_ptr<Protocol::Worker> SQL::URLQueue::WorkerFactory() const {
-
-		class Worker : public Udjat::Protocol::Worker {
-		private:
-			const URLQueue *agent;
-
-		public:
-			Worker(const SQL::URLQueue *a) : agent{a} {
-			}
-
-			virtual ~Worker() {
-			}
-
-			String get(const std::function<bool(double current, double total)> &progress) override {
-
-				progress(0,0);
-
-				auto value = Udjat::Value::ObjectFactory();
-
-				debug("----------------------------> Inserting alert on queue");
-				(*value)["url"] = url().c_str(),
-				(*value)["action"] = std::to_string(method()),
-				(*value)["payload"] = payload(),
-
-				agent->ins.exec(value);
-
-				{
-					URLQueue *obj = const_cast<URLQueue *>(this->agent);
-					if(obj) {
-						obj->SQL::Agent<size_t>::set(obj->SQL::Agent<size_t>::get()+1);
-						debug("QUEUE set to ",obj->SQL::Agent<size_t>::get());
-						obj->sched_update(1);	// Request agent update.
-					} else {
-						Logger::String{"Unable to request agent update"}.warning("urlqueue");
-					}
+					// Force as complete.
+					progress(1,1);
+					return "";
 				}
 
-				debug("-------- Inserted");
+			};
 
-				// Force as complete.
-				progress(1,1);
-				return "";
-			}
+			return make_shared<Worker>(const_cast<SQL::URLQueue *>(this));
 
-		};
-
-		return make_shared<Worker>(this);
+		}
 
 	}
-
-	std::shared_ptr<Abstract::State> SQL::URLQueue::computeState() {
-
-		// Get current value.
-		size_t pending = SQL::Agent<size_t>::get();
-
-		// Do we have XML defined states?
-		for(auto state : states) {
-			if(state->compare(pending))
-				return state;
-		}
-
-		// No, we dont! Is the current state valid?
-		{
-			Udjat::State<size_t> *selected = dynamic_cast<Udjat::State<size_t> *>(this->state().get());
-			if(selected && selected->compare(pending)) {
-				return this->state();
-			}
-		}
-
-		// We dont have a xml defined state and the current one is invalid, select an internal one.
-
-		/// @brief Message based state.
-		class StringState : public Udjat::State<size_t> {
-		private:
-			std::string message;
-
-		public:
-			StringState(const char *name, Level level, size_t value, const std::string &msg) : Udjat::State<size_t>(name,value,level), message{msg} {
-				Object::properties.summary = message.c_str();
-			}
-		};
-
-		const char * name = Protocol::c_str();
-
-		if(!pending) {
-
-			return make_shared<StringState>(
-							"queue-empty",
-							Level::unimportant,
-							pending,
-							Message{ _("{} output queue is empty"), name }
-						);
-
-		} else if(pending == 1) {
-
-			return make_shared<StringState>(
-							"one-queued",
-							Level::warning,
-							pending,
-							Message{ _("One pending request in the {} queue"), name }
-						);
-
-		}
-
-		return make_shared<StringState>(
-						"has-queued",
-						Level::warning,
-						pending,
-						Message{ _("{} pending requests in the {} queue"), pending, name }
-					);
-
-	}
-
 
  }
-*/
 
 

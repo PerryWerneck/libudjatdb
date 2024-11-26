@@ -49,9 +49,9 @@
 		</insert>
 
 		<!-- Get data to send -->
-		<send>
+		<get>
 			select id,url,action,payload from alerts limit 1
-		</send>
+		</get>
 		
 		<!-- Delete ID after sending it -->
 		<after-send>

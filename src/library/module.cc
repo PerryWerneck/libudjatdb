@@ -21,11 +21,14 @@
  #include <udjat/defs.h>
 
  #include <private/module.h>
+ #include <private/urlqueue.h>
  #include <udjat/tools/sql/module.h>
  #include <udjat/tools/action.h>
  #include <udjat/tools/value.h>
  #include <udjat/agent/sql.h>
+ #include <udjat/tools/sql/script.h>
  #include <udjat/agent/abstract.h>
+ #include <udjat/tools/protocol.h>
 
  #include <memory>
 
@@ -42,12 +45,11 @@
 
 	std::shared_ptr<Abstract::Agent> SQL::Module::AgentFactory(const Abstract::Object &parent, const XML::Node &node) const {
 
-		String qname{node,"url-queue-name"};
-
-		if(qname.empty()) {
+		if(String{node,"url-queue-name"}.empty()) {
 			//
 			// Standard SQL Agent.
 			//
+			debug("---------------------> Building Agent '",node.attribute("name").as_string(),"'");
 			switch(Value::TypeFactory(node,"value-type","int")) {
 			case Value::String:
 				return make_shared<SQL::Agent<string>>(node);
@@ -70,13 +72,8 @@
 			}
 		}
 
-		//
-		// URL Scheme agent.
-		//
-
-
-
-		return std::shared_ptr<Abstract::Agent>();
+		debug("---------------------> Building URL queue '",node.attribute("name").as_string(),"'");
+		return make_shared<URLQueue>(node);
 
 	}
 

@@ -125,6 +125,7 @@ cppdb_src = [
   'src/library/engines/cppdb/session.cc',
   'src/library/engines/cppdb/module.cc',
   'src/library/engines/cppdb/exec.cc',
+  'src/library/engines/cppdb/urlqueue.cc',
   'src/library/engines/cppdb/statement.cc',
 ]
 

@@ -34,7 +34,7 @@
 
 		template <typename T>
 		class UDJAT_API Agent : public Udjat::Agent<T> {
-		private:
+		protected:
 
 			/// @brief The name of agent value got by SQL query.
 			const char *valuename;
@@ -54,7 +54,7 @@
 				update{SQL::Script::parse(node,"refresh")} {
 			}
 
-			bool refresh(bool) override {
+			bool refresh(bool b) override {
 				Value values;
 				T val = this->get();
 				values[valuename] = val;

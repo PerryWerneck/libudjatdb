@@ -21,11 +21,10 @@
   * @brief Declares the URL Queue Agent.
   */
 
- /*
- 
  #pragma once
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
+ #include <udjat/agent.h>
  #include <udjat/agent/sql.h>
  #include <udjat/tools/protocol.h>
 
@@ -37,13 +36,13 @@
 		private:
 
 			/// @brief SQL Script to insert an URL on queue.
-			const SQL::Script ins;
+			const String ins;
 
 			/// @brief SQL Script to get fields for retry.
-			const SQL::Script send;
+			const String get_values;
 
 			/// @brief SQL Script to remove URL sent from queue.
-			const SQL::Script after_send;
+			const String after_send;
 
 			/// @brief Seconds to wait after a sucessfull send to send another queued row.
 			time_t send_interval;
@@ -52,14 +51,19 @@
 			time_t send_delay;
 
 			/// @brief Compute State based on queue size.
-			std::shared_ptr<Abstract::State> computeState() override;
+			//std::shared_ptr<Abstract::State> computeState() override;
+
+			// Send queue
+			void send();
 
 		public:
 			URLQueue(const XML::Node &node);
 			virtual ~URLQueue();
 
+			// Agent
 			bool refresh(bool b) override;
 
+			// Factory
 			std::shared_ptr<Protocol::Worker> WorkerFactory() const override;
 
 		};
@@ -67,5 +71,5 @@
 	}
 
  }
-*/
+
 

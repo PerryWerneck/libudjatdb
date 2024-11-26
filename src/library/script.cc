@@ -71,6 +71,7 @@
 
 	String SQL::Script::parse(const XML::Node &node, bool except) {
 		String sql;
+		debug("Parsing node ",node.name(),"(",node.attribute("name").as_string(),")");
 		parse(sql,node.child_value());
 		return sql;
 	}
