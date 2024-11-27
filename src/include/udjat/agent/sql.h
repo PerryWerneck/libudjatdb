@@ -52,6 +52,7 @@
 				valuename{String{node,"value-from","value"}.as_quark()},
 				dbname{String{node,"database-connection"}.as_quark()},
 				update{SQL::Script::parse(node,"refresh")} {
+				SQL::Script::exec(dbname,node,"init");
 			}
 
 			bool refresh(bool b) override {

@@ -24,7 +24,9 @@
 	
 	<!-- Build an SQL Based agent -->
 	<agent type='sql' name='count' value-type='integer' retry-interval='14400' update-timer='14400'>
-		select count (*) as value from sample
+		<refresh>
+			select count (*) as value from sample
+		</refresh>
 	</agent>
 	
 	<!-- Special type of SQL Agent keeping a queue of URLs -->

@@ -27,6 +27,7 @@
  #include <udjat/agent.h>
  #include <udjat/agent/sql.h>
  #include <udjat/tools/protocol.h>
+ #include <udjat/tools/sql/script.h>
 
  #include <iostream>
  #include <private/module.h>
@@ -41,9 +42,9 @@
 		URLQueue::URLQueue(const XML::Node &node)
 			:	SQL::Agent<size_t>(node),
 				Udjat::Protocol{String(node,"url-queue-name","sql").as_quark(),SQL::module_info},
-				ins{SQL::Script::parse(node.child("insert"))},
-				get_values{SQL::Script::parse(node.child("get"))},
-				after_send{SQL::Script::parse(node.child("after-send"))},
+				ins{SQL::Script::parse(node,"insert",true)},
+				get_values{SQL::Script::parse(node,"get",true)},
+				after_send{SQL::Script::parse(node,"after-send",false)},
 				send_interval{Object::getAttribute(node, "urlqueue", "send-interval", (unsigned int) 60)},
 				send_delay{Object::getAttribute(node, "urlqueue", "send-delay", (unsigned int) 2)} {
 		}

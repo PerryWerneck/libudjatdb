@@ -67,6 +67,8 @@
 			/// @return 
 			static String parse(const XML::Node &node, bool except = true);
 
+			static String parse(const XML::Node &node, const char *name, bool except = true);
+
 			/// @brief Set SQL statements to execute.
 			/// @param sql The SQL statements.
 			void set(const char *text);
@@ -75,6 +77,8 @@
 			void exec(const char *dbname, Udjat::Value &values) const;
 
 			void exec(const char *dbname, const Udjat::Value &request, Udjat::Value &response) const;
+
+			static void exec(const char *dbname, const XML::Node &node, const char *name, bool required = false);
 
 		};
 
