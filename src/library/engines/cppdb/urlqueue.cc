@@ -41,7 +41,7 @@
 		cppdb::transaction guard(db);
 
 		Udjat::Value values;
-		db.exec(get_values,values,values);
+		SQL::Session::exec(db,get_values,values,values);
 
 		HTTP::Client client(values["url"].c_str());
 
@@ -66,10 +66,11 @@
 
 		size_t count = Udjat::Agent<size_t>::get();
 
-		db.exec(after_send,values,values);
+		SQL::Session::exec(db,after_send,values,values);
+		guard.commit();
+
 		count--;
 
-		db.commit();
 		Udjat::Agent<size_t>::set(count);
 
 		if(send_interval) {

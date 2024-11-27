@@ -42,6 +42,7 @@
 			Session(const char *dbname);
 			~Session();
 
+			static void exec(SQL::Session &session, Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *child_name = nullptr);
 			void exec(Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *child_name = nullptr);
 
 		};
