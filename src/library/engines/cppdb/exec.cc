@@ -101,7 +101,11 @@
 
 	void SQL::Session::exec(Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *name) {
 
+		debug("--------------- Begin transaction");
+		debug(statement);
+
 		cppdb::transaction guard(*this);
+		debug("Got guard");
 
 		for(String &line : statement.split(";")) {
 
@@ -187,6 +191,7 @@
 		}
 
 		guard.commit();
+		debug("--------------- End transaction");
 
 	}
 
