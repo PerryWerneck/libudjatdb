@@ -82,7 +82,7 @@
 		auto child = node.child(name);
 		if(!child) {
 			if(except) {
-				throw runtime_error(Logger::String{"Cant find equired child '",name,"'"});
+				throw runtime_error(Logger::String{"Cant find required child '",name,"'"});
 			} else {
 				Logger::String{"Required child '",name,"' is not available"}.trace("sql");
 			}

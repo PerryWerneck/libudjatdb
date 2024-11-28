@@ -134,6 +134,7 @@ sqlite_src = [
   'src/library/engines/sqlite/exec.cc',
   'src/library/engines/sqlite/module.cc',
   'src/library/engines/sqlite/session.cc',
+  'src/library/engines/sqlite/urlqueue.cc',
   'src/library/engines/sqlite/statement.cc',
 ]
 

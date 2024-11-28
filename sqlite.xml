@@ -34,7 +34,7 @@
 	</agent>
 	
 	<!-- Special type of SQL Agent keeping a queue of URLs -->
-	<agent type='disabled' name='alerts' url-queue-name='sql' update-timer='60'>
+	<agent type='sql' name='alerts' url-queue-name='sql' update-timer='60'>
 	
 		<attribute name='summary' value='Alerts on queue' />
 		<attribute name='label' value='Alert queue' />
@@ -55,9 +55,9 @@
 		</insert>
 
 		<!-- Get data to send -->
-		<send>
+		<get>
 			select id,url,action,payload from alerts limit 1
-		</send>
+		</get>
 		
 		<!-- Delete ID after sending it -->
 		<after-send>
