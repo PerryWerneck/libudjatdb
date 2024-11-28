@@ -24,6 +24,7 @@
  #pragma once
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
+ #include <udjat/agent/abstract.h>
  #include <udjat/agent.h>
  #include <udjat/agent/sql.h>
  #include <udjat/tools/protocol.h>
@@ -59,6 +60,8 @@
 		public:
 			URLQueue(const XML::Node &node);
 			virtual ~URLQueue();
+
+			std::shared_ptr<Abstract::State> computeState() override;
 
 			// Agent
 			bool refresh(bool b) override;

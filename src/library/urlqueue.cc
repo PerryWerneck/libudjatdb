@@ -28,6 +28,7 @@
  #include <udjat/agent/sql.h>
  #include <udjat/tools/protocol.h>
  #include <udjat/tools/sql/script.h>
+ #include <udjat/tools/intl.h>
 
  #include <iostream>
  #include <private/module.h>
@@ -50,6 +51,69 @@
 		}
 
 		URLQueue::~URLQueue() {
+		}
+
+		std::shared_ptr<Abstract::State> URLQueue::computeState() {
+
+			// Get current value.
+			size_t pending = SQL::Agent<size_t>::get();
+
+			// Do we have XML defined states?
+			for(auto state : states) {
+				if(state->compare(pending))
+					return state;
+			}
+
+			// No, we dont! Is the current state valid?
+			{
+				Udjat::State<size_t> *selected = dynamic_cast<Udjat::State<size_t> *>(this->state().get());
+				if(selected && selected->compare(pending)) {
+					return this->state();
+				}
+			}
+
+			// We dont have a xml defined state and the current one is invalid, select an internal one.
+
+			/// @brief Message based state.
+			class StringState : public Udjat::State<size_t> {
+			private:
+				std::string message;
+
+			public:
+				StringState(const char *name, Level level, size_t value, const std::string &msg) : Udjat::State<size_t>(name,value,level), message{msg} {
+					Object::properties.summary = message.c_str();
+				}
+			};
+
+			const char * name = Protocol::c_str();
+
+			if(!pending) {
+
+				return make_shared<StringState>(
+								"queue-empty",
+								Level::unimportant,
+								pending,
+								Message{ _("{} output queue is empty"), name }
+							);
+
+			} else if(pending == 1) {
+
+				return make_shared<StringState>(
+								"one-queued",
+								Level::warning,
+								pending,
+								Message{ _("One pending request in the {} queue"), name }
+							);
+
+			}
+
+			return make_shared<StringState>(
+							"has-queued",
+							Level::warning,
+							pending,
+							Message{ _("{} pending requests in the {} queue"), pending, name }
+						);
+
 		}
 
 		bool URLQueue::refresh(bool b) {
