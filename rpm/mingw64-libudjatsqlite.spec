@@ -21,7 +21,7 @@
 
 Summary:		SQLite client library for %{product_name}
 Name:			mingw64-libudjat%{module_name}
-Version:		2.1.0
+Version: 2.1.0
 Release:		0
 License:		LGPL-3.0
 Source:			libudjatdb-%{version}.tar.xz
