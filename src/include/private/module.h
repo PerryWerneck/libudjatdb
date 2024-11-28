@@ -18,7 +18,7 @@
  */
 
  /**
-  * @brief Brief description of this source.
+  * @brief Private definitions for SQL::Module.
   */
 
  #pragma once

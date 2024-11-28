@@ -19,8 +19,111 @@
 
  /**
   * @brief Implements SQL script.
+
   */
 
+ #include <config.h>
+ #include <udjat/defs.h>
+ #include <udjat/tools/string.h>
+ #include <udjat/tools/sql/script.h>
+ #include <udjat/tools/xml.h>
+
+ using namespace std;
+
+ namespace Udjat {
+
+	bool SQL::Script::parse(String &sql, const char *text, bool except) {
+
+		sql.clear();
+
+		for(String &line : String{text}.split("\n")) {
+			line.strip();
+			if(line.empty()) {
+				continue;
+			}
+			sql += line;
+			if(line[line.size()-1] != ';') {
+				sql += " ";
+			}
+		}
+
+		sql.strip();
+
+		{
+			size_t length = sql.size();
+			if(length > 1 && sql[length-1] == ';') {
+				sql.resize(length-1);
+				sql.strip();
+			}
+		}
+
+		debug("SQL Query:",sql.c_str());
+
+		if(sql.empty()) {
+			if(!except) {
+				return false;
+			}
+			throw runtime_error("SQL Script is empty");
+		}
+
+		return true;
+	}
+
+	String SQL::Script::parse(const XML::Node &node, bool except) {
+		String sql;
+		debug("Parsing node ",node.name(),"(",node.attribute("name").as_string(),")");
+		parse(sql,node.child_value());
+		return sql;
+	}
+
+	String SQL::Script::parse(const XML::Node &node, const char *name, bool except) {
+
+		debug("Parsing node ",node.name(),"(",node.attribute("name").as_string(),")");
+		auto child = node.child(name);
+		if(!child) {
+			if(except) {
+				throw runtime_error(Logger::String{"Cant find required child '",name,"'"});
+			} else {
+				Logger::String{"Required child '",name,"' is not available"}.trace("sql");
+			}
+			return "";
+		}
+
+		String sql;
+		parse(sql,child.child_value());
+		return sql;
+
+	}
+
+	void SQL::Script::set(const char *text) {
+		parse(sql,text);
+	} 
+
+	SQL::Script::Script(const XML::Node &node) {
+		set(node.child_value());
+	}
+
+	SQL::Script::Script(const char *text) {
+		set(text);
+	}
+
+	void SQL::Script::exec(const char *dbname, const XML::Node &node, const char *name, bool required) {
+
+		String sql{SQL::Script::parse(node,name,required)};
+		if(sql.empty()) {
+			return;
+		}
+
+		Udjat::Value value;
+		Script{sql}.exec(dbname,value);
+
+	}
+
+
+ }
+
+
+/*
  #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
@@ -65,3 +168,4 @@
 	}
 
  }
+*/

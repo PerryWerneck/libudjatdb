@@ -25,11 +25,9 @@
 
  #include <udjat/defs.h>
  #include <udjat/tools/xml.h>
- #include <udjat/tools/object.h>
- #include <udjat/tools/value.h>
- #include <udjat/tools/request.h>
- #include <udjat/tools/response.h>
- #include <udjat/tools/report.h>
+ #include <udjat/tools/string.h>
+ #include <udjat/tools/script.h>
+ #include <string>
  #include <vector>
  #include <memory>
 
@@ -37,6 +35,57 @@
 
 	namespace SQL {
 
+		/// @brief Get engine name
+		/// @return The engine name ("sqlite", "cppdb", ...)
+		UDJAT_API const char * engine() noexcept;
+
+		class UDJAT_API Script {
+		private:
+			String sql;	///< @brief The string with SQL Queries.
+
+		protected:
+
+		public:
+
+			/// @brief Create SQL statement from XML definition.
+			/// @param sql the script definition.
+			Script(const char *sql);
+
+			Script(const std::string &str) : Script{str.c_str()} {
+			}
+
+			/// @brief Create SQL statement from XML definition.
+			/// @param node the script definition.
+			Script(const XML::Node &node);
+
+			/// @brief Pre-process SQL Statement.
+			static bool parse(String &statement, const char *text, bool except = true);
+
+			/// @brief Pre-process SQL Statement.
+			/// @param node XML node with statement
+			/// @param except 
+			/// @return 
+			static String parse(const XML::Node &node, bool except = true);
+
+			static String parse(const XML::Node &node, const char *name, bool except = true);
+
+			/// @brief Set SQL statements to execute.
+			/// @param sql The SQL statements.
+			void set(const char *text);
+
+			/// @brief Execute SQL query, get response.
+			void exec(const char *dbname, Udjat::Value &values) const;
+
+			void exec(const char *dbname, const Udjat::Value &request, Udjat::Value &response) const;
+
+			static void exec(const char *dbname, const XML::Node &node, const char *name, bool required = false);
+
+		};
+
+	}
+ }
+
+/*
 		/// @brief Get engine name
 		/// @return The engine name ("sqlite", "cppdb", ...)
 		UDJAT_API const char * engine() noexcept;
@@ -125,4 +174,5 @@
 	}
 
  }
+*/
 

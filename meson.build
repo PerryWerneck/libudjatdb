@@ -111,6 +111,7 @@ includes_dir = include_directories('src/include')
 # Sources
 #
 lib_src = [
+  'src/library/action.cc',
   'src/library/alert.cc',
   'src/library/apicall.cc',
   'src/library/controller.cc',
@@ -121,8 +122,10 @@ lib_src = [
 
 cppdb_src = [
   'src/library/engines/cppdb/alert.cc',
+  'src/library/engines/cppdb/session.cc',
   'src/library/engines/cppdb/module.cc',
   'src/library/engines/cppdb/exec.cc',
+  'src/library/engines/cppdb/urlqueue.cc',
   'src/library/engines/cppdb/statement.cc',
 ]
 
@@ -131,6 +134,7 @@ sqlite_src = [
   'src/library/engines/sqlite/exec.cc',
   'src/library/engines/sqlite/module.cc',
   'src/library/engines/sqlite/session.cc',
+  'src/library/engines/sqlite/urlqueue.cc',
   'src/library/engines/sqlite/statement.cc',
 ]
 
@@ -175,7 +179,7 @@ endif
 #
 # SQLite Engine
 #
-sqlite = dependency('sqlite3') 
+sqlite = dependency('sqlite3', required: false) 
 
 if sqlite.found()
 
@@ -329,7 +333,13 @@ install_headers(
 )
 
 install_headers(
+  'src/include/udjat/tools/sql.h',
+  subdir: 'udjat/tools'  
+)
+
+install_headers(
   'src/include/udjat/tools/sql/script.h',
+  'src/include/udjat/tools/sql/action.h',
   'src/include/udjat/tools/sql/apicall.h',
   'src/include/udjat/tools/sql/module.h',
   subdir: 'udjat/tools/sql'  

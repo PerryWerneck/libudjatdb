@@ -26,11 +26,15 @@
  #include <udjat/tools/intl.h>
  #include <private/module.h>
  #include <udjat/module/info.h>
+ #include <udjat/tools/sql/module.h>
  #include <sqlite3.h>
 
  namespace Udjat {
 
+	UDJAT_API const char * SQL::engine() noexcept {
+		return "sqlite";
+	}
+
 	const ModuleInfo SQL::module_info{"sqlite", "SQLite " SQLITE_VERSION " SQL Module"};
 
  }
-

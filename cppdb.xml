@@ -8,13 +8,7 @@
 	<!--
 		Use attribute for database URL to avoid repetitions.
 	-->
-	<!-- attribute name='database-connection' value='sqlite3:db=/tmp/test.sqlite;@pool_size=10' / -->
-
-	<!-- Alternative connection attribute for SQLite module -->
-	<attribute name='sqlite-file' value='/tmp/test.sqlite' />
-
-	<!-- Alternative connection attribute for CPPDb module -->
-	<attribute name='cppdb-connection' value='sqlite3:db=/tmp/test.sqlite' />
+	<attribute name='database-connection' value='sqlite3:db=/tmp/test.sqlite' />
 
 	<!--
 	
@@ -26,16 +20,13 @@
 	</init>
 	
 	<!-- Internal agent, just for testing factory conflicts -->
-	<agent name='intvalue' type='integer' value='0' />
+	<agent type='integer' name='intvalue' value='0' />
 	
 	<!-- Build an SQL Based agent -->
 	<agent type='sql' name='count' value-type='integer' retry-interval='14400' update-timer='14400'>
-	
-		<!-- Update agent value from SQL query -->
 		<refresh>
 			select count (*) as value from sample
 		</refresh>
-	
 	</agent>
 	
 	<!-- Special type of SQL Agent keeping a queue of URLs -->
@@ -46,7 +37,7 @@
 	
 		<!-- Initialize an URL queue -->
 		<init>
-			create table if not exists alerts (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text)
+			create table if not exists alerts (id integer primary key, url text, action text, payload text)
 		</init>
 		
 		<!-- Update Queue size -->
@@ -56,13 +47,13 @@
 
 		<!-- Store URL on database -->
 		<insert>
-			insert into alerts (url,action,payload) values (${url},${action},${payload})
+			insert into alerts (url,action,payload) values (${url},${action},${payload});
 		</insert>
 
 		<!-- Get data to send -->
-		<send>
+		<get>
 			select id,url,action,payload from alerts limit 1
-		</send>
+		</get>
 		
 		<!-- Delete ID after sending it -->
 		<after-send>
@@ -71,6 +62,7 @@
 	
 	</agent>
 	
+	<!--
 	<api-call type='sql' name='insert' action='get' response-type='value'>
 		insert into sample (name,value) values (${1},${2});
 		select last_insert_rowid() as id;
@@ -83,6 +75,7 @@
 	<api-call type='sql' name='pending' action='get' response-type='table'>
 		select * from alerts
 	</api-call>
+	-->
 
 	<!-- alert type='sql' name='orphaned'>
 		insert into sample (name,value) values ("alert","orphaned");

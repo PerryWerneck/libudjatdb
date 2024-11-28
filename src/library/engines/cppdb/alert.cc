@@ -21,6 +21,7 @@
   * @brief Implements SQL alert.
   */
 
+/*
  #include <config.h>
  #include <udjat/tools/sql/script.h>
  #include <udjat/tools/abstract/object.h>
@@ -164,3 +165,4 @@
 
  }
 
+*/

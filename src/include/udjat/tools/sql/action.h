@@ -18,26 +18,40 @@
  */
 
  /**
-  * @brief Brief description of this source.
+  * @brief Implements Action.
   */
 
-/*
- #include <config.h>
- #include <udjat/tools/sql/script.h>
- #include <udjat/tools/abstract/object.h>
- #include <udjat/alert/abstract.h>
- #include <udjat/alert/activation.h>
- #include <udjat/alert/sql.h>
- #include <udjat/tools/value.h>
+ #pragma once
 
- using namespace std;
+ #include <udjat/defs.h>
+ #include <udjat/tools/action.h>
+ #include <udjat/tools/sql/script.h>
 
  namespace Udjat {
 
-	SQL::Alert::Alert(const XML::Node &node, const char *defaults) : Abstract::Alert(node,defaults), script{node} {
+	namespace SQL {
+
+		class UDJAT_API Action : public Udjat::Action, private SQL::Script {
+		private:
+			const char *dbname;
+		
+		public:
+
+			class Factory : public Udjat::Action::Factory {
+			public:
+				Factory(const char *name = "sql") : Udjat::Action::Factory{name} {
+				}
+
+				std::shared_ptr<Udjat::Action> ActionFactory(const XML::Node &node) const override;
+
+			};
+
+			Action(const XML::Node &node);
+
+			int call(const Udjat::Value &request, Udjat::Value &response, bool except) override;
+
+		};
+
 	}
 
-
  }
-*/
-

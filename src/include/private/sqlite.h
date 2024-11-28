@@ -24,12 +24,9 @@
  #pragma once
  #include <config.h>
  #include <udjat/defs.h>
+ #include <udjat/tools/value.h>
  #include <mutex>
  #include <sqlite3.h>
- #include <udjat/tools/sql/script.h>
- #include <udjat/tools/report.h>
- #include <udjat/tools/request.h>
- #include <udjat/tools/response.h>
 
  namespace Udjat {
 
@@ -40,31 +37,21 @@
 			sqlite3 *db = NULL;
 			static std::mutex guard;
 
+			void get(sqlite3_stmt *stmt, Udjat::Value &value);
+			void get(sqlite3_stmt *stmt, Udjat::Report &report);
+
+			void check(int rc) const;
+			sqlite3_stmt * prepare(Udjat::String &line, const Udjat::Value &request, const Udjat::Value &response);
+
 		public:
 
 			Session(const char *dbname);
 			~Session();
 
-			void check(int rc);
-
-			sqlite3_stmt * prepare(const char *script);
-			sqlite3_stmt * prepare(const SQL::Statement &script);
-			void bind(const SQL::Statement &script, sqlite3_stmt *stmt, const Abstract::Object &request, Udjat::Value &response);
-			void bind(const SQL::Statement &script, sqlite3_stmt *stmt, Udjat::Value &response);
-
-			int step(sqlite3_stmt *stmt, Udjat::Value &response);
-
-			void get(sqlite3_stmt *stmt, Udjat::Value &response);
-			void get(sqlite3_stmt *stmt, Udjat::Response::Table &response);
-
-			void exec(const std::vector<SQL::Statement> &scripts, const Abstract::Object &request, Udjat::Value &response);
-			void exec(const std::vector<SQL::Statement> &scripts, Udjat::Value &response);
-			void exec(const std::vector<SQL::Statement> &scripts, const Request &request, Udjat::Value &response);
-			void exec(const std::vector<SQL::Statement> &scripts, const Request &request, Udjat::Response::Table &response);
+			void exec(Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *child_name = nullptr);
 
 		};
 
 	}
 
  }
-

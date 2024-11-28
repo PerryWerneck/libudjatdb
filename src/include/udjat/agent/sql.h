@@ -26,7 +26,7 @@
  #include <udjat/tools/xml.h>
  #include <udjat/agent/abstract.h>
  #include <udjat/tools/sql/script.h>
- #include <udjat/agent.h>
+ #include <udjat/tools/value.h>
 
  namespace Udjat {
 
@@ -34,13 +34,49 @@
 
 		template <typename T>
 		class UDJAT_API Agent : public Udjat::Agent<T> {
-		private:
+		protected:
+
+			/// @brief The name of agent value got by SQL query.
+			const char *valuename;
+
+			/// @brief URL for database connection.
+			const char *dbname;
 
 			/// @brief SQL Script to update agent value.
-			const SQL::Script update;
+			String update;
 
-			/// @brief SQL Script to get properties
-			const SQL::Script properties;
+		public:
+
+			Agent(const XML::Node &node) :
+				Udjat::Agent<T>{node},
+				valuename{String{node,"value-from","value"}.as_quark()},
+				dbname{String{node,"database-connection"}.as_quark()},
+				update{SQL::Script::parse(node,"refresh")} {
+				SQL::Script::exec(dbname,node,"init");
+			}
+
+			bool refresh(bool b) override {
+				Value values;
+				T val = this->get();
+				values[valuename] = val;
+				SQL::Script{update}.exec(dbname,values);
+				values[valuename].get(val);
+				return this->set(val);
+			}
+
+		};
+
+	}
+
+ }
+
+/*
+ #include <udjat/tools/sql/script.h>
+ #include <udjat/agent.h>
+
+ namespace Udjat {
+
+	namespace SQL {
 
 			/// @brief The name of agent value got by SQL query.
 			const char *value_name;
@@ -83,4 +119,4 @@
 
 
  }
-
+*/

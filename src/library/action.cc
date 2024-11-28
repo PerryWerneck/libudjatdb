@@ -18,26 +18,37 @@
  */
 
  /**
-  * @brief Brief description of this source.
+  * @brief Implements SQL based action.
   */
 
-/*
  #include <config.h>
+ #include <udjat/defs.h>
+ #include <udjat/tools/action.h>
  #include <udjat/tools/sql/script.h>
- #include <udjat/tools/abstract/object.h>
- #include <udjat/alert/abstract.h>
- #include <udjat/alert/activation.h>
- #include <udjat/alert/sql.h>
- #include <udjat/tools/value.h>
+ #include <udjat/tools/sql/action.h>
+ #include <udjat/tools/sql/module.h>
+ #include <memory>
 
  using namespace std;
-
+ 
  namespace Udjat {
 
-	SQL::Alert::Alert(const XML::Node &node, const char *defaults) : Abstract::Alert(node,defaults), script{node} {
+	std::shared_ptr<Udjat::Action> SQL::Action::Factory::ActionFactory(const XML::Node &node) const {
+		return make_shared<SQL::Action>(node);
 	}
 
+	SQL::Action::Action(const XML::Node &node) 
+		: Udjat::Action{node}, SQL::Script{node}, dbname{String{node,"database-connection"}.as_quark()} {
+		if(!(dbname && *dbname)) {
+			throw runtime_error("Required attribute 'database-connection' is missing or empty");
+		}
+	}
+
+	int SQL::Action::call(const Udjat::Value &request, Udjat::Value &response, bool except) {
+		return Udjat::Action::exec(response,except,[&]() {
+			SQL::Script::exec(dbname,request,response);
+			return 0;
+		});
+	}
 
  }
-*/
-

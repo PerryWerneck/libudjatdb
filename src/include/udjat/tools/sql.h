@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-3.0-or-later */
 
 /*
- * Copyright (C) 2024 Perry Werneck <perry.werneck@gmail.com>
+ * Copyright (C) 2023 Perry Werneck <perry.werneck@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -18,26 +18,22 @@
  */
 
  /**
-  * @brief Brief description of this source.
+  * @brief Declare abstract SQL Query.
   */
 
-/*
- #include <config.h>
- #include <udjat/tools/sql/script.h>
- #include <udjat/tools/abstract/object.h>
- #include <udjat/alert/abstract.h>
- #include <udjat/alert/activation.h>
- #include <udjat/alert/sql.h>
- #include <udjat/tools/value.h>
+ #pragma once
 
- using namespace std;
-
+ #include <udjat/defs.h>
+ 
  namespace Udjat {
 
-	SQL::Alert::Alert(const XML::Node &node, const char *defaults) : Abstract::Alert(node,defaults), script{node} {
+	namespace SQL {
+
+		/// @brief Get engine name
+		/// @return The engine name ("sqlite", "cppdb", ...)
+		UDJAT_API const char * engine() noexcept;
+
+
 	}
-
-
  }
-*/
 

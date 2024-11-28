@@ -25,250 +25,179 @@
  #include <udjat/defs.h>
  #include <udjat/tools/sql/script.h>
  #include <udjat/tools/value.h>
+ #include <udjat/tools/report.h>
+ #include <udjat/tools/timestamp.h>
  #include <cppdb/frontend.h>
  #include <private/cppdb.h>
  #include <string>
+ #include <stdexcept>
 
  using namespace std;
 
  namespace Udjat {
 
-	UDJAT_API const char * SQL::engine() noexcept {
-		return "cppdb";
-	}
+	static void bind(cppdb::statement &stmt, int col, const Udjat::Value &value) {
 
-	void SQL::bind(const SQL::Statement &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response) {
+		switch((Value::Type) value) {
+		case Value::Undefined:
+			stmt.bind_null(col);
+			break;
 
-		for(const char *name : script.parameter_names) {
-
-			string value;
-
-			if(request.getProperty(name,value)) {
-
-				debug("value(",name,")='",value,"' (from request)");
-				stmt.bind(value);
-
-			} else if(response.getProperty(name,value)) {
-
-				debug("value(",name,")='",value,"' (from response)");
-				stmt.bind(value);
-
-			} else {
-
-				throw runtime_error(Logger::String{"Required property '",name,"' is missing"});
-
+		case Value::String:
+		case Value::Icon:
+		case Value::Url:
+			stmt.bind(col,value.c_str());
+			break;
+			
+		case Value::Timestamp:
+			{				
+				TimeStamp time;
+				value.get(time);
+				stmt.bind(col,(struct tm) time);
 			}
+			break;
+			
+		case Value::Signed:
+			{
+				int v;
+				value.get(v);
+				stmt.bind(col,v);
+			}
+			break;
+			
+		case Value::Unsigned:
+		case Value::Boolean:
+		case Value::State:
+			{
+				unsigned int v;
+				value.get(v);
+				stmt.bind(col,v);
+			}
+			break;
+			
+		case Value::Real:
+		case Value::Fraction:
+			{
+				double v;
+				value.get(v);
+				stmt.bind(col,v);
+			}
+			break;
+			
+		default:
+			throw runtime_error("Unsupported value type");			
 
 		}
 
 	}
 
-	void SQL::parse_result(cppdb::result &res, Udjat::Value &response) {
-		if(!res.empty()) {
-			// Got result update response;
-			debug("Got response from SQL query");
-			for(int col = 0; col < res.cols();col++) {
-				string val;
-				res.fetch(col,val);
-				debug(res.name(col).c_str(),"='",val.c_str(),"'");
-				response[res.name(col).c_str()] = val.c_str();
-			}
-		}
+	void SQL::Script::exec(const char *dbname, Udjat::Value &values) const {
+		exec(dbname,values,values);
 	}
 
-	void SQL::exec(cppdb::session &session, const std::vector<SQL::Statement> &scripts, const Abstract::Object &request, Udjat::Value &response) {
-
-		debug(__FUNCTION__);
-
-		for(auto &script : scripts) {
-			if(script.text && *script.text) {
-				if(Logger::enabled(Logger::Trace)) {
-					Logger::String{script.text}.trace("sql");
-				}
-				auto stmt = session.create_statement(script.text);
-				bind(script,stmt,request,response);
-
-				if(strcasestr(script.text,"select")) {
-					auto res = stmt.row();
-					parse_result(res,response);
-				} else {
-					stmt.exec();
-				}
-			}
-		}
+	void SQL::Script::exec(const char *dbname, const Udjat::Value &request, Udjat::Value &response) const {
+		Session{dbname}.exec(sql,request,response);
 	}
 
-	void SQL::Script::exec(const Udjat::Object &request) const {
+	void SQL::Session::exec(Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *name) {
+		debug("--------------- Begin transaction");
+		debug(statement);
 
-		debug(__FUNCTION__);
+		cppdb::transaction guard(*this);
+		debug("Got guard");
 
-		auto values = Udjat::Value::ObjectFactory();
-
-		cppdb::session session{dburl};
-		cppdb::transaction guard(session);
-
-		SQL::exec(session,scripts,request,*values);
+		SQL::Session::exec(*this,statement,request,response,name);
 
 		guard.commit();
+		debug("--------------- End transaction");
 
 	}
 
-	void SQL::Script::exec(std::shared_ptr<Udjat::Value> response) const {
+	void SQL::Session::exec(SQL::Session &session, Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *name) {
 
-		debug(__FUNCTION__);
+		for(String &line : statement.split(";")) {
 
-		cppdb::session session{dburl};
-		cppdb::transaction guard(session);
+			if(Logger::enabled(Logger::Trace)) {
+				Logger::String{line.c_str()}.trace("sql");
+			}
 
-		for(auto &script : scripts) {
+			// Prepare SQL statement.
+			vector<string> column_names;
 
-			if(script.text && *script.text) {
-				auto stmt = session.create_statement(script.text);
+			line.expand([&](const char *key, std::string &value){
+				column_names.push_back(key);
+				value = "?";
+				return true;
+			},false,true);
 
-				for(const char *name : script.parameter_names) {
+			debug("SQL Processed: ",line.c_str());
 
-					string value;
+			auto stmt = session.create_statement(line);
 
-					if(response->getProperty(name,value)) {
+			// Bind values.
+			int column = 1;
+			for(const auto &cname: column_names) {
+				if(request.contains(cname.c_str())) {
+					bind(stmt,column,request[cname.c_str()]);
+				} else if(response.contains(cname.c_str())) {
+					bind(stmt,column,response[cname.c_str()]);
+				} else {
+					throw logic_error(Logger::String{"Required column '",cname.c_str(),"' not found"});
+				}
+				column++;
+			}
 
-						debug("value(",name,")='",value,"' (from response)");
-						stmt.bind(value);
+			try {
 
+				cppdb::result result = stmt.row();
+				if(result.empty()) {
+					debug("Empty result");
+					continue;
+				}
+
+				Udjat::Value row;
+				session.get(result,row);
+
+				if(result.next()) {
+
+					// Has a second line, convert to report.
+					Value &repoval = response;
+					if(name) {
+						repoval = response[name];
 					} else {
-
-						throw runtime_error(Logger::String{"Required property '",name,"' is missing"});
-
-					}
-				}
-
-				if(strcasestr(script.text,"select")) {
-					auto res = stmt.row();
-					parse_result(res,*response);
-				} else {
-					stmt.exec();
-				}
-			}
-		}
-
-		guard.commit();
-
-	}
-
-	void SQL::Script::exec(const Udjat::Object &request, Udjat::Value &response) const {
-
-		debug(__FUNCTION__);
-
-		cppdb::session session{dburl};
-		cppdb::transaction guard(session);
-
-		SQL::exec(session,scripts,request,response);
-
-		guard.commit();
-
-	}
-
-	void SQL::Script::exec(const Request &request, Udjat::Value &response) const {
-
-		debug(__FUNCTION__,"::Value start");
-
-		cppdb::session session{dburl};
-		cppdb::transaction guard(session);
-
-		SQL::exec(session,scripts,request,response);
-
-		guard.commit();
-
-		debug(__FUNCTION__,"::Value ends");
-
-	}
-
-	void SQL::Script::exec(const Request &request, Udjat::Response::Table &response) const {
-
-		debug(__FUNCTION__,"::Table start");
-
-		cppdb::session session{dburl};
-		cppdb::transaction guard(session);
-
-		for(const auto &script : scripts) {
-
-			if(strcasestr(script.text,"select")) {
-
-				debug(__FUNCTION__,"('",script.text,"')");
-
-				// It's a select, get report
-				auto stmt = session.create_statement(script.text);
-				for(const char *name : scripts[0].parameter_names) {
-
-					string value;
-					if(request.getProperty(name,value)) {
-
-						debug("value(",name,")='",value,"' (from request)");
-						stmt.bind(value);
-
-					} else {
-
-						throw runtime_error(Logger::String{"Required property '",name,"' is missing"});
-
+						repoval.clear();
 					}
 
-				}
+					std::vector<string> names;
 
-				auto result = stmt.row();
-
-				if(!result.empty()) {
-
-					// Get first line and column names.
-					int numcols = result.cols();
-					std::vector<string> values;
-					std::vector<string> colnames;
-
-					for(int col = 0; col < numcols;col++) {
-						string val;
-						result.fetch(col,val);
-						values.push_back(val);
-						colnames.push_back(result.name(col));
+					for(int col = 0; col < result.cols();col++) {
+						names.push_back(result.name(col));
 					}
 
-					// Start report...
-					response.start(colnames);
+					auto &report = repoval.ReportFactory(names);
+					report.push_back(row);
 
-					// ...and store first line
-					for(auto &value : values) {
-						response << value;
-					}
-
-					size_t rows = 1;
-
-					// Get other lines.
-					while(result.next()) {
-						rows++;
-						for(int col = 0; col < numcols;col++) {
-							string value;
-							result.fetch(col,value);
-							response << value;
-						}
-
-					}
-					response.count(rows);
+					do {
+						session.get(result,report);
+					} while(result.next());
 
 				} else {
-					debug("Empty response");
-					response.count(0);
+
+					// No second line, merge row into response.
+					response.merge(row);
+
+
 				}
 
+			} catch(const std::exception &e) {
+
+				Logger::String{e.what()}.trace("cppdb");
+
 			}
-#ifdef DEBUG
-			else {
-				debug("Rejecting '",script.text,"'");
-			}
-#endif // DEBUG
+
 
 		}
 
-		guard.commit();
-
-		debug(__FUNCTION__,"::Value ends");
 	}
 
  }
-

@@ -18,27 +18,95 @@
  */
 
  #include <config.h>
- #include <udjat/defs.h>
- #include <udjat/tests.h>
- #include <udjat/moduleinfo.h>
- #include <udjat/module.h>
  #include <udjat/tools/sql/script.h>
- #include <udjat/tools/string.h>
+ #include <udjat/tools/sql.h>
+ #include <udjat/tools/value.h>
+ #include <udjat/tools/logger.h>
+ #include <udjat/tools/http/mimetype.h>
+ #include <udjat/moduleinfo.h>
+ #include <udjat/module/abstract.h>
  #include <udjat/tests.h>
- #include <udjat/tools/application.h>
+ #include <iostream>
 
  using namespace std;
  using namespace Udjat;
 
+ /*
+ static void test_sqlite() {
+
+	debug("Testing SQLite...");
+
+	SQL::Script script{
+
+		"create table if not exists alerts (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text);\n" \
+		"insert into alerts (url,action,payload) values (${url},${action},${payload});" 
+	};
+
+	Value request, response;
+	request["url"] = "http://localhost";
+	request["action"] = "+";
+	request["payload"] = "";
+	script.exec("/tmp/test.sqlite",request,response);
+
+	SQL::Script{
+		"select * from alerts" 
+	}.exec("/tmp/test.sqlite",request,response);
+
+	cout << endl;
+	response.serialize(cout,MimeType::xml);
+	cout << endl;
+ }
+
+ static void test_cppdb() {
+
+	debug("Testing CPPDB...");
+
+	SQL::Script script{
+
+		"create table if not exists alerts (id integer primary key, inserted timestamp default CURRENT_TIMESTAMP, url text, action text, payload text);\n" \
+		"insert into alerts (url,action,payload) values (${url},${action},${payload});" 
+	};
+
+	Value request, response;
+	request["url"] = "http://localhost";
+	request["action"] = "+";
+	request["payload"] = "";
+	script.exec("sqlite3:db=/tmp/test.sqlite",request,response);
+
+	SQL::Script{
+		"select * from alerts" 
+	}.exec("sqlite3:db=/tmp/test.sqlite",request,response);
+
+	cout << endl;
+	response.serialize(cout,MimeType::xml);
+	cout << endl;
+ }
+ */
+
  int main(int argc, char **argv) {
+
+	/*
+	Logger::verbosity(9);
+	Logger::console(true);
+	Logger::redirect();
+	
+	if(!strcasecmp(SQL::engine(),"cppdb")) {
+		test_cppdb();
+	}
+
+	if(!strcasecmp(SQL::engine(),"sqlite")) {
+		test_sqlite();
+	}
+	*/
 
 	static const ModuleInfo info{"civetweb-tester"};
 	
 	return Testing::run(argc,argv,info,[](Application &){
 
-	 	udjat_module_init();
+		udjat_module_init();
 
 	}, String{SQL::engine(),".xml"}.c_str());
 
+	return 0;
  }
- 
+
