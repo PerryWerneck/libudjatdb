@@ -44,7 +44,7 @@
 		}
 	}
 
-	int SQL::Action::call(const Udjat::Value &request, Udjat::Value &response, bool except) {
+	int SQL::Action::call(Udjat::Request &request, Udjat::Response &response, bool except) {
 		return Udjat::Action::exec(response,except,[&]() {
 			SQL::Script::exec(dbname,request,response);
 			return 0;
