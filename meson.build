@@ -113,8 +113,6 @@ includes_dir = include_directories('src/include')
 lib_src = [
   'src/library/action.cc',
   'src/library/alert.cc',
-  'src/library/apicall.cc',
-  'src/library/controller.cc',
   'src/library/script.cc',
   'src/library/urlqueue.cc',
   'src/library/module.cc',
@@ -126,16 +124,14 @@ cppdb_src = [
   'src/library/engines/cppdb/module.cc',
   'src/library/engines/cppdb/exec.cc',
   'src/library/engines/cppdb/urlqueue.cc',
-  'src/library/engines/cppdb/statement.cc',
 ]
 
 sqlite_src = [
   'src/library/engines/sqlite/alert.cc',
-  'src/library/engines/sqlite/exec.cc',
-  'src/library/engines/sqlite/module.cc',
   'src/library/engines/sqlite/session.cc',
+  'src/library/engines/sqlite/module.cc',
+  'src/library/engines/sqlite/exec.cc',
   'src/library/engines/sqlite/urlqueue.cc',
-  'src/library/engines/sqlite/statement.cc',
 ]
 
 module_src = [
@@ -341,7 +337,6 @@ install_headers(
 install_headers(
   'src/include/udjat/tools/sql/script.h',
   'src/include/udjat/tools/sql/action.h',
-  'src/include/udjat/tools/sql/apicall.h',
   'src/include/udjat/tools/sql/module.h',
   subdir: 'udjat/tools/sql'  
 )
