@@ -25,8 +25,7 @@
 
  #include <udjat/defs.h>
  #include <udjat/module/abstract.h>
- #include <udjat/tools/action.h>
- #include <udjat/tools/sql/action.h>
+ #include <udjat/tools/actions/sql.h>
  #include <udjat/agent/abstract.h>
 
  namespace Udjat {

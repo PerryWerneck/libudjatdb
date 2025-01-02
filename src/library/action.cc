@@ -23,9 +23,9 @@
 
  #include <config.h>
  #include <udjat/defs.h>
- #include <udjat/tools/action.h>
  #include <udjat/tools/sql/script.h>
- #include <udjat/tools/sql/action.h>
+ #include <udjat/tools/actions/abstract.h>
+ #include <udjat/tools/actions/sql.h>
  #include <udjat/tools/sql/module.h>
  #include <memory>
 

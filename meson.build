@@ -336,7 +336,11 @@ install_headers(
 
 install_headers(
   'src/include/udjat/tools/sql/script.h',
-  'src/include/udjat/tools/sql/action.h',
   'src/include/udjat/tools/sql/module.h',
   subdir: 'udjat/tools/sql'  
+)
+
+install_headers(
+  'src/include/udjat/tools/actions/sql.h',
+  subdir: 'udjat/tools/actions'  
 )
