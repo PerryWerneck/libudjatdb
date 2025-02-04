@@ -27,13 +27,13 @@
  #include <udjat/agent/abstract.h>
  #include <udjat/agent.h>
  #include <udjat/agent/sql.h>
- #include <udjat/tools/protocol.h>
+ #include <udjat/tools/url.h>
 
  namespace Udjat {
 
 	namespace SQL {
 
-		class UDJAT_PRIVATE URLQueue : public SQL::Agent<size_t>, public Udjat::Protocol {
+		class UDJAT_PRIVATE URLQueue : public SQL::Agent<size_t>, public Udjat::URL::Handler::Factory {
 		private:
 
 			/// @brief SQL Script to insert an URL on queue.
@@ -51,9 +51,6 @@
 			/// @brief Interval to send after inserting url on queue.
 			time_t send_delay;
 
-			/// @brief Compute State based on queue size.
-			//std::shared_ptr<Abstract::State> computeState() override;
-
 			// Send queue
 			void send();
 
@@ -66,8 +63,7 @@
 			// Agent
 			bool refresh(bool b) override;
 
-			// Factory
-			std::shared_ptr<Protocol::Worker> WorkerFactory() const override;
+			std::shared_ptr<URL::Handler> HandlerFactory(const URL &url) const override;
 
 		};
 

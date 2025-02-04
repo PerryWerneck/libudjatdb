@@ -51,26 +51,3 @@
 
  }
 
-/*
- #pragma once
-
- #include <config.h>
- #include <udjat/defs.h>
- #include <udjat/tools/sql/script.h>
- #include <udjat/tools/value.h>
- #include <udjat/tools/abstract/object.h>
- #include <cppdb/frontend.h>
- #include <mutex>
-
- namespace Udjat {
-
-	namespace SQL {
-
-		void bind(const SQL::Statement &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response);
-		void exec(cppdb::session &session, const std::vector<SQL::Statement> &scripts, const Abstract::Object &request, Udjat::Value &response);
-		void parse_result(cppdb::result &res, Udjat::Value &response);
-
-	}
-
- }
-*/

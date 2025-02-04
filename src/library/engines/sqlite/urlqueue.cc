@@ -23,7 +23,7 @@
 
  #include <config.h>
  #include <udjat/defs.h>
- #include <udjat/tools/http/client.h>
+ #include <udjat/tools/url.h>
 
  #include <iostream>
  #include <private/module.h>
@@ -43,25 +43,20 @@
 		Udjat::Value values;
 		db.exec(get_values,values,values);
 
-		HTTP::Client client(values["url"].c_str());
+		try {
 
-		switch(HTTP::MethodFactory(values["action"].c_str())) {
-		case HTTP::Get:
-			{
-				auto result = client.get();
-				Logger::write(Logger::Trace,result);
-			}
-			break;
+			auto result = URL{values["url"].c_str()}.call(
+				HTTP::MethodFactory(values["action"].c_str()),
+				values["payload"].c_str()
+			);
 
-		case HTTP::Post:
-			{
-				auto result = client.post(values["payload"].c_str());
-				Logger::write(Logger::Trace,result);
-			}
-			break;
+			Logger::write(Logger::Trace,result);
 
-		default:
-			throw runtime_error("Unsupported HTTP verb");
+		} catch(const std::exception &e) {
+
+			Logger::write(Logger::Error,e.what());
+
+			return;
 		}
 
 		size_t count = Udjat::Agent<size_t>::get();

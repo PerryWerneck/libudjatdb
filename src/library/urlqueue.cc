@@ -26,7 +26,7 @@
  #include <udjat/tools/xml.h>
  #include <udjat/agent.h>
  #include <udjat/agent/sql.h>
- #include <udjat/tools/protocol.h>
+ #include <udjat/tools/url.h>
  #include <udjat/tools/sql/script.h>
  #include <udjat/tools/intl.h>
 
@@ -42,7 +42,7 @@
 
 		URLQueue::URLQueue(const XML::Node &node)
 			:	SQL::Agent<size_t>(node),
-				Udjat::Protocol{String(node,"url-queue-name","sql").as_quark(),SQL::module_info},
+				Udjat::URL::Handler::Factory{String(node,"url-queue-name",SQL::Agent<size_t>(node).name()).as_quark()},
 				ins{SQL::Script::parse(node,"insert",true)},
 				get_values{SQL::Script::parse(node,"get",true)},
 				after_send{SQL::Script::parse(node,"after-send",false)},
@@ -85,7 +85,7 @@
 				}
 			};
 
-			const char * name = Protocol::c_str();
+			const char * name = SQL::Agent<size_t>::name();
 
 			if(!pending) {
 
@@ -140,6 +140,42 @@
 			return true;
 		}
 
+		std::shared_ptr<URL::Handler> URLQueue::HandlerFactory(const URL &url) const {
+
+			class Handler : public Udjat::URL::Handler {
+			private:
+				URLQueue &agent;
+
+			public:
+				Handler(const URL &url, URLQueue &a) : Udjat::URL::Handler(url), agent{a} {
+				}
+
+				virtual ~Handler() {
+				}
+
+				int perform(const HTTP::Method method, const char *payload, const std::function<bool(uint64_t current, uint64_t total, const char *data, size_t len)> &) override {
+
+					Udjat::Value value;
+					value["url"] = c_str();
+					value["action"] = std::to_string(method);
+					value["payload"] = payload;
+
+					SQL::Script{agent.ins}.exec(agent.dbname,value);
+
+					agent.set(agent.Udjat::Agent<size_t>::get()+1);
+					agent.sched_update(1);
+
+					return 200;
+
+				}
+
+			};
+
+			return make_shared<Handler>(url, *(const_cast<URLQueue *>(this)) );
+
+		}
+
+		/*
 		std::shared_ptr<Protocol::Worker> URLQueue::WorkerFactory() const {
 
 			class Worker : public Udjat::Protocol::Worker {
@@ -177,6 +213,8 @@
 			return make_shared<Worker>(const_cast<SQL::URLQueue *>(this));
 
 		}
+		*/
+
 
 	}
 

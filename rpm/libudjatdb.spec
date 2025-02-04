@@ -16,14 +16,11 @@
 #
 
 %define module_name db
+%{?!udjat_module:%define udjat_module() %{udjat_product_name}%{udjat_module_version}-module-%{**}}
 
-%define product_name %(pkg-config --variable=product_name libudjat)
-%define product_version %(pkg-config --variable=product_version libudjat)
-%define module_path %(pkg-config --variable=module_path libudjat)
-
-Summary:		Database library for %{product_name}  
+Summary:		Database library for %{udjat_product_name}  
 Name:			libudjat%{module_name}
-Version: 2.1.0
+Version:		1.2.0
 Release:		0
 License:		LGPL-3.0
 Source:			%{name}-%{version}.tar.xz
@@ -35,85 +32,66 @@ BuildRoot:		/var/tmp/%{name}-%{version}
 
 BuildRequires:	binutils
 BuildRequires:	coreutils
-
-%if "%{_vendor}" == "debbuild"
-BuildRequires:  meson-deb-macros
-BuildRequires:	libudjat-dev
-BuildRequires:	sqlite3-dev
-BuildRequires:	cppdb-dev
-%else
+BuildRequires:  meson
 BuildRequires:	gcc-c++ >= 5
+
 BuildRequires:	pkgconfig(libudjat)
 BuildRequires:	pkgconfig(sqlite3)
 BuildRequires:	cppdb-devel
-%endif
-
-%if 0%{?suse_version} == 01500
-BuildRequires:  meson = 0.61.4
-%else
-BuildRequires:  meson
-%endif
 
 %description
-Database library for %{product_name}
+Database library for %{udjat_product_name}
 
-C++ database classes for use with lib%{product_name}
+C++ database components for use with lib%{udjat_product_name}
 
 #---[ Libraries ]-----------------------------------------------------------------------------------------------------
 
-%define MAJOR_VERSION %(echo %{version} | cut -d. -f1)
-%define MINOR_VERSION %(echo %{version} | cut -d. -f2 | cut -d+ -f1)
-%define _libvrs %{MAJOR_VERSION}_%{MINOR_VERSION}
+# CPPDB based library
+%package -n lib%{udjat_product_name}cppdb%{udjat_major}_%{udjat_minor}
+Summary: CPPdb library for %{udjat_product_name}
 
-%package -n lib%{product_name}cppdb%{_libvrs}
-Summary: Database library for %{product_name}
+%description -n lib%{udjat_product_name}cppdb%{udjat_major}_%{udjat_minor}
+Database library for %{udjat_product_name}
 
-%description -n lib%{product_name}cppdb%{_libvrs}
-Database library for %{product_name}
+C++ Database components for use with lib%{udjat_product_name} using CPPDB backend.
 
-C++ Database classes for use with lib%{product_name}
+# SQLite based library
+%package -n lib%{udjat_product_name}sqlite%{udjat_major}_%{udjat_minor}
+Summary: SQLite library for %{udjat_product_name}
 
-%package -n lib%{product_name}sqlite%{_libvrs}
-Summary: SQLite library for %{product_name}
+%description -n lib%{udjat_product_name}sqlite%{udjat_major}_%{udjat_minor}
+SQLite library for %{udjat_product_name}
 
-%description -n lib%{product_name}sqlite%{_libvrs}
-SQLite library for %{product_name}
-
-C++ SQLite classes for use with lib%{product_name}
+C++ SQLite classes for use with lib%{udjat_product_name} using sqlite backend.
 
 #---[ Development ]---------------------------------------------------------------------------------------------------
 
 %package devel
 Summary: Development files for %{name}
-Requires: %{product_name}cppdb%{_libvrs} = %{version}
-Requires: %{product_name}sqlite%{_libvrs} = %{version}
-
-%if "%{_vendor}" == "debbuild"
-Provides:	%{name}-dev
-Provides:	pkgconfig(%{product_name}cppdb)
-Provides:	pkgconfig(%{product_name}cppdb-static)
-Provides:	pkgconfig(%{product_name}sqlite)
-Provides:	pkgconfig(%{product_name}sqlite-static)
-%endif
+Requires: lib%{udjat_product_name}cppdb%{udjat_major}_%{udjat_minor} = %{version}
+Requires: lib%{udjat_product_name}sqlite%{udjat_major}_%{udjat_minor} = %{version}
+Provides: %{name}%{udjat_major}-devel = %{version}
+Provides: %{name}%{udjat_major}_%{udjat_minor}-devel = %{version}
 
 %description devel
-Database library for %{product_name}
+Database library for %{udjat_product_name}
 
-C++ database classes for use with lib%{product_name}
+C++ database classes for use with lib%{udjat_product_name}
 
 #---[ Modules ]-------------------------------------------------------------------------------------------------------
 
-%package -n %{product_name}-module-cppdb
-Summary: Database module for %{name}
+%package -n %{udjat_module cppdb}
+Summary: CPPdb module for %{name}
+Provides: %{udjat_module cppdb} = %{version}
 
-%description -n %{product_name}-module-cppdb
-%{product_name} module with http client support.
+%description -n %{udjat_module cppdb}
+CPPdb database module for %{udjat_product_name}
 
-%package -n %{product_name}-module-sqlite
-Summary: Database module for %{name}
+%package -n %{udjat_module sqlite}
+Summary: SQLite module for %{name}
 
-%description -n %{product_name}-module-sqlite
-%{product_name} module with http client support.
+%description -n %{udjat_module sqlite}
+SQLite database module for %{udjat_product_name}
 
 #---[ Build & Install ]-----------------------------------------------------------------------------------------------
 
@@ -127,19 +105,19 @@ Summary: Database module for %{name}
 %install
 %meson_install
 
-%files -n lib%{product_name}cppdb%{_libvrs}
+%files -n lib%{udjat_product_name}cppdb%{udjat_major}_%{udjat_minor}
 %defattr(-,root,root)
-%{_libdir}/*cppdb*.so.%{MAJOR_VERSION}.%{MINOR_VERSION}
+%{_libdir}/*cppdb*.so.%{udjat_major}.%{udjat_minor}
 
-%files -n lib%{product_name}sqlite%{_libvrs}
+%files -n lib%{udjat_product_name}sqlite%{udjat_major}_%{udjat_minor}
 %defattr(-,root,root)
-%{_libdir}/*sqlite*.so.%{MAJOR_VERSION}.%{MINOR_VERSION}
+%{_libdir}/*sqlite*.so.%{udjat_major}.%{udjat_minor}
 
-%files -n %{product_name}-module-cppdb
-%{module_path}/*cppdb*.so
+%files -n %{udjat_module cppdb}
+%{udjat_module_path}/*cppdb*.so
 
-%files -n %{product_name}-module-sqlite
-%{module_path}/*sqlite*.so
+%files -n %{udjat_module sqlite}
+%{udjat_module_path}/*sqlite*.so
 
 %files devel
 %defattr(-,root,root)
@@ -152,18 +130,20 @@ Summary: Database module for %{name}
 
 %dir %{_includedir}/udjat/tools/sql
 %{_includedir}/udjat/tools/sql/*.h
+%{_includedir}/udjat/tools/sql.h
+%{_includedir}/udjat/tools/actions/*.h
 
 %{_libdir}/*.so
 %{_libdir}/*.a
 %{_libdir}/pkgconfig/*.pc
 
-%post -n lib%{product_name}cppdb%{_libvrs} -p /sbin/ldconfig
+%post -n lib%{udjat_product_name}cppdb%{udjat_major}_%{udjat_minor} -p /sbin/ldconfig
 
-%postun -n lib%{product_name}cppdb%{_libvrs} -p /sbin/ldconfig
+%postun -n lib%{udjat_product_name}cppdb%{udjat_major}_%{udjat_minor} -p /sbin/ldconfig
 
-%post -n lib%{product_name}sqlite%{_libvrs} -p /sbin/ldconfig
+%post -n lib%{udjat_product_name}sqlite%{udjat_major}_%{udjat_minor} -p /sbin/ldconfig
 
-%postun -n lib%{product_name}sqlite%{_libvrs} -p /sbin/ldconfig
+%postun -n lib%{udjat_product_name}sqlite%{udjat_major}_%{udjat_minor} -p /sbin/ldconfig
 
 %changelog
 
