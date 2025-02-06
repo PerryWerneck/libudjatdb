@@ -44,7 +44,9 @@
 
 	std::shared_ptr<Abstract::Agent> SQL::Module::AgentFactory(const Abstract::Object &parent, const XML::Node &node) const {
 
-		if(String{node,"url-queue-name"}.empty()) {
+		String qname{node,"url-queue-name"};
+
+		if(qname.empty()) {
 			//
 			// Standard SQL Agent.
 			//
@@ -71,8 +73,8 @@
 			}
 		}
 
-		debug("---------------------> Building URL queue '",node.attribute("name").as_string(),"'");
-		return make_shared<URLQueue>(node);
+		debug("---------------------> Building URL queue '",qname.c_str(),"'");
+		return make_shared<SQL::URLQueue>(node);
 
 	}
 

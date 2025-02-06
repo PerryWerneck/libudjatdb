@@ -54,6 +54,10 @@
 			Script(const std::string &str) : Script{str.c_str()} {
 			}
 
+			inline const char *c_str() const noexcept {
+				return sql.c_str();
+			}
+
 			/// @brief Create SQL statement from XML definition.
 			/// @param node the script definition.
 			Script(const XML::Node &node);

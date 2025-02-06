@@ -24,9 +24,11 @@
 
  #include <config.h>
  #include <udjat/defs.h>
- #include <udjat/tools/string.h>
  #include <udjat/tools/sql/script.h>
  #include <udjat/tools/xml.h>
+ #include <udjat/tools/string.h>
+ #include <udjat/tools/logger.h>
+ #include <stdexcept>
 
  using namespace std;
 
@@ -36,8 +38,23 @@
 
 		sql.clear();
 
-		for(String &line : String{text}.split("\n")) {
+		String script{text};
+		script.strip();
+		if(script.empty()) {
+			if(!except) {
+				return false;
+			}
+			throw runtime_error("SQL Script is empty");
+		}
+
+		debug("-----> '",script.c_str(),"'");
+		std::vector<String> lines = script.split("\n");
+		debug("Number of lines: ",lines.size());
+		debug("0='",lines[0].c_str(),"'");
+
+		for(String &line : lines) {
 			line.strip();
+			debug("line='",line.c_str(),"'");
 			if(line.empty()) {
 				continue;
 			}
@@ -47,7 +64,9 @@
 			}
 		}
 
+		debug(sql.c_str());
 		sql.strip();
+		debug(sql.c_str());
 
 		{
 			size_t length = sql.size();
@@ -57,7 +76,7 @@
 			}
 		}
 
-		debug("SQL Query:",sql.c_str());
+		debug("SQL Query (size=",sql.size(),"):",sql.c_str());
 
 		if(sql.empty()) {
 			if(!except) {
@@ -78,7 +97,7 @@
 
 	String SQL::Script::parse(const XML::Node &node, const char *name, bool except) {
 
-		debug("Parsing node ",node.name(),"(",node.attribute("name").as_string(),")");
+		debug("Parsing node ",node.name(),"(",node.attribute("name").as_string(),") as '",name,"'");
 		auto child = node.child(name);
 		if(!child) {
 			if(except) {
@@ -88,6 +107,8 @@
 			}
 			return "";
 		}
+
+		debug("Child '",name,"' found\n",child.child_value());
 
 		String sql;
 		parse(sql,child.child_value());
@@ -100,7 +121,9 @@
 	} 
 
 	SQL::Script::Script(const XML::Node &node) {
+		debug("Creating SQL Script from node ",node.name(),"(",node.attribute("name").as_string(),"):\n",node.child_value());
 		set(node.child_value());
+		debug("Post-processed SQL Script: (size=",strlen(c_str()),")\n",c_str());
 	}
 
 	SQL::Script::Script(const char *text) {
@@ -121,51 +144,3 @@
 
 
  }
-
-
-/*
- #include <config.h>
- #include <udjat/defs.h>
- #include <udjat/tools/xml.h>
- #include <udjat/tools/object.h>
- #include <vector>
- #include <stdexcept>
- #include <udjat/tools/string.h>
- #include <udjat/tools/logger.h>
- #include <udjat/tools/object.h>
- #include <udjat/tools/quark.h>
-
-
- #include <udjat/tools/sql/script.h>
-
- using namespace std;
-
- namespace Udjat {
-
-	SQL::Statement::Statement(const char *script) {
-
-		if(!(script && *script)) {
-			throw runtime_error("Rejecting build of an empty SQL script");
-		}
-
-		String text{script};
-		size_t from = text.find("${");
-		while(from != string::npos) {
-
-			size_t to = text.find("}",from+2);
-			if(to == string::npos) {
-				throw runtime_error("Invalid parameter formatting");
-			}
-
-			parameter_names.emplace_back(Quark{text.substr(from+2,(to-(from+2)))}.c_str());
-			text.std::string::replace(from,(size_t) (to-from)+1, "?");
-			from = text.find("${",from);
-
-		}
-
-		this->text = text.strip().as_quark();
-
-	}
-
- }
-*/

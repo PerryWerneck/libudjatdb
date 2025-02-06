@@ -24,27 +24,5 @@
  using namespace Udjat;
 
  Udjat::Module * udjat_module_init() {
-
 	return new SQL::Module("sql");
-
  }
-
-/*
- #include <udjat/defs.h>
- #include <udjat/tools/worker.h>
- #include <udjat/module/abstract.h>
- #include <udjat/tools/factory.h>
- #include <stdexcept>
- #include <udjat/tools/sql/script.h>
- #include <udjat/tools/sql/apicall.h>
- #include <udjat/agent/sql.h>
- #include <udjat/tools/method.h>
- #include <udjat/alert/sql.h>
- #include <private/urlqueue.h>
- #include <private/module.h>
-
-
- using namespace std;
-
- /// @brief Register udjat module.
-*/

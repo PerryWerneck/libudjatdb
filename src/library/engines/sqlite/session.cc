@@ -77,6 +77,7 @@
 
 	void SQL::Session::check(int rc) const {
 		if (rc != SQLITE_OK && rc != SQLITE_DONE) {
+			debug("rc=",rc," error ",sqlite3_errmsg(db));
 			throw runtime_error(sqlite3_errmsg(db));
 		}
 	}
@@ -204,6 +205,7 @@
 			case Value::String:
 			case Value::Icon:
 			case Value::Url:
+				debug("value(",column,",'",name,"')='",value.c_str(),"' (from request)");
 				sqlite3_bind_text(
 					stmt,
 					column,

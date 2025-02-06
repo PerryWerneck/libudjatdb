@@ -46,7 +46,13 @@
 
 	void SQL::Session::exec(Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *name) {
 
+		if(statement.empty()) {
+			throw invalid_argument("Empty SQL statement");
+		}
+
 		lock_guard<std::mutex> lock(guard);
+
+		debug("Statement:\n",statement.c_str());
 
 		for(String &line : statement.split(";")) {
 
@@ -128,62 +134,3 @@
 
  }
 
-
-/*
- #include <config.h>
- #include <udjat/defs.h>
- #include <udjat/tools/sql/script.h>
- #include <udjat/tools/value.h>
- #include <string>
- #include <sqlite3.h>
- #include <private/sqlite.h>
-
- using namespace std;
-
- namespace Udjat {
-
-	UDJAT_API const char * SQL::engine() noexcept {
-		return "sqlite";
-	}
-
-	void SQL::Script::exec(const Udjat::Object &request) const {
-
-		debug(__FUNCTION__);
-
-		auto values = Udjat::Value::ObjectFactory();
-		SQL::Session{dburl}.exec(scripts,request,*values);
-
-	}
-
-	void SQL::Script::exec(std::shared_ptr<Udjat::Value> response) const {
-
-		debug(__FUNCTION__);
-		SQL::Session{dburl}.exec(scripts,*response);
-
-	}
-
-	void SQL::Script::exec(const Udjat::Object &request, Udjat::Value &response) const {
-
-		debug(__FUNCTION__);
-		SQL::Session{dburl}.exec(scripts,request,response);
-
-	}
-
-	void SQL::Script::exec(const Request &request, Udjat::Value &response) const {
-
-		debug(__FUNCTION__,"::Value start");
-		SQL::Session{dburl}.exec(scripts,request,response);
-		debug(__FUNCTION__,"::Value ends");
-
-	}
-
-	void SQL::Script::exec(const Request &request, Udjat::Response::Table &response) const {
-
-		debug(__FUNCTION__,"::Table start");
-		SQL::Session{dburl}.exec(scripts,request,response);
-		debug(__FUNCTION__,"::Table ends");
-	}
-
- }
-
-*/

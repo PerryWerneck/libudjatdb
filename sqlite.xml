@@ -66,31 +66,10 @@
 	
 	</agent>
 	
-	<!--
-	<api-call type='sql' name='insert' action='get' response-type='value'>
-		insert into sample (name,value) values (${1},${2});
-		select last_insert_rowid() as id;
-	</api-call>
-
-	<api-call type='sql' name='list' action='get' response-type='table'>
-		select * from sample
-	</api-call>
-	
-	<api-call type='sql' name='pending' action='get' response-type='table'>
-		select * from alerts
-	</api-call>
-
-	<alert type='sql' name='orphaned'>
-		insert into sample (name,value) values ("alert","orphaned");
-	</alert>
-	-->
-
 	<!-- queued alert -->	
-	<!--
-	<alert name='hello' url='sql+http://127.0.0.1/cgi-bin/post_receiver' action='post'>
+	<alert name='hello' url='sql+http://127.0.0.1/cgi-bin/post_receiver' action='post' trigger-event='start'>
 		{"Message":"I'm Alive","timestamp":"${timestamp(%Y/%m/%d %H:%M:%S)}"}
 	</alert>
-	-->
 	
 </config>
 

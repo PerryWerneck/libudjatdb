@@ -29,6 +29,7 @@
  #include <udjat/tools/url.h>
  #include <udjat/tools/sql/script.h>
  #include <udjat/tools/intl.h>
+ #include <udjat/tools/logger.h>
 
  #include <iostream>
  #include <private/module.h>
@@ -42,7 +43,7 @@
 
 		URLQueue::URLQueue(const XML::Node &node)
 			:	SQL::Agent<size_t>(node),
-				Udjat::URL::Handler::Factory{String(node,"url-queue-name",SQL::Agent<size_t>(node).name()).as_quark()},
+				Udjat::URL::Handler::Factory{String{node,"url-queue-name",SQL::Agent<size_t>(node).name()}.as_quark()},
 				ins{SQL::Script::parse(node,"insert",true)},
 				get_values{SQL::Script::parse(node,"get",true)},
 				after_send{SQL::Script::parse(node,"after-send",false)},
@@ -144,21 +145,29 @@
 
 			class Handler : public Udjat::URL::Handler {
 			private:
+				const URL url;
 				URLQueue &agent;
 
 			public:
-				Handler(const URL &url, URLQueue &a) : Udjat::URL::Handler(url), agent{a} {
+				Handler(const URL &u, URLQueue &a) : url{u}, agent{a} {
 				}
 
 				virtual ~Handler() {
 				}
 
+				const char * c_str() const noexcept override {
+					return url.c_str();
+				}
+
 				int perform(const HTTP::Method method, const char *payload, const std::function<bool(uint64_t current, uint64_t total, const char *data, size_t len)> &) override {
 
 					Udjat::Value value;
-					value["url"] = c_str();
+					value["url"] = url.c_str();
 					value["action"] = std::to_string(method);
 					value["payload"] = payload;
+
+					debug("----------> url='",value["url"].c_str(),"'");
+					debug("----------> c_str='",this->c_str(),"'");
 
 					SQL::Script{agent.ins}.exec(agent.dbname,value);
 
@@ -174,47 +183,6 @@
 			return make_shared<Handler>(url, *(const_cast<URLQueue *>(this)) );
 
 		}
-
-		/*
-		std::shared_ptr<Protocol::Worker> URLQueue::WorkerFactory() const {
-
-			class Worker : public Udjat::Protocol::Worker {
-			private:
-				URLQueue &agent;
-
-			public:
-				Worker(SQL::URLQueue *a) : agent{*a} {
-				}
-
-				virtual ~Worker() {
-				}
-
-				String get(const std::function<bool(double current, double total)> &progress) override {
-
-					progress(0,0);
-
-					Udjat::Value value;
-					value["url"] = url().c_str();
-					value["action"] = std::to_string(method());
-					value["payload"] = payload();
-
-					SQL::Script{agent.ins}.exec(agent.dbname,value);
-
-					agent.set(agent.Udjat::Agent<size_t>::get()+1);
-					agent.sched_update(1);
-
-					// Force as complete.
-					progress(1,1);
-					return "";
-				}
-
-			};
-
-			return make_shared<Worker>(const_cast<SQL::URLQueue *>(this));
-
-		}
-		*/
-
 
 	}
 

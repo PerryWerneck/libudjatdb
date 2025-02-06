@@ -42,9 +42,13 @@
 		if(!(dbname && *dbname)) {
 			throw runtime_error("Required attribute 'database-connection' is missing or empty");
 		}
+		debug("Creating SQL Action '",node.attribute("name").as_string(),"' for database '",dbname,"' using node <",node.name(),">");
+		debug("SQL Script on <",node.name(),">(size=",strlen(SQL::Script::c_str()),"):\n",SQL::Script::c_str());
+
 	}
 
 	int SQL::Action::call(Udjat::Request &request, Udjat::Response &response, bool except) {
+		debug("Executing SQL Action '",Activatable::c_str(),"' for database '",dbname,"'");
 		return Udjat::Action::exec(response,except,[&]() {
 			SQL::Script::exec(dbname,request,response);
 			return 0;
