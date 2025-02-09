@@ -28,6 +28,7 @@
  #include <udjat/agent.h>
  #include <udjat/agent/sql.h>
  #include <udjat/tools/url.h>
+ #include <udjat/tools/url/handler.h>
 
  namespace Udjat {
 
