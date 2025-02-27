@@ -159,7 +159,7 @@
 					return url.c_str();
 				}
 
-				int perform(const HTTP::Method method, const char *payload, const std::function<bool(uint64_t current, uint64_t total, const char *data, size_t len)> &) override {
+				int perform(const HTTP::Method method, const char *payload, const std::function<bool(uint64_t current, uint64_t total, const void *data, size_t len)> &) override {
 
 					Udjat::Value value;
 					value["url"] = url.c_str();
