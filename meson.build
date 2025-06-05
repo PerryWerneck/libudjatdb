@@ -64,7 +64,6 @@ endif
 
 compiler_flags = [
   '-ggdb3',
-  '-ffat-lto-objects',
   '-fvisibility=hidden',
   '-fPIC',
   '-DHAVE_CONFIG_H=1',
@@ -187,6 +186,7 @@ if sqlite.found()
     install: true,
     version : libversion,
     soversion : libversion,
+    cpp_args: [ '-ffat-lto-objects' ],
     gnu_symbol_visibility: 'hidden',
     dependencies: sqlite_deps,
     include_directories: includes_dir
@@ -197,6 +197,7 @@ if sqlite.found()
     config_src + lib_src,
     install: true,
     dependencies: sqlite_deps,
+    cpp_args: [ '-DSTATIC_LIBRARY', '-fno-lto' ],
     include_directories: includes_dir
   )
 
@@ -259,6 +260,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     version : libversion,
     soversion : libversion,
     dependencies: lib_deps,
+    cpp_args: [ '-ffat-lto-objects' ],
     link_args: [ '-lcppdb' ],
     gnu_symbol_visibility: 'hidden',
     include_directories: includes_dir
@@ -269,6 +271,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     config_src + lib_src + cppdb_src,
     install: true,
     dependencies: lib_deps,
+    cpp_args: [ '-DSTATIC_LIBRARY', '-fno-lto' ],
     include_directories: includes_dir
   )
 
@@ -278,6 +281,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     name_prefix: 'udjat-module-',
     install: true,
     link_with: cppdb_dynamic,
+    cpp_args: [ '-ffat-lto-objects' ],
     install_dir: libudjat.get_variable('module_path'),
     gnu_symbol_visibility: 'hidden',
     include_directories: includes_dir
