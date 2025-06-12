@@ -42,7 +42,7 @@
 	SQL::Module::~Module() {
 	}
 
-	std::shared_ptr<Abstract::Agent> SQL::Module::AgentFactory(const Abstract::Object &parent, const XML::Node &node) const {
+	std::shared_ptr<Abstract::Agent> SQL::Module::AgentFactory(const Abstract::Agent &parent, const XML::Node &node) const {
 
 		String qname{node,"url-queue-name"};
 

@@ -18,17 +18,20 @@
  */
 
  #include <config.h>
- #include <udjat/tools/sql/script.h>
- #include <udjat/tools/sql.h>
- #include <udjat/tools/value.h>
- #include <udjat/tools/logger.h>
- #include <udjat/tools/http/mimetype.h>
- #include <udjat/moduleinfo.h>
- #include <udjat/module/abstract.h>
- #include <udjat/tests.h>
- #include <iostream>
+// #include <udjat/tools/sql/script.h>
+// #include <udjat/tools/value.h>
+// #include <udjat/tools/logger.h>
+// #include <udjat/tools/http/mimetype.h>
+// #include <udjat/moduleinfo.h>
+// #include <udjat/module/abstract.h>
 
- using namespace std;
+ #include <iostream>
+ #include <udjat/tools/sql.h>
+ #include <cstring>
+ #include <udjat/loader.h>
+ #include <udjat/tools/commandlineparser.h>
+
+// using namespace std;
  using namespace Udjat;
 
  /*
@@ -99,6 +102,7 @@
 	}
 	*/
 
+	/*
 	static const ModuleInfo info{"civetweb-tester"};
 	
 	return Testing::run(argc,argv,info,[](Application &){
@@ -108,5 +112,15 @@
 	}, String{SQL::engine(),".xml"}.c_str());
 
 	return 0;
- }
+	*/
+
+	if(!strcasecmp(SQL::engine(),"cppdb")) {
+		Udjat::loader(argc,argv,"cppdb.xml");
+	}
+
+	if(!strcasecmp(SQL::engine(),"sqlite")) {
+		Udjat::loader(argc,argv,"sqlite.xml");
+	}
+
+}
 

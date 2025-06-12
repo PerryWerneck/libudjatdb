@@ -220,7 +220,7 @@ if sqlite.found()
     install: false,
     link_with : [ sqlite_dynamic, sqlite_module ],
     dependencies: [ libudjat ],
-    link_args: [ '-l:libudjat-testing.a' ],
+    link_args: [ '-l:libudjat-loader.a' ],
     include_directories: includes_dir
   )
 
@@ -317,7 +317,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     install: false,
     link_with : [ cppdb_dynamic, cppdb_module ],
     dependencies: [ libudjat ],
-    link_args: [ '-l:libudjat-testing.a' ],
+    link_args: [ '-l:libudjat-loader.a' ],
     include_directories: includes_dir
   )
 

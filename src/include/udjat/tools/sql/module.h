@@ -38,7 +38,7 @@
 			Module(const char *name);
 			virtual ~Module();
 
-			virtual std::shared_ptr<Abstract::Agent> AgentFactory(const Abstract::Object &parent, const XML::Node &node) const override;
+			virtual std::shared_ptr<Abstract::Agent> AgentFactory(const Abstract::Agent &parent, const XML::Node &node) const override;
 
 		};
 	}
