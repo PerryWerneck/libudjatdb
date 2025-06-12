@@ -186,7 +186,7 @@ if sqlite.found()
     install: true,
     version : libversion,
     soversion : libversion,
-    cpp_args: [ '-ffat-lto-objects' ],
+    cpp_args: [ '-DSQLITE_BACKEND', '-ffat-lto-objects' ],
     gnu_symbol_visibility: 'hidden',
     dependencies: sqlite_deps,
     include_directories: includes_dir
@@ -197,7 +197,7 @@ if sqlite.found()
     config_src + lib_src,
     install: true,
     dependencies: sqlite_deps,
-    cpp_args: [ '-DSTATIC_LIBRARY', '-fno-lto' ],
+    cpp_args: [ '-DSQLITE_BACKEND', '-DSTATIC_LIBRARY', '-fno-lto' ],
     include_directories: includes_dir
   )
 
@@ -205,6 +205,7 @@ if sqlite.found()
     'sqlite', 
     config_src + module_src + [ 'src/library/engines/sqlite/module.cc' ],
     name_prefix: 'udjat-module-',
+    cpp_args: [ '-DSQLITE_BACKEND', '-ffat-lto-objects' ],
     install: true,
     install_tag: 'module',
     link_with: sqlite_dynamic,
@@ -218,6 +219,7 @@ if sqlite.found()
     'sqlite-test',
     config_src + test_src,
     install: false,
+    cpp_args: [ '-DSQLITE_BACKEND' ],
     link_with : [ sqlite_dynamic, sqlite_module ],
     dependencies: [ libudjat ],
     link_args: [ '-l:libudjat-loader.a' ],
@@ -260,7 +262,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     version : libversion,
     soversion : libversion,
     dependencies: lib_deps,
-    cpp_args: [ '-ffat-lto-objects' ],
+    cpp_args: [ '-DCPPDB_BACKEND', '-ffat-lto-objects' ],
     link_args: [ '-lcppdb' ],
     gnu_symbol_visibility: 'hidden',
     include_directories: includes_dir
@@ -271,7 +273,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     config_src + lib_src + cppdb_src,
     install: true,
     dependencies: lib_deps,
-    cpp_args: [ '-DSTATIC_LIBRARY', '-fno-lto' ],
+    cpp_args: [ '-DCPPDB_BACKEND', '-DSTATIC_LIBRARY', '-fno-lto' ],
     include_directories: includes_dir
   )
 
@@ -281,7 +283,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     name_prefix: 'udjat-module-',
     install: true,
     link_with: cppdb_dynamic,
-    cpp_args: [ '-ffat-lto-objects' ],
+    cpp_args: [ '-DCPPDB_BACKEND', '-ffat-lto-objects' ],
     install_dir: libudjat.get_variable('module_path'),
     gnu_symbol_visibility: 'hidden',
     include_directories: includes_dir
@@ -316,6 +318,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     config_src + test_src,
     install: false,
     link_with : [ cppdb_dynamic, cppdb_module ],
+    cpp_args: [ '-DCPPDB_BACKEND' ],
     dependencies: [ libudjat ],
     link_args: [ '-l:libudjat-loader.a' ],
     include_directories: includes_dir
