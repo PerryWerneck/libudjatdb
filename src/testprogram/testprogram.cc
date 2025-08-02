@@ -29,7 +29,7 @@
  using namespace std;
 
  int main(int argc, char **argv) {
-	return loader(argc,argv,[](Application &app) {
+	return loader(argc,argv,[](Application &app) -> int {
 
 		debug("Initializing " PACKAGE_NAME " - ",SQL::engine()," ...");
 		udjat_module_init();
@@ -46,6 +46,8 @@
 			test_sqlite();
 		}
 		*/
+
+		return 0;
 
 	},String{SQL::engine(),".xml"}.c_str());
 
