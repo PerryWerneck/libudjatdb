@@ -22,12 +22,9 @@
   */
 
  #pragma once
-
  #include <config.h>
  #include <udjat/defs.h>
- #include <udjat/tools/sql/script.h>
  #include <udjat/tools/value.h>
- #include <udjat/tools/abstract/object.h>
  #include <cppdb/frontend.h>
  #include <mutex>
 
@@ -35,10 +32,22 @@
 
 	namespace SQL {
 
-		void bind(const SQL::Statement &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response);
-		void exec(cppdb::session &session, const std::vector<SQL::Statement> &scripts, const Abstract::Object &request, Udjat::Value &response);
-		void parse_result(cppdb::result &res, Udjat::Value &response);
+		class UDJAT_API Session : public cppdb::session {
+		private:
+			void get(cppdb::result &rc, Udjat::Value &value);
+			void get(cppdb::result &rc, Udjat::Report &report);
+
+		public:
+
+			Session(const char *dbname);
+			~Session();
+
+			static void exec(SQL::Session &session, Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *child_name = nullptr);
+			void exec(Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *child_name = nullptr);
+
+		};
 
 	}
 
  }
+

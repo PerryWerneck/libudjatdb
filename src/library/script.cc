@@ -19,49 +19,128 @@
 
  /**
   * @brief Implements SQL script.
+
   */
 
  #include <config.h>
  #include <udjat/defs.h>
+ #include <udjat/tools/sql/script.h>
  #include <udjat/tools/xml.h>
- #include <udjat/tools/object.h>
- #include <vector>
- #include <stdexcept>
  #include <udjat/tools/string.h>
  #include <udjat/tools/logger.h>
- #include <udjat/tools/object.h>
- #include <udjat/tools/quark.h>
-
-
- #include <udjat/tools/sql/script.h>
+ #include <stdexcept>
 
  using namespace std;
 
  namespace Udjat {
 
-	SQL::Statement::Statement(const char *script) {
+	bool SQL::Script::parse(String &sql, const char *text, bool except) {
 
-		if(!(script && *script)) {
-			throw runtime_error("Rejecting build of an empty SQL script");
-		}
+		sql.clear();
 
-		String text{script};
-		size_t from = text.find("${");
-		while(from != string::npos) {
-
-			size_t to = text.find("}",from+2);
-			if(to == string::npos) {
-				throw runtime_error("Invalid parameter formatting");
+		String script{text};
+		script.strip();
+		if(script.empty()) {
+			if(!except) {
+				return false;
 			}
-
-			parameter_names.emplace_back(Quark{text.substr(from+2,(to-(from+2)))}.c_str());
-			text.std::string::replace(from,(size_t) (to-from)+1, "?");
-			from = text.find("${",from);
-
+			throw runtime_error("SQL Script is empty");
 		}
 
-		this->text = text.strip().as_quark();
+		debug("-----> '",script.c_str(),"'");
+		std::vector<String> lines = script.split("\n");
+		debug("Number of lines: ",lines.size());
+		debug("0='",lines[0].c_str(),"'");
+
+		for(String &line : lines) {
+			line.strip();
+			debug("line='",line.c_str(),"'");
+			if(line.empty()) {
+				continue;
+			}
+			sql += line;
+			if(line[line.size()-1] != ';') {
+				sql += " ";
+			}
+		}
+
+		debug(sql.c_str());
+		sql.strip();
+		debug(sql.c_str());
+
+		{
+			size_t length = sql.size();
+			if(length > 1 && sql[length-1] == ';') {
+				sql.resize(length-1);
+				sql.strip();
+			}
+		}
+
+		debug("SQL Query (size=",sql.size(),"):",sql.c_str());
+
+		if(sql.empty()) {
+			if(!except) {
+				return false;
+			}
+			throw runtime_error("SQL Script is empty");
+		}
+
+		return true;
+	}
+
+	String SQL::Script::parse(const XML::Node &node, bool except) {
+		String sql;
+		debug("Parsing node ",node.name(),"(",node.attribute("name").as_string(),")");
+		parse(sql,node.child_value());
+		return sql;
+	}
+
+	String SQL::Script::parse(const XML::Node &node, const char *name, bool except) {
+
+		debug("Parsing node ",node.name(),"(",node.attribute("name").as_string(),") as '",name,"'");
+		auto child = node.child(name);
+		if(!child) {
+			if(except) {
+				throw runtime_error(Logger::String{"Cant find required child '",name,"'"});
+			} else {
+				Logger::String{"Required child '",name,"' is not available"}.trace("sql");
+			}
+			return "";
+		}
+
+		debug("Child '",name,"' found\n",child.child_value());
+
+		String sql;
+		parse(sql,child.child_value());
+		return sql;
 
 	}
+
+	void SQL::Script::set(const char *text) {
+		parse(sql,text);
+	} 
+
+	SQL::Script::Script(const XML::Node &node) {
+		debug("Creating SQL Script from node ",node.name(),"(",node.attribute("name").as_string(),"):\n",node.child_value());
+		set(node.child_value());
+		debug("Post-processed SQL Script: (size=",strlen(c_str()),")\n",c_str());
+	}
+
+	SQL::Script::Script(const char *text) {
+		set(text);
+	}
+
+	void SQL::Script::exec(const char *dbname, const XML::Node &node, const char *name, bool required) {
+
+		String sql{SQL::Script::parse(node,name,required)};
+		if(sql.empty()) {
+			return;
+		}
+
+		Udjat::Value value;
+		Script{sql}.exec(dbname,value);
+
+	}
+
 
  }

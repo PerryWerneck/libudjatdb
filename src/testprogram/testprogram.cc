@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-3.0-or-later */
 
 /*
- * Copyright (C) 2023 Perry Werneck <perry.werneck@gmail.com>
+ * Copyright (C) 2021 Perry Werneck <perry.werneck@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -18,32 +18,38 @@
  */
 
  #include <config.h>
- #include <udjat/tools/application.h>
- #include <udjat/module.h>
- #include <unistd.h>
+ #include <udjat/defs.h>
+ #include <udjat/loader.h>
+ #include <udjat/module/abstract.h>
  #include <udjat/tools/logger.h>
+ #include <udjat/tools/sql.h>
+ #include <udjat/tools/abstract/object.h>
 
- using namespace std;
  using namespace Udjat;
+ using namespace std;
 
  int main(int argc, char **argv) {
+	return loader(argc,argv,[](Application &app) -> int {
 
-	Logger::verbosity(9);
-	Logger::redirect();
+		debug("Initializing " PACKAGE_NAME " - ",SQL::engine()," ...");
+		udjat_module_init();
+		debug("... initilization of " PACKAGE_NAME " is complete");
 
-	udjat_module_init();
+		// app.root()->parse(String{SQL::engine(),".xml"}.c_str());
 
-	/*
-	#ifdef HAVE_SQLITE3
-		auto rc = Application{}.run(argc,argv,"./sqlite.xml");
-	#else
-		auto rc = Application{}.run(argc,argv,"./cppdb.xml");
-	#endif // HAVE_SQLITE3
-	*/
+		/*
+		if(!strcasecmp(SQL::engine(),"cppdb")) {
+			test_cppdb();
+		}
 
-	auto rc = Application{}.run(argc,argv,"./test.xml");
+		if(!strcasecmp(SQL::engine(),"sqlite")) {
+			test_sqlite();
+		}
+		*/
 
-	debug("Application exits with rc=",rc);
+		return 0;
 
-	return rc;
-}
+	},String{SQL::engine(),".xml"}.c_str());
+
+ }
+

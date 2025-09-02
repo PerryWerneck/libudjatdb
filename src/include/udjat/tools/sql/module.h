@@ -18,22 +18,29 @@
  */
 
  /**
-  * @brief SQL Controller.
+  * @brief Declare SQL module.
   */
 
- #include <config.h>
+ #pragma once
+
  #include <udjat/defs.h>
-
- #include <private/controller.h>
-
- using namespace std;
+ #include <udjat/module/abstract.h>
+ #include <udjat/tools/actions/sql.h>
+ #include <udjat/agent/abstract.h>
 
  namespace Udjat {
 
-	SQL::Controller::Controller() {
-	}
+	namespace SQL {
 
-	SQL::Controller::~Controller() {
+		class UDJAT_API Module : public Udjat::Module, private SQL::Action::Factory, private Abstract::Agent::Factory {
+		public:
+
+			Module(const char *name);
+			virtual ~Module();
+
+			virtual std::shared_ptr<Abstract::Agent> AgentFactory(const Abstract::Agent &parent, const XML::Node &node) const override;
+
+		};
 	}
 
  }

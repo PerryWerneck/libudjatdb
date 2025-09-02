@@ -21,6 +21,7 @@
   * @brief Describe SQL alert.
   */
 
+/*
  #pragma once
 
  #include <udjat/defs.h>
@@ -52,3 +53,4 @@
 	}
 
  }
+*/

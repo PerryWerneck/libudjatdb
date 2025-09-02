@@ -18,117 +18,118 @@
  */
 
  /**
-  * @brief Brief description of this source.
+  * @brief Execute SQLite script.
   */
 
  #include <config.h>
  #include <udjat/defs.h>
+ #include <udjat/tools/string.h>
  #include <udjat/tools/sql/script.h>
  #include <udjat/tools/value.h>
+ #include <udjat/tools/report.h>
  #include <string>
- #include <sqlite3.h>
  #include <private/sqlite.h>
+ #include <sqlite3.h>
+ #include <vector>
 
  using namespace std;
 
  namespace Udjat {
 
-	/*
-	void SQL::bind(const SQL::Statement &script, cppdb::statement &stmt, const Abstract::Object &request, Udjat::Value &response) {
-
-		for(const char *name : script.parameter_names) {
-
-			string value;
-
-			if(request.getProperty(name,value)) {
-
-				debug("value(",name,")='",value,"' (from request)");
-				stmt.bind(value);
-
-			} else if(response.getProperty(name,value)) {
-
-				debug("value(",name,")='",value,"' (from response)");
-				stmt.bind(value);
-
-			} else {
-
-				throw runtime_error(Logger::String{"Required property '",name,"' is missing"});
-
-			}
-
-		}
-
+	void SQL::Script::exec(const char *dbname, Udjat::Value &values) const {
+		exec(dbname,values,values);
 	}
 
-	void SQL::parse_result(cppdb::result &res, Udjat::Value &response) {
-		if(!res.empty()) {
-			// Got result update response;
-			debug("Got response from SQL query");
-			for(int col = 0; col < res.cols();col++) {
-				string val;
-				res.fetch(col,val);
-				debug(res.name(col).c_str(),"='",val.c_str(),"'");
-				response[res.name(col).c_str()] = val.c_str();
-			}
-		}
+	void SQL::Script::exec(const char *dbname, const Udjat::Value &request, Udjat::Value &response) const {
+		Session{dbname}.exec(sql,request,response);
 	}
 
-	void SQL::exec(cppdb::session &session, const std::vector<SQL::Statement> &scripts, const Abstract::Object &request, Udjat::Value &response) {
+	void SQL::Session::exec(Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *name) {
 
-		debug(__FUNCTION__);
+		if(statement.empty()) {
+			throw invalid_argument("Empty SQL statement");
+		}
 
-		for(auto &script : scripts) {
-			if(script.text && *script.text) {
-				auto stmt = session.create_statement(script.text);
-				bind(script,stmt,request,response);
+		lock_guard<std::mutex> lock(guard);
 
-				if(strcasestr(script.text,"select")) {
-					auto res = stmt.row();
-					parse_result(res,response);
-				} else {
-					stmt.exec();
+		debug("Statement:\n",statement.c_str());
+
+		for(String &line : statement.split(";")) {
+
+			if(Logger::enabled(Logger::Trace)) {
+				Logger::String{line.c_str()}.trace("sql");
+			}
+
+			sqlite3_stmt *stmt = prepare(line,request,response);
+
+			try {
+
+				switch(sqlite3_step(stmt)) {
+				case SQLITE_DONE:
+					debug("Empty response");
+					break;
+
+				case SQLITE_ROW:
+					{
+						// Parse first line.
+						Value row;
+						get(stmt,row);
+
+						// Check if have more lines.
+						if(sqlite3_step(stmt) == SQLITE_ROW) {
+
+							// Got second row, change behavior.
+
+							Value &repoval = response;
+							if(name) {
+								repoval = response[name];
+							} else {
+								repoval.clear();
+							}
+
+							std::vector<string> names;
+
+							{
+								int colnum = sqlite3_data_count(stmt);
+								for(int col = 0; col < colnum;col++) {
+									names.push_back(sqlite3_column_name(stmt,col));
+								}
+							}
+
+							auto &report = repoval.ReportFactory(names);
+							report.push_back(row);
+
+							do {
+								get(stmt,report);
+							} while(sqlite3_step(stmt) == SQLITE_ROW);
+
+						} else {
+
+							// No second row, add results do response.
+							response.merge(row);
+
+						}
+					}
+					break;
+
+				default:
+					throw runtime_error(sqlite3_errmsg(db));
+
 				}
+
+			} catch(...) {
+
+				debug("Finalizing stmt, failed");
+				sqlite3_finalize(stmt);
+				throw;
+
 			}
+
+			debug("Finalizing stmt, success");
+			sqlite3_finalize(stmt);
+
 		}
-	}
-	*/
 
-	void SQL::Script::exec(const Udjat::Object &request) const {
-
-		debug(__FUNCTION__);
-
-		auto values = Udjat::Value::ObjectFactory();
-		SQL::Session{dburl}.exec(scripts,request,*values);
-
-	}
-
-	void SQL::Script::exec(std::shared_ptr<Udjat::Value> response) const {
-
-		debug(__FUNCTION__);
-		SQL::Session{dburl}.exec(scripts,*response);
-
-	}
-
-	void SQL::Script::exec(const Udjat::Object &request, Udjat::Value &response) const {
-
-		debug(__FUNCTION__);
-		SQL::Session{dburl}.exec(scripts,request,response);
-
-	}
-
-	void SQL::Script::exec(const Request &request, Udjat::Value &response) const {
-
-		debug(__FUNCTION__,"::Value start");
-		SQL::Session{dburl}.exec(scripts,request,response);
-		debug(__FUNCTION__,"::Value ends");
-
-	}
-
-	void SQL::Script::exec(const Request &request, Udjat::Response::Table &response) const {
-
-		debug(__FUNCTION__,"::Table start");
-		SQL::Session{dburl}.exec(scripts,request,response);
-		debug(__FUNCTION__,"::Table ends");
 	}
 
  }

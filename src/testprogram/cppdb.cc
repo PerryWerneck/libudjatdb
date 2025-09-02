@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-3.0-or-later */
 
 /*
- * Copyright (C) 2024 Perry Werneck <perry.werneck@gmail.com>
+ * Copyright (C) 2023 Perry Werneck <perry.werneck@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -17,27 +17,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
- /**
-  * @brief Brief description of this source.
-  */
-
 /*
  #include <config.h>
- #include <udjat/tools/sql/script.h>
- #include <udjat/tools/abstract/object.h>
- #include <udjat/alert/abstract.h>
- #include <udjat/alert/activation.h>
- #include <udjat/alert/sql.h>
- #include <udjat/tools/value.h>
+ #include <udjat/tools/application.h>
+ #include <udjat/module.h>
+ #include <unistd.h>
+ #include <udjat/tools/logger.h>
 
  using namespace std;
+ using namespace Udjat;
 
- namespace Udjat {
+ int main(int argc, char **argv) {
 
-	SQL::Alert::Alert(const XML::Node &node, const char *defaults) : Abstract::Alert(node,defaults), script{node} {
-	}
+	Logger::verbosity(9);
+	Logger::redirect();
 
+	udjat_module_init();
 
- }
+	auto rc = Application{}.run(argc,argv,"./cppdb.xml");
+
+	debug("Application exits with rc=",rc);
+
+	return rc;
+}
 */
-

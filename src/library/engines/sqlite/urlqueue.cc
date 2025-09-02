@@ -18,39 +18,58 @@
  */
 
  /**
-  * @brief Private definitions for SQLite3 module.
+  * @brief Implements URL Queue send().
   */
 
- #pragma once
  #include <config.h>
  #include <udjat/defs.h>
- #include <udjat/tools/value.h>
- #include <mutex>
+ #include <udjat/tools/url.h>
+
+ #include <iostream>
+ #include <private/module.h>
+ #include <private/urlqueue.h>
+ #include <private/sqlite.h>
+
  #include <sqlite3.h>
+
+ using namespace std;
 
  namespace Udjat {
 
-	namespace SQL {
+	void SQL::URLQueue::send() {
 
-		class UDJAT_API Session {
-		private:
-			sqlite3 *db = NULL;
-			static std::mutex guard;
+		Session db{dbname};
 
-			void get(sqlite3_stmt *stmt, Udjat::Value &value);
-			void get(sqlite3_stmt *stmt, Udjat::Report &report);
+		Udjat::Value values;
+		db.exec(get_values,values,values);
 
-			void check(int rc) const;
-			sqlite3_stmt * prepare(Udjat::String &line, const Udjat::Value &request, const Udjat::Value &response);
+		try {
 
-		public:
+			auto result = URL{values["url"].c_str()}.call(
+				HTTP::MethodFactory(values["action"].c_str()),
+				values["payload"].c_str()
+			);
 
-			Session(const char *dbname);
-			~Session();
+			Logger::write(Logger::Trace,result);
 
-			void exec(Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *child_name = nullptr);
+		} catch(const std::exception &e) {
 
-		};
+			Logger::write(Logger::Error,e.what());
+
+			return;
+		}
+
+		size_t count = Udjat::Agent<size_t>::get();
+
+		db.exec(after_send,values,values);
+		count--;
+
+		Udjat::Agent<size_t>::set(count);
+
+		if(send_interval) {
+			debug("Will send next in ",send_interval," second(s)");
+			sched_update(send_interval);
+		}
 
 	}
 
