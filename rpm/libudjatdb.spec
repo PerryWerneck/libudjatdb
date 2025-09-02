@@ -20,7 +20,7 @@
 
 Summary:		Database library for %{udjat_product_name}  
 Name:			libudjat%{module_name}
-Version: 2.1.0
+Version: 2.2.0
 Release:		0
 License:		LGPL-3.0
 Source:			%{name}-%{version}.tar.xz
