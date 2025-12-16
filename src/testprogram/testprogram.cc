@@ -31,25 +31,25 @@
  int main(int argc, char **argv) {
 	return loader(argc,argv,[](Application &app) -> int {
 
-		debug("Initializing " PACKAGE_NAME " - ",SQL::engine()," ...");
+		debug("Initializing " PACKAGE_NAME " - ",SQL::engine_name()," ...");
 		udjat_module_init();
 		debug("... initilization of " PACKAGE_NAME " is complete");
 
-		// app.root()->parse(String{SQL::engine(),".xml"}.c_str());
+		// app.root()->parse(String{SQL::engine_name(),".xml"}.c_str());
 
 		/*
-		if(!strcasecmp(SQL::engine(),"cppdb")) {
+		if(!strcasecmp(SQL::engine_name(),"cppdb")) {
 			test_cppdb();
 		}
 
-		if(!strcasecmp(SQL::engine(),"sqlite")) {
+		if(!strcasecmp(SQL::engine_name(),"sqlite")) {
 			test_sqlite();
 		}
 		*/
 
 		return 0;
 
-	},String{SQL::engine(),".xml"}.c_str());
+	},String{SQL::engine_name(),".xml"}.c_str());
 
  }
 

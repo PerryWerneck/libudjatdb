@@ -29,9 +29,13 @@
 
 	namespace SQL {
 
-		/// @brief Get engine name
+		/// @brief Get engine name.
 		/// @return The engine name ("sqlite", "cppdb", ...)
-		UDJAT_API const char * engine() noexcept;
+		UDJAT_API const char * engine_name() noexcept;
+
+		/// @brief Get engine description.
+		/// @return The engine description.
+		UDJAT_API const char * engine_description() noexcept;
 
 
 	}

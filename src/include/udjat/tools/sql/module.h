@@ -35,7 +35,7 @@
 		class UDJAT_API Module : public Udjat::Module, private SQL::Action::Factory, private Abstract::Agent::Factory {
 		public:
 
-			Module(const char *name);
+			Module(const char *name = nullptr, const char *description = nullptr);
 			virtual ~Module();
 
 			virtual std::shared_ptr<Abstract::Agent> AgentFactory(const XML::Node &node) const override;

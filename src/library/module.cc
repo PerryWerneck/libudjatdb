@@ -27,16 +27,16 @@
  #include <udjat/agent/sql.h>
  #include <udjat/tools/sql/script.h>
  #include <udjat/agent/abstract.h>
- #include <udjat/tools/protocol.h>
-
+ #include <udjat/tools/sql.h>
+ 
  #include <memory>
 
  using namespace std;
 
  namespace Udjat {
 
-	SQL::Module::Module(const char *name) 
-		: Udjat::Module{name,SQL::module_info}, Abstract::Agent::Factory("sql") {
+	SQL::Module::Module(const char *name, const char *description) 
+		: Udjat::Module{(name && *name ? name : SQL::engine_name()),((description && *description) ? description : SQL::engine_description())}, Abstract::Agent::Factory("sql") {
 	}
 
 	SQL::Module::~Module() {

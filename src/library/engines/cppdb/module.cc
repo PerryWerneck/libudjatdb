@@ -24,15 +24,16 @@
  #include <config.h>
  #include <udjat/tools/intl.h>
  #include <private/module.h>
- #include <udjat/module/info.h>
- #include <udjat/tools/sql/module.h>
+ #include <udjat/tools/sql.h>
 
  namespace Udjat {
 
-	UDJAT_API const char * SQL::engine() noexcept {
+	UDJAT_API const char * SQL::engine_name() noexcept {
 		return "cppdb";
 	}
 
-	const ModuleInfo SQL::module_info{"cppdb", "CPPDB SQL Module"};
+	UDJAT_API const char * SQL::engine_description() noexcept {
+		return "CPPDB SQL Module";
+	}
 
  }

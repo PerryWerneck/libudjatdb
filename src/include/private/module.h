@@ -25,13 +25,12 @@
 
  #include <config.h>
  #include <udjat/defs.h>
- #include <udjat/module/info.h>
 
  namespace Udjat {
 
 	namespace SQL {
 
-		extern const ModuleInfo module_info;
+
 
 	}
 
