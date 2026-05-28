@@ -80,6 +80,7 @@ compiler_flags = [
   '-fvisibility=hidden',
   '-fPIC',
   '-DHAVE_CONFIG_H=1',
+  '-Wno-overloaded-virtual',
   '-DBUILD_DATE='+time_epoch,
 ]
 
@@ -281,7 +282,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     'udjatcppdb', 
     config_src + lib_src + cppdb_src,
     install: true,
-    dependencies: lib_deps,
+    dependencies: lib_deps + [ libudjat ],
     cpp_args: [ '-DCPPDB_BACKEND', '-DSTATIC_LIBRARY', '-fno-lto' ],
     include_directories: includes_dir
   )
@@ -292,6 +293,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     name_prefix: 'udjat-module-',
     install: true,
     link_with: cppdb_dynamic,
+    dependencies: [ libudjat ],
     cpp_args: [ '-DCPPDB_BACKEND', '-ffat-lto-objects' ],
     install_dir: libudjat.get_variable('module_path'),
     gnu_symbol_visibility: 'hidden',
