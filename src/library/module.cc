@@ -35,6 +35,12 @@
 
  namespace Udjat {
 
+	Module * SQL::Module::Factory(const XML::Node &) {
+		auto *module = new Module("sql");
+		module->autoclean();
+		return module;
+	}
+
 	SQL::Module::Module(const char *name, const char *description) 
 		: Udjat::Module{(name && *name ? name : SQL::engine_name()),((description && *description) ? description : SQL::engine_description())}, Abstract::Agent::Factory("sql") {
 	}

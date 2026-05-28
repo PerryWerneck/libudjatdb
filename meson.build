@@ -42,14 +42,27 @@ libversion = '@0@.@1@'.format(pkg_major_version,pkg_minor_version)
 # i18n
 #
 #subdir('po')
+lib_deps = [
+]
 
 #
 # LibUdjat
 #
-libudjat = dependency('libudjat') 
-lib_deps = [
-  libudjat,
-]
+libudjat = dependency(
+  'libudjat',
+  version: '>=2.2.0',
+  required: false
+)
+
+if libudjat.found()
+  libdeps += [ libudjat ]
+else
+  libudjat = dependency(
+    'libudjat',
+    version: '>=2.2.0',
+    fallback: ['libudjat', 'static_library'],
+  )
+endif
 
 #
 # Compiler flags
@@ -178,7 +191,7 @@ sqlite = dependency('sqlite3', required: false)
 
 if sqlite.found()
 
-  sqlite_deps = lib_deps + [ sqlite ]
+  sqlite_deps = [ libudjat, sqlite ]
 
   sqlite_dynamic = shared_library(
     'udjatsqlite', 
@@ -229,6 +242,8 @@ if sqlite.found()
 
     pkg.generate(
       name: 'libudjatsqlite',
+      requires: lib_deps,
+      requires_private: [ 'libudjat', sqlite ],
       description: project_description,
       libraries: [ '-ludjatsqlite.dll' ]
     )
@@ -237,19 +252,14 @@ if sqlite.found()
 
     pkg.generate(
       name: 'libudjatsqlite',
+      requires: lib_deps,
+      requires_private: [ 'libudjat', sqlite ],
       description: project_description,
       libraries: [ '-ludjatsqlite' ]
     )
 
   endif
   
-  pkg.generate(
-    name: 'libudjatsqlite-static',
-    description: project_description,
-    requires: sqlite_deps,
-    libraries: [ '-l:libudjatsqlite.a' ],
-  )
-
 endif
 
 if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
@@ -260,7 +270,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     install: true,
     version : libversion,
     soversion : libversion,
-    dependencies: lib_deps,
+    dependencies: [ libudjat ],
     cpp_args: [ '-DCPPDB_BACKEND', '-ffat-lto-objects' ],
     link_args: [ '-lcppdb' ],
     gnu_symbol_visibility: 'hidden',
@@ -293,7 +303,8 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     pkg.generate(
       name: 'libudjatcppdb',
       description: project_description,
-      libraries: [ '-ludjatcppdb.dll' ]
+      libraries: [ '-ludjatcppdb.dll' ],
+      libraries_private: [ '-lcppdb' ],
     )
 
   else
@@ -301,17 +312,12 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     pkg.generate(
       name: 'libudjatcppdb',
       description: project_description,
-      libraries: [ '-ludjatcppdb' ]
+      libraries: [ '-ludjatcppdb' ],
+      libraries_private: [ '-lcppdb' ],
     )
 
   endif
   
-  pkg.generate(
-    name: 'libudjatcppdb-static',
-    description: project_description,
-    libraries: [ '-l:libudjatcppdb.a', '-lcppdb' ],
-  )
-
   executable(
     'cppdb-test',
     config_src + test_src,

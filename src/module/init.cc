@@ -18,11 +18,11 @@
  */
 
  #include <config.h>
- #include <udjat/module/abstract.h>
+ #include <udjat/module.h>
  #include <udjat/tools/sql/module.h>
 
  using namespace Udjat;
 
- Udjat::Module * udjat_module_init() {
-	return new SQL::Module("sql");
+ Udjat::Module * udjat_module_init(const Udjat::XML::Node &node) {
+	return SQL::Module::Factory(node);
  }
