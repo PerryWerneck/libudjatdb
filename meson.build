@@ -50,19 +50,9 @@ lib_deps = [
 #
 libudjat = dependency(
   'libudjat',
-  version: '>=2.2.0',
-  required: false
+  version: '>=2.6.0',
+  fallback: ['libudjat', 'static_library'],
 )
-
-if libudjat.found()
-  libdeps += [ libudjat ]
-else
-  libudjat = dependency(
-    'libudjat',
-    version: '>=2.2.0',
-    fallback: ['libudjat', 'static_library'],
-  )
-endif
 
 #
 # Compiler flags
