@@ -20,9 +20,10 @@
  #include <config.h>
  #include <udjat/module.h>
  #include <udjat/tools/sql/module.h>
+ #include <udjat/tools/properties.h>
 
  using namespace Udjat;
 
- Udjat::Module * udjat_module_init(const Udjat::XML::Node &node) {
-	return SQL::Module::Factory(node);
+ Udjat::Module * udjat_module_init(const Udjat::Properties &props) {
+	return SQL::Module::Factory(props);
  }

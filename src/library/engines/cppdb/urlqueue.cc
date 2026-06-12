@@ -50,11 +50,11 @@
 				values["payload"].c_str()
 			);
 
-			Logger::write(Logger::Trace,result);
+			Logger::String{result}.trace();
 
 		} catch(const std::exception &e) {
 
-			Logger::write(Logger::Error,e.what());
+			Logger::String{e.what()}.trace();
 
 			return;
 		}

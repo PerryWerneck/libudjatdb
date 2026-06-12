@@ -91,7 +91,7 @@
 	String SQL::Script::parse(const XML::Node &node, bool except) {
 		String sql;
 		debug("Parsing node ",node.name(),"(",node.attribute("name").as_string(),")");
-		parse(sql,node.child_value());
+		parse(sql,node.child_value().c_str());
 		return sql;
 	}
 
@@ -111,7 +111,7 @@
 		debug("Child '",name,"' found\n",child.child_value());
 
 		String sql;
-		parse(sql,child.child_value());
+		parse(sql,child.child_value().c_str());
 		return sql;
 
 	}
@@ -122,7 +122,7 @@
 
 	SQL::Script::Script(const XML::Node &node) {
 		debug("Creating SQL Script from node ",node.name(),"(",node.attribute("name").as_string(),"):\n",node.child_value());
-		set(node.child_value());
+		set(node.child_value().c_str());
 		debug("Post-processed SQL Script: (size=",strlen(c_str()),")\n",c_str());
 	}
 

@@ -35,7 +35,7 @@
 
  namespace Udjat {
 
-	Module * SQL::Module::Factory(const XML::Node &) {
+	Module * SQL::Module::Factory(const Udjat::Properties &) {
 		auto *module = new Module("sql");
 		module->autoclean();
 		return module;

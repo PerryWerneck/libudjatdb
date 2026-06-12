@@ -28,7 +28,8 @@
  #include <udjat/tools/actions/sql.h>
  #include <udjat/agent/abstract.h>
  #include <udjat/tools/xml.h>
-
+ #include <udjat/tools/properties.h>
+ 
  namespace Udjat {
 
 	namespace SQL {
@@ -36,7 +37,7 @@
 		class UDJAT_API Module : public Udjat::Module, private SQL::Action::Factory, private Abstract::Agent::Factory {
 		public:
 
-			static Udjat::Module * Factory(const XML::Node &node = XML::Node());
+			static Udjat::Module * Factory(const Udjat::Properties &props = Udjat::Properties{});
 
 			Module(const char *name = nullptr, const char *description = nullptr);
 			virtual ~Module();
