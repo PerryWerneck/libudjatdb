@@ -19,21 +19,16 @@
 
  #include <config.h>
  #include <udjat/defs.h>
- #include <udjat/loader.h>
+ #include <udjat/tools/loader.h>
  #include <udjat/module/abstract.h>
  #include <udjat/tools/logger.h>
  #include <udjat/tools/sql.h>
  #include <udjat/tools/abstract/object.h>
 
  using namespace Udjat;
- using namespace std;
 
- int main(int argc, char **argv) {
+ int main(const int argc, const char **argv) {
 	return loader(argc,argv,[](Application &app) -> int {
-
-		debug("Initializing " PACKAGE_NAME " - ",SQL::engine_name()," ...");
-		udjat_module_init();
-		debug("... initilization of " PACKAGE_NAME " is complete");
 
 		// app.root()->parse(String{SQL::engine_name(),".xml"}.c_str());
 

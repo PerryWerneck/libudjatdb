@@ -4,7 +4,8 @@
 
 	<module name='civetweb' required='no' />
 	<module name='information' required='no' />
-
+	<module path='.build/udjat-module-cppdb.so' required='yes' />
+	
 	<!--
 		Use attribute for database URL to avoid repetitions.
 	-->
