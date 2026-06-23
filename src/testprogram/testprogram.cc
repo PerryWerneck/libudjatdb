@@ -28,23 +28,6 @@
  using namespace Udjat;
 
  int main(const int argc, const char **argv) {
-	return loader(argc,argv,[](Application &app) -> int {
-
-		// app.root()->parse(String{SQL::engine_name(),".xml"}.c_str());
-
-		/*
-		if(!strcasecmp(SQL::engine_name(),"cppdb")) {
-			test_cppdb();
-		}
-
-		if(!strcasecmp(SQL::engine_name(),"sqlite")) {
-			test_sqlite();
-		}
-		*/
-
-		return 0;
-
-	},String{SQL::engine_name(),".xml"}.c_str());
-
+	return loader(argc,argv,String{SQL::engine_name(),".xml"}.c_str());
  }
 

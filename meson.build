@@ -42,8 +42,16 @@ libversion = '@0@.@1@'.format(pkg_major_version,pkg_minor_version)
 # i18n
 #
 #subdir('po')
-lib_deps = [
-]
+
+#
+# Dependencies
+# 
+pugixml = dependency(
+    'pugixml',
+    method : 'pkg-config',
+    required: true,
+  )
+
 
 #
 # LibUdjat
@@ -51,7 +59,7 @@ lib_deps = [
 libudjat = dependency(
   'libudjat',
   version: '>=2.7.0',
-  fallback: ['libudjat', 'static_library'],
+  fallback: ['libudjat', 'dynamic_library'],
 )
 
 #
@@ -182,7 +190,7 @@ sqlite = dependency('sqlite3', required: false)
 
 if sqlite.found()
 
-  sqlite_deps = [ libudjat, sqlite ]
+  sqlite_deps = [ libudjat, sqlite, pugixml ]
 
   sqlite_dynamic = shared_library(
     'udjatsqlite', 
@@ -225,7 +233,7 @@ if sqlite.found()
     install: false,
     cpp_args: [ '-DSQLITE_BACKEND' ],
     link_with : [ sqlite_dynamic, sqlite_module ],
-    dependencies: [ libudjat ],
+    dependencies: [ libudjat, pugixml ],
     include_directories: includes_dir
   )
 
@@ -233,8 +241,7 @@ if sqlite.found()
 
     pkg.generate(
       name: 'libudjatsqlite',
-      requires: lib_deps,
-      requires_private: [ 'libudjat', sqlite ],
+      requires_private: [ 'libudjat', sqlite, pugixml ],
       description: project_description,
       libraries: [ '-ludjatsqlite.dll' ]
     )
@@ -243,8 +250,7 @@ if sqlite.found()
 
     pkg.generate(
       name: 'libudjatsqlite',
-      requires: lib_deps,
-      requires_private: [ 'libudjat', sqlite ],
+      requires_private: [ 'libudjat', sqlite, pugixml ],
       description: project_description,
       libraries: [ '-ludjatsqlite' ]
     )
@@ -261,7 +267,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     install: true,
     version : libversion,
     soversion : libversion,
-    dependencies: [ libudjat ],
+    dependencies: [ libudjat, pugixml ],
     cpp_args: [ '-DCPPDB_BACKEND', '-ffat-lto-objects' ],
     link_args: [ '-lcppdb' ],
     gnu_symbol_visibility: 'hidden',
@@ -272,7 +278,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     'udjatcppdb', 
     config_src + lib_src + cppdb_src,
     install: true,
-    dependencies: lib_deps + [ libudjat ],
+    dependencies: [ libudjat, pugixml ],
     cpp_args: [ '-DCPPDB_BACKEND', '-DSTATIC_LIBRARY', '-fno-lto' ],
     include_directories: includes_dir
   )
@@ -283,7 +289,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     name_prefix: 'udjat-module-',
     install: true,
     link_with: cppdb_dynamic,
-    dependencies: [ libudjat ],
+    dependencies: [ libudjat, pugixml ],
     cpp_args: [ '-DCPPDB_BACKEND', '-ffat-lto-objects' ],
     install_dir: libudjat.get_variable('module_path'),
     gnu_symbol_visibility: 'hidden',
@@ -296,6 +302,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
       name: 'libudjatcppdb',
       description: project_description,
       libraries: [ '-ludjatcppdb.dll' ],
+      requires_private: [ 'libudjat', pugixml ],
       libraries_private: [ '-lcppdb' ],
     )
 
@@ -305,6 +312,7 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
       name: 'libudjatcppdb',
       description: project_description,
       libraries: [ '-ludjatcppdb' ],
+      requires_private: [ 'libudjat', pugixml ],
       libraries_private: [ '-lcppdb' ],
     )
 
@@ -314,9 +322,9 @@ if cxx.compiles('#include <cppdb/defs.h>', name : 'cppdb')
     'cppdb-test',
     config_src + test_src,
     install: false,
-    link_with : [ cppdb_dynamic, cppdb_module ],
+    link_with: [ cppdb_dynamic, cppdb_module ],
     cpp_args: [ '-DCPPDB_BACKEND' ],
-    dependencies: [ libudjat ],
+    dependencies: [ libudjat, pugixml ],
     include_directories: includes_dir
   )
 

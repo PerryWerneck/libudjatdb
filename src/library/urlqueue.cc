@@ -23,6 +23,7 @@
 
  #include <config.h>
  #include <udjat/defs.h>
+ #include <udjat/tools/properties.h>
  #include <udjat/tools/xml.h>
  #include <udjat/agent.h>
  #include <udjat/agent/sql.h>
@@ -47,8 +48,8 @@
 				ins{SQL::Script::parse(node,"insert",true)},
 				get_values{SQL::Script::parse(node,"get",true)},
 				after_send{SQL::Script::parse(node,"after-send",false)},
-				send_interval{Object::getAttribute(node, "urlqueue", "send-interval", (unsigned int) 60)},
-				send_delay{Object::getAttribute(node, "urlqueue", "send-delay", (unsigned int) 2)} {
+				send_interval{node.get("urlqueue", "send-interval", (unsigned int) 60)},
+				send_delay{node.get("urlqueue", "send-delay", (unsigned int) 2)} {
 		}
 
 		URLQueue::~URLQueue() {
