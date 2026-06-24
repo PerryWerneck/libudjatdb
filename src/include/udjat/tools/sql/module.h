@@ -24,7 +24,7 @@
  #pragma once
 
  #include <udjat/defs.h>
- #include <udjat/module/abstract.h>
+ #include <udjat/module.h>
  #include <udjat/tools/actions/sql.h>
  #include <udjat/agent/abstract.h>
  #include <udjat/tools/xml.h>
