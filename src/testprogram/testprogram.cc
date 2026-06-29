@@ -20,12 +20,11 @@
  #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/tools/loader.h>
- 
+ #include <udjat/tools/sql.h>
+ #include <udjat/tools/string.h>
+
  using namespace Udjat;
  
  int main(int argc, char **argv) {
-	return loader(argc, argv, [](const LoaderMode mode, Application &app, const char *arg){
-		return 0;
-	});
-
+	return loader(argc, argv, String{SQL::engine_name(),".xml"}.c_str());
  }
