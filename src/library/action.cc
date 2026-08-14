@@ -33,17 +33,17 @@
  
  namespace Udjat {
 
-	std::shared_ptr<Udjat::Action> SQL::Action::Factory::ActionFactory(const XML::Node &node) const {
-		return make_shared<SQL::Action>(node);
+	std::shared_ptr<Udjat::Action> SQL::Action::Factory::ActionFactory(const Properties &props) const {
+		return make_shared<SQL::Action>(props);
 	}
 
-	SQL::Action::Action(const XML::Node &node) 
-		: Udjat::Action{node}, SQL::Script{node}, dbname{String{node,"database-connection"}.as_quark()} {
+	SQL::Action::Action(const Properties &props) 
+		: Udjat::Action{props}, SQL::Script{props}, dbname{props["database-connection"].as_quark()} {
 		if(!(dbname && *dbname)) {
 			throw runtime_error("Required attribute 'database-connection' is missing or empty");
 		}
-		debug("Creating SQL Action '",node.attribute("name").as_string(),"' for database '",dbname,"' using node <",node.name(),">");
-		debug("SQL Script on <",node.name(),">(size=",strlen(SQL::Script::c_str()),"):\n",SQL::Script::c_str());
+		debug("Creating SQL Action '",props["name"].c_str(),"' for database '",dbname,"' using node <",props.node_name(),">");
+		debug("SQL Script on <",props.node_name(),">(size=",strlen(SQL::Script::c_str()),"):\n",SQL::Script::c_str());
 
 	}
 

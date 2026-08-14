@@ -23,8 +23,8 @@
 
  #pragma once
  #include <udjat/defs.h>
- #include <udjat/tools/xml.h>
- #include <udjat/agent/abstract.h>
+ #include <udjat/tools/properties.h>
+ #include <udjat/agent.h>
  #include <udjat/tools/sql/script.h>
  #include <udjat/tools/value.h>
 

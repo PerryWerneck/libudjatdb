@@ -24,7 +24,7 @@
  #pragma once
 
  #include <udjat/defs.h>
- #include <udjat/tools/xml.h>
+ #include <udjat/tools/properties.h>
  #include <udjat/tools/string.h>
  #include <udjat/tools/script.h>
  #include <string>
@@ -60,7 +60,7 @@
 
 			/// @brief Create SQL statement from XML definition.
 			/// @param node the script definition.
-			Script(const XML::Node &node);
+			Script(const Properties &props);
 
 			/// @brief Pre-process SQL Statement.
 			static bool parse(String &statement, const char *text, bool except = true);
@@ -69,9 +69,9 @@
 			/// @param node XML node with statement
 			/// @param except 
 			/// @return 
-			static String parse(const XML::Node &node, bool except = true);
+			static String parse(const Properties &props, bool except = true);
 
-			static String parse(const XML::Node &node, const char *name, bool except = true);
+			static String parse(const Properties &props, const char *name, bool except = true);
 
 			/// @brief Set SQL statements to execute.
 			/// @param sql The SQL statements.
@@ -82,7 +82,7 @@
 
 			void exec(const char *dbname, const Udjat::Value &request, Udjat::Value &response) const;
 
-			static void exec(const char *dbname, const XML::Node &node, const char *name, bool required = false);
+			static void exec(const char *dbname, const Properties &props, const char *name, bool required = false);
 
 		};
 

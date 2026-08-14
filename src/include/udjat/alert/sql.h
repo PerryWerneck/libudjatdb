@@ -25,7 +25,7 @@
  #pragma once
 
  #include <udjat/defs.h>
- #include <udjat/tools/xml.h>
+ #include <udjat/tools/properties.h>
  #include <udjat/tools/sql/script.h>
  #include <udjat/alert/abstract.h>
  #include <udjat/alert/activation.h>

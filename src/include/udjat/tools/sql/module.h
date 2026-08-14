@@ -26,8 +26,8 @@
  #include <udjat/defs.h>
  #include <udjat/module.h>
  #include <udjat/tools/actions/sql.h>
- #include <udjat/agent/abstract.h>
- #include <udjat/tools/xml.h>
+ #include <udjat/agent.h>
+ #include <udjat/tools/properties.h>
  #include <udjat/tools/properties.h>
  
  namespace Udjat {
@@ -42,7 +42,7 @@
 			Module(const char *name = nullptr, const char *description = nullptr);
 			virtual ~Module();
 
-			virtual std::shared_ptr<Abstract::Agent> AgentFactory(const XML::Node &node) const override;
+			virtual std::shared_ptr<Abstract::Agent> AgentFactory(const Properties &props) const override;
 
 		};
 	}

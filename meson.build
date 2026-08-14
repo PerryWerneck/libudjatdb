@@ -20,7 +20,7 @@
 project(
 	'udjatdb', 
 	['cpp'],
-	version: '2.2.1',
+	version: '3.0.0',
 	default_options : ['cpp_std=c++17', 'buildtype=release' ],
 	license: 'GPL-3.0-or-later',
 )
@@ -58,7 +58,7 @@ pugixml = dependency(
 #
 libudjat = dependency(
   'libudjat',
-  version: '>=2.7.0',
+  version: '>=3.0.0',
   fallback: ['libudjat'],
 )
 
@@ -123,14 +123,12 @@ includes_dir = include_directories('src/include')
 #
 lib_src = [
   'src/library/action.cc',
-  'src/library/alert.cc',
   'src/library/script.cc',
   'src/library/urlqueue.cc',
   'src/library/module.cc',
 ]
 
 cppdb_src = [
-  'src/library/engines/cppdb/alert.cc',
   'src/library/engines/cppdb/session.cc',
   'src/library/engines/cppdb/module.cc',
   'src/library/engines/cppdb/exec.cc',
@@ -138,7 +136,6 @@ cppdb_src = [
 ]
 
 sqlite_src = [
-  'src/library/engines/sqlite/alert.cc',
   'src/library/engines/sqlite/session.cc',
   'src/library/engines/sqlite/module.cc',
   'src/library/engines/sqlite/exec.cc',

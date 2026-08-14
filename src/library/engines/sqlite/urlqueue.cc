@@ -45,7 +45,7 @@
 
 		try {
 
-			auto result = URL{values["url"].c_str()}.call(
+			auto result = URL{values["url"].c_str()}.process(
 				HTTP::MethodFactory(values["action"].c_str()),
 				values["payload"].c_str()
 			);

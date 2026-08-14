@@ -25,7 +25,6 @@
  #include <udjat/defs.h>
  #include <udjat/tools/string.h>
  #include <udjat/tools/value.h>
- #include <udjat/tools/report.h>
  #include <udjat/tools/logger.h>
  #include <udjat/tools/sql.h>
  #include <udjat/tools/timestamp.h>
