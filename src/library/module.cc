@@ -23,10 +23,10 @@
  #include <private/module.h>
  #include <private/urlqueue.h>
  #include <udjat/tools/sql/module.h>
- #include <udjat/tools/value.h>
+ #include <udjat/tools/variant.h>
  #include <udjat/agent/sql.h>
  #include <udjat/tools/sql/script.h>
- #include <udjat/agent/abstract.h>
+ #include <udjat/agent.h>
  #include <udjat/tools/sql.h>
  
  #include <memory>
@@ -48,31 +48,31 @@
 	SQL::Module::~Module() {
 	}
 
-	std::shared_ptr<Abstract::Agent> SQL::Module::AgentFactory(const XML::Node &node) const {
+	std::shared_ptr<Abstract::Agent> SQL::Module::AgentFactory(const Properties &props) const {
 
-		String qname{node,"url-queue-name"};
+		auto qname = props["url-queue-name"];
 
 		if(qname.empty()) {
 			//
 			// Standard SQL Agent.
 			//
-			debug("---------------------> Building Agent '",node.attribute("name").as_string(),"'");
-			switch(Value::TypeFactory(node,"value-type","int")) {
-			case Value::String:
-				return make_shared<SQL::Agent<string>>(node);
+			debug("---------------------> Building Agent '",props["name"].c_str(),"'");
+			switch(Variant::TypeFactory(props,"value-type","int")) {
+			case Variant::String:
+				return make_shared<SQL::Agent<string>>(props);
 
-			case Value::Signed:
-				return make_shared<SQL::Agent<int>>(node);
+			case Variant::Signed:
+				return make_shared<SQL::Agent<int>>(props);
 
-			case Value::Unsigned:
-				return make_shared<SQL::Agent<unsigned int>>(node);
+			case Variant::Unsigned:
+				return make_shared<SQL::Agent<unsigned int>>(props);
 
-			case Value::Real:
-			case Value::Fraction:
-				return make_shared<SQL::Agent<double>>(node);
+			case Variant::Real:
+			case Variant::Fraction:
+				return make_shared<SQL::Agent<double>>(props);
 
-			case Value::Boolean:
-				return make_shared<SQL::Agent<bool>>(node);
+			case Variant::Boolean:
+				return make_shared<SQL::Agent<bool>>(props);
 
 			default:
 				throw logic_error("Invalid attribute: value-type");
@@ -80,7 +80,7 @@
 		}
 
 		debug("---------------------> Building URL queue '",qname.c_str(),"'");
-		return make_shared<SQL::URLQueue>(node);
+		return make_shared<SQL::URLQueue>(props);
 
 	}
 

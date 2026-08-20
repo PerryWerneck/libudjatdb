@@ -24,8 +24,7 @@
  #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/tools/sql/script.h>
- #include <udjat/tools/value.h>
- #include <udjat/tools/report.h>
+ #include <udjat/tools/variant.h>
  #include <udjat/tools/timestamp.h>
  #include <cppdb/frontend.h>
  #include <private/cppdb.h>

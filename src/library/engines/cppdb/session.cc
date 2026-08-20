@@ -24,7 +24,7 @@
  #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/tools/string.h>
- #include <udjat/tools/value.h>
+ #include <udjat/tools/variant.h>
  #include <udjat/tools/logger.h>
  #include <udjat/tools/sql.h>
  #include <udjat/tools/timestamp.h>
@@ -45,7 +45,7 @@
 	SQL::Session::~Session() {
 	}
 
-	void SQL::Session::get(cppdb::result &res, Udjat::Value &values) {
+	void SQL::Session::get(cppdb::result &res, Udjat::Variant &values) {
 
 		// http://cppcms.com/sql/cppdb/classcppdb_1_1result.html
 		for(int col = 0; col < res.cols();col++) {

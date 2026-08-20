@@ -88,18 +88,15 @@
 		return true;
 	}
 
-	String SQL::Script::parse(const XML::Node &node, bool except) {
+	String SQL::Script::parse(const Properties &props, bool except) {
 		String sql;
-		debug("Parsing node ",node.name(),"(",node.attribute("name").as_string(),")");
-		parse(sql,node.child_value().c_str());
+		parse(sql,props.child_value().c_str());
 		return sql;
 	}
 
-	String SQL::Script::parse(const XML::Node &node, const char *name, bool except) {
+	String SQL::Script::parse(const Properties &props, const char *name, bool except) {
 
-		debug("Parsing node ",node.name(),"(",node.attribute("name").as_string(),") as '",name,"'");
-		auto child = node.child(name);
-		if(!child) {
+		if(!props.has_child(name)) {
 			if(except) {
 				throw runtime_error(Logger::String{"Cant find required child '",name,"'"});
 			} else {
@@ -108,10 +105,13 @@
 			return "";
 		}
 
-		debug("Child '",name,"' found\n",child.child_value());
-
 		String sql;
-		parse(sql,child.child_value().c_str());
+
+		props.for_each_child(name,[&sql](const Properties &child){
+			parse(sql,child.child_value().c_str());
+			return true;
+		});
+		
 		return sql;
 
 	}
@@ -120,24 +120,22 @@
 		parse(sql,text);
 	} 
 
-	SQL::Script::Script(const XML::Node &node) {
-		debug("Creating SQL Script from node ",node.name(),"(",node.attribute("name").as_string(),"):\n",node.child_value());
-		set(node.child_value().c_str());
-		debug("Post-processed SQL Script: (size=",strlen(c_str()),")\n",c_str());
+	SQL::Script::Script(const Properties &props) {
+		set(props.child_value().c_str());
 	}
 
 	SQL::Script::Script(const char *text) {
 		set(text);
 	}
 
-	void SQL::Script::exec(const char *dbname, const XML::Node &node, const char *name, bool required) {
+	void SQL::Script::exec(const char *dbname, const Properties &props, const char *name, bool required) {
 
-		String sql{SQL::Script::parse(node,name,required)};
+		String sql{SQL::Script::parse(props,name,required)};
 		if(sql.empty()) {
 			return;
 		}
 
-		Udjat::Value value;
+		Udjat::Variant value;
 		Script{sql}.exec(dbname,value);
 
 	}

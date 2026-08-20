@@ -21,7 +21,12 @@ project(
 	'udjatdb', 
 	['cpp'],
 	version: '3.0.0',
-	default_options : ['cpp_std=c++17', 'buildtype=release' ],
+  default_options : [
+    'c_std=c11', 
+    'cpp_std=c++17', 
+    'buildtype=release', 
+    'default_library=shared'
+  ],
 	license: 'GPL-3.0-or-later',
 )
 
@@ -330,11 +335,6 @@ endif
 install_headers(
   'src/include/udjat/agent/sql.h',
   subdir: 'udjat/agent/sql'  
-)
-
-install_headers(
-  'src/include/udjat/alert/sql.h',
-  subdir: 'udjat/alert/sql'  
 )
 
 install_headers(

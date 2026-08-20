@@ -26,7 +26,7 @@
  #include <udjat/tools/properties.h>
  #include <udjat/agent.h>
  #include <udjat/tools/sql/script.h>
- #include <udjat/tools/value.h>
+ #include <udjat/tools/variant.h>
 
  namespace Udjat {
 
@@ -47,12 +47,12 @@
 
 		public:
 
-			Agent(const XML::Node &node) :
-				Udjat::Agent<T>{node},
-				valuename{String{node,"value-from","value"}.as_quark()},
-				dbname{String{node,"database-connection"}.as_quark()},
-				update{SQL::Script::parse(node,"refresh")} {
-				SQL::Script::exec(dbname,node,"init");
+			Agent(const Properties &props) :
+				Udjat::Agent<T>{props},
+				valuename{props.get("value-from","value").as_quark()},
+				dbname{props.get("database-connection").as_quark()},
+				update{SQL::Script::parse(props,"refresh")} {
+				SQL::Script::exec(dbname,props,"init");
 			}
 
 			bool refresh(bool b) override {
@@ -69,54 +69,3 @@
 	}
 
  }
-
-/*
- #include <udjat/tools/sql/script.h>
- #include <udjat/agent.h>
-
- namespace Udjat {
-
-	namespace SQL {
-
-			/// @brief The name of agent value got by SQL query.
-			const char *value_name;
-
-		public:
-
-			Agent(const XML::Node &node) :
-				Udjat::Agent<T>{node},
-					update{node,"refresh",true,false},
-					properties{node,"properties",true,false},
-					value_name{Quark{node,"value-from","value"}.c_str()} {
-				SQL::Script::init(node);
-			}
-
-			bool refresh(bool) override {
-
-				if(!update.size()) {
-					return false;
-				}
-
-				std::shared_ptr<Udjat::Value> value = Udjat::Value::ObjectFactory();
-				update.exec(*this,*value);
-				return this->assign((*value)[value_name].as_string().c_str());
-
-			}
-
-			bool getProperties(const char *path, Value &value) const override {
-
-				if(properties.size()) {
-					properties.exec(*this,value);
-					return true;
-				}
-
-				return Udjat::Agent<T>::getProperties(path,value);
-			}
-
-		};
-
-	}
-
-
- }
-*/

@@ -40,7 +40,7 @@
 		Session db{dbname};
 		cppdb::transaction guard(db);
 
-		Udjat::Value values;
+		Udjat::Variant values;
 		SQL::Session::exec(db,get_values,values,values);
 
 		try {

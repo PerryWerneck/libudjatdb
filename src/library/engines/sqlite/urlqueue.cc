@@ -40,7 +40,7 @@
 
 		Session db{dbname};
 
-		Udjat::Value values;
+		Udjat::Variant values;
 		db.exec(get_values,values,values);
 
 		try {

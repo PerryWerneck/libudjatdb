@@ -24,7 +24,7 @@
  #pragma once
  #include <config.h>
  #include <udjat/defs.h>
- #include <udjat/tools/value.h>
+ #include <udjat/tools/variant.h>
  #include <cppdb/frontend.h>
  #include <mutex>
 
@@ -34,16 +34,18 @@
 
 		class UDJAT_API Session : public cppdb::session {
 		private:
-			void get(cppdb::result &rc, Udjat::Value &value);
-			void get(cppdb::result &rc, Udjat::Report &report);
+			// void get(cppdb::result &rc, Udjat::Variant &value);
 
 		public:
 
 			Session(const char *dbname);
 			~Session();
 
-			static void exec(SQL::Session &session, Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *child_name = nullptr);
-			void exec(Udjat::String statement, const Udjat::Value &request, Udjat::Value &response, const char *child_name = nullptr);
+			// static void exec(SQL::Session &session, Udjat::String statement, const Udjat::Variant &request, Udjat::Variant &response, const char *child_name = nullptr);
+			// void exec(Udjat::String statement, const Udjat::Variant &request, Udjat::Variant &response, const char *child_name = nullptr);
+
+			// sqlite3_stmt * prepare(String &statement, const Udjat::Variant &request, const Udjat::Variant &response);
+			// void exec(sqlite3_stmt *statement, Udjat::Variant &response);
 
 		};
 

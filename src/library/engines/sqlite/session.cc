@@ -24,8 +24,7 @@
  #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/tools/string.h>
- #include <udjat/tools/value.h>
- #include <udjat/tools/report.h>
+ #include <udjat/tools/variant.h>
  #include <udjat/tools/logger.h>
  #include <udjat/tools/sql.h>
  #include <private/sqlite.h>
@@ -82,77 +81,77 @@
 		}
 	}
 
-	void SQL::Session::get(sqlite3_stmt *stmt, Udjat::Report &report) {
-		int colnum = sqlite3_data_count(stmt);
+	// void SQL::Session::get(sqlite3_stmt *stmt, Udjat::Report &report) {
+	// 	int colnum = sqlite3_data_count(stmt);
 
-		for(int col = 0; col < colnum;col++) {
+	// 	for(int col = 0; col < colnum;col++) {
 
-			const char *name = sqlite3_column_name(stmt,col);
-			debug(name,"='",(const char *) sqlite3_column_text(stmt,col),"'");
+	// 		const char *name = sqlite3_column_name(stmt,col);
+	// 		debug(name,"='",(const char *) sqlite3_column_text(stmt,col),"'");
 
-			switch(sqlite3_column_type(stmt,col)) {
-			case SQLITE_INTEGER:
-				report.push_back(sqlite3_column_int(stmt,col));
-				break;
+	// 		switch(sqlite3_column_type(stmt,col)) {
+	// 		case SQLITE_INTEGER:
+	// 			report.push_back(sqlite3_column_int(stmt,col));
+	// 			break;
 
-			case SQLITE_FLOAT:
-				report.push_back(sqlite3_column_double(stmt,col));
-				break;
+	// 		case SQLITE_FLOAT:
+	// 			report.push_back(sqlite3_column_double(stmt,col));
+	// 			break;
 
-			case SQLITE_BLOB:
-				throw runtime_error(Logger::String{"Unsupported 'blob' column ",name});
-				break;
+	// 		case SQLITE_BLOB:
+	// 			throw runtime_error(Logger::String{"Unsupported 'blob' column ",name});
+	// 			break;
 
-			case SQLITE_NULL:
-				report.push_back("");
-				break;
+	// 		case SQLITE_NULL:
+	// 			report.push_back("");
+	// 			break;
 
-			default:
-				// Unknown, assume as text.
-				report.push_back((const char *) sqlite3_column_text(stmt,col));
-			}
-		}
+	// 		default:
+	// 			// Unknown, assume as text.
+	// 			report.push_back((const char *) sqlite3_column_text(stmt,col));
+	// 		}
+	// 	}
 
-	}
+	// }
 
-	void SQL::Session::get(sqlite3_stmt *stmt, Udjat::Value &value) {
+	// void SQL::Session::get(sqlite3_stmt *stmt, Udjat::Variant &value) {
 
-		int colnum = sqlite3_data_count(stmt);
+	// 	int colnum = sqlite3_data_count(stmt);
 
-		for(int col = 0; col < colnum;col++) {
-			const char *name = sqlite3_column_name(stmt,col);
-			debug(name,"='",(const char *) sqlite3_column_text(stmt,col));
+	// 	for(int col = 0; col < colnum;col++) {
+	// 		const char *name = sqlite3_column_name(stmt,col);
+	// 		debug(name,"='",(const char *) sqlite3_column_text(stmt,col));
 
-			switch(sqlite3_column_type(stmt,col)) {
-			case SQLITE_INTEGER:
-				value[name] = sqlite3_column_int(stmt,col);
-				break;
+	// 		switch(sqlite3_column_type(stmt,col)) {
+	// 		case SQLITE_INTEGER:
+	// 			value[name] = sqlite3_column_int(stmt,col);
+	// 			break;
 
-			case SQLITE_FLOAT:
-				value[name] = sqlite3_column_double(stmt,col);
-				break;
+	// 		case SQLITE_FLOAT:
+	// 			value[name] = sqlite3_column_double(stmt,col);
+	// 			break;
 
-			case SQLITE_TEXT:
-				value[name] = (const char *) sqlite3_column_text(stmt,col);
-				break;
+	// 		case SQLITE_TEXT:
+	// 			value[name] = (const char *) sqlite3_column_text(stmt,col);
+	// 			break;
 
-			case SQLITE_BLOB:
-				throw runtime_error(Logger::String{"Unsupported 'blob' column ",name});
-				break;
+	// 		case SQLITE_BLOB:
+	// 			throw runtime_error(Logger::String{"Unsupported 'blob' column ",name});
+	// 			break;
 
-			case SQLITE_NULL:
-				value[name] = "";
-				break;
+	// 		case SQLITE_NULL:
+	// 			value[name] = "";
+	// 			break;
 
-			default:
-				Logger::String{"Unexpected data type in column '",name,"', assuming string"}.warning("sqlite");
-				value[name] = (const char *) sqlite3_column_text(stmt,col);
-			}
-		}
+	// 		default:
+	// 			Logger::String{"Unexpected data type in column '",name,"', assuming string"}.warning("sqlite");
+	// 			value[name] = (const char *) sqlite3_column_text(stmt,col);
+	// 		}
+	// 	}
 
-	}
+	// }
 
-	static const Value & get_value(const Udjat::Value &request, const Udjat::Value &response, const char *name) {
+	static const Value & get_value(const Udjat::Variant &request, const Udjat::Variant &response, const char *name) {
 
 		if(request.contains(name)) {
 			return request[name];
@@ -166,7 +165,7 @@
 
 	}
 
-	sqlite3_stmt * SQL::Session::prepare(Udjat::String &line, const Udjat::Value &request, const Udjat::Value &response) {
+	sqlite3_stmt * SQL::Session::prepare(String &line, const Udjat::Variant &request, const Udjat::Variant &response) {
 
 		vector<string> names;
 

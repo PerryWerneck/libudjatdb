@@ -24,7 +24,6 @@
  #include <config.h>
  #include <udjat/defs.h>
  #include <udjat/tools/properties.h>
- #include <udjat/tools/properties.h>
  #include <udjat/agent.h>
  #include <udjat/agent/sql.h>
  #include <udjat/tools/url.h>
@@ -42,14 +41,14 @@
 
 	namespace SQL {
 
-		URLQueue::URLQueue(const XML::Node &node)
-			:	SQL::Agent<size_t>(node),
-				Udjat::URL::Handler::Factory{String{node,"url-queue-name",SQL::Agent<size_t>(node).name()}.as_quark()},
-				ins{SQL::Script::parse(node,"insert",true)},
-				get_values{SQL::Script::parse(node,"get",true)},
-				after_send{SQL::Script::parse(node,"after-send",false)},
-				send_interval{node.get("urlqueue", "send-interval", (unsigned int) 60)},
-				send_delay{node.get("urlqueue", "send-delay", (unsigned int) 2)} {
+		URLQueue::URLQueue(const Properties &props)
+			:	SQL::Agent<size_t>(props),
+				Udjat::URL::Handler::Factory{props.get("url-queue-name",SQL::Agent<size_t>::name()).as_quark()},
+				ins{SQL::Script::parse(props,"insert",true)},
+				get_values{SQL::Script::parse(props,"get",true)},
+				after_send{SQL::Script::parse(props,"after-send",false)},
+				send_interval{props.get("urlqueue", "send-interval", (unsigned int) 60)},
+				send_delay{props.get("urlqueue", "send-delay", (unsigned int) 2)} {
 		}
 
 		URLQueue::~URLQueue() {
@@ -134,7 +133,7 @@
 
 				} catch(std::exception &e) {
 
-					SQL::Agent<size_t>::error() << e.what() << endl;
+					Logger::String{e.what()}.error(SQL::Agent<size_t>::name());
 
 				}
 			}

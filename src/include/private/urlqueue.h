@@ -55,7 +55,7 @@
 			void send();
 
 		public:
-			URLQueue(const XML::Node &node);
+			URLQueue(const Properties &props);
 			virtual ~URLQueue();
 
 			std::shared_ptr<Abstract::State> computeState() override;
